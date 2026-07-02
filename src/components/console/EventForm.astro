@@ -1,0 +1,152 @@
+---
+interface Props {
+  event?: Record<string, any>;
+  action: string;
+  submitLabel: string;
+}
+
+const { event = {}, action, submitLabel } = Astro.props as Props;
+
+function jsonField(value: unknown) {
+  if (!value) return '';
+  return JSON.stringify(value, null, 2);
+}
+---
+
+<form method="POST" action={action} class="flex flex-col gap-8 max-w-3xl">
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Basics</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <input class="admin-input" type="text" name="title" placeholder="Title" value={event.title ?? ''} required />
+      <input class="admin-input" type="text" name="slug" placeholder="slug-in-url" value={event.slug ?? ''} required />
+      <input class="admin-input sm:col-span-2" type="text" name="short_description" placeholder="Short description" value={event.short_description ?? ''} required />
+      <textarea class="admin-input sm:col-span-2" name="long_description" placeholder="Long description" rows="4">{event.long_description ?? ''}</textarea>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Schedule &amp; Venue</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <input class="admin-input" type="date" name="date" value={event.date ?? ''} required />
+      <input class="admin-input" type="time" name="time" value={event.time ?? ''} required />
+      <input class="admin-input" type="text" name="venue" placeholder="Venue" value={event.venue ?? ''} required />
+      <input class="admin-input" type="text" name="location_map_link" placeholder="Location map link" value={event.location_map_link ?? ''} />
+      <div>
+        <input class="admin-input w-full" type="text" name="mode" placeholder="mode (e.g. offline)" value={event.mode ?? ''} required />
+        <p class="text-xs text-gray-500 mt-1">Free text — must match an existing value in your event_mode enum (e.g. "offline").</p>
+      </div>
+      <div>
+        <input class="admin-input w-full" type="text" name="event_type" placeholder="event_type (e.g. workshop)" value={event.event_type ?? ''} required />
+        <p class="text-xs text-gray-500 mt-1">Free text — must match an existing value in your event_type_enum (e.g. "workshop").</p>
+      </div>
+      <select class="admin-input" name="status" required>
+        <option value="upcoming" selected={event.status === 'upcoming'}>upcoming</option>
+        <option value="past" selected={event.status === 'past'}>past</option>
+      </select>
+      <label class="flex items-center gap-2 text-sm text-gray-300">
+        <input type="checkbox" name="is_featured" value="true" checked={event.is_featured ?? false} />
+        Featured
+      </label>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Registration</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <label class="flex items-center gap-2 text-sm text-gray-300">
+        <input type="checkbox" name="registration_open" value="true" checked={event.registration_open ?? true} />
+        Registration open
+      </label>
+      <input class="admin-input" type="number" name="max_participants" placeholder="Max participants" value={event.max_participants ?? ''} />
+      <div class="sm:col-span-2">
+        <label class="text-xs text-gray-500">Registration deadline (leave blank for none)</label>
+        <input class="admin-input w-full mt-1" type="datetime-local" name="registration_deadline" value={event.registration_deadline?.slice(0, 16) ?? ''} />
+      </div>
+      <input class="admin-input" type="text" name="requirements" placeholder="Requirements" value={event.requirements ?? ''} />
+      <input class="admin-input" type="text" name="prerequisites" placeholder="Prerequisites" value={event.prerequisites ?? ''} />
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Team Settings</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <label class="flex items-center gap-2 text-sm text-gray-300">
+        <input type="checkbox" name="is_team_event" value="true" checked={event.is_team_event ?? false} />
+        Team event
+      </label>
+      <input class="admin-input" type="number" name="min_team_size" placeholder="Min team size" value={event.min_team_size ?? ''} />
+      <input class="admin-input" type="number" name="max_team_size" placeholder="Max team size" value={event.max_team_size ?? ''} />
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Payment</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <label class="flex items-center gap-2 text-sm text-gray-300">
+        <input type="checkbox" name="is_paid" value="true" checked={event.is_paid ?? false} />
+        Paid event
+      </label>
+      <input class="admin-input" type="number" step="0.01" name="price" placeholder="Price" value={event.price ?? ''} />
+      <input class="admin-input sm:col-span-2" type="text" name="payment_link" placeholder="Payment link" value={event.payment_link ?? ''} />
+      <input class="admin-input sm:col-span-2" type="text" name="prize_pool" placeholder="Prize pool (e.g. ₹50,000)" value={event.prize_pool ?? ''} />
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Media</h2>
+    <div class="grid grid-cols-1 gap-4">
+      <input class="admin-input" type="text" name="poster_url" placeholder="Poster image URL" value={event.poster_url ?? ''} required />
+      <input class="admin-input" type="text" name="recap_link" placeholder="Recap link (post-event)" value={event.recap_link ?? ''} />
+      <input class="admin-input" type="text" name="certificate_template_url" placeholder="Certificate template URL" value={event.certificate_template_url ?? ''} />
+      <div>
+        <label class="text-xs text-gray-500">Gallery images (JSON array of URLs)</label>
+        <textarea class="admin-input w-full mt-1" name="gallery_images" rows="3" placeholder='["https://...", "https://..."]'>{jsonField(event.gallery_images)}</textarea>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Advanced (raw JSON)</h2>
+    <p class="text-xs text-gray-500 mb-3">Leave blank if not applicable. Must be valid JSON.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-xs text-gray-500">Speakers</label>
+        <textarea class="admin-input w-full mt-1" name="speakers" rows="4" placeholder='[{"name": "Jane Doe"}]'>{jsonField(event.speakers)}</textarea>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Judges</label>
+        <textarea class="admin-input w-full mt-1" name="judges" rows="4" placeholder='[{"name": "Jane Doe"}]'>{jsonField(event.judges)}</textarea>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Chief guest</label>
+        <textarea class="admin-input w-full mt-1" name="chief_guest" rows="4" placeholder='{"name": "Jane Doe"}'>{jsonField(event.chief_guest)}</textarea>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Winners</label>
+        <textarea class="admin-input w-full mt-1" name="winners" rows="4" placeholder='[{"name": "Team X"}]'>{jsonField(event.winners)}</textarea>
+      </div>
+    </div>
+  </section>
+
+  <button type="submit" class="rounded-full bg-red-500 hover:bg-red-400 transition-colors text-white font-inter font-medium py-3">
+    {submitLabel}
+  </button>
+</form>
+
+<style>
+  .admin-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .admin-input:focus {
+    outline: none;
+    border-color: rgba(248, 113, 113, 0.5);
+  }
+</style>
