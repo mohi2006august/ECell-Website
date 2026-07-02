@@ -1,0 +1,411 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BackgroundShader from '../../../components/BackgroundShader.astro';
+import Navbar from '../../../components/Navbar.astro';
+import { supabase } from '../../../lib/supabase.js';
+
+export async function getStaticPaths() {
+  const { data: events, error } = await supabase.from('events').select('*');
+
+  if (error) {
+    console.error('Failed to load events for static paths:', error.message);
+    return [];
+  }
+
+  return (events ?? []).map((event) => ({
+    params: { slug: event.slug },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props;
+
+const formattedDate = new Date(event.date).toLocaleDateString('en-IN', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const deadlinePassed =
+  event.registration_deadline && new Date(event.registration_deadline) < new Date();
+const canRegister = event.registration_open && !deadlinePassed;
+
+const isTeamEvent = Boolean(event.is_team_event);
+const minTeamSize: number | null = event.min_team_size ?? null;
+const maxTeamSize: number | null = event.max_team_size ?? null;
+
+let teamSizeText = "Add your teammates below — each person gets their own ticket and QR code.";
+if (minTeamSize && maxTeamSize) {
+  teamSizeText =
+    minTeamSize === maxTeamSize
+      ? `Teams must have exactly ${minTeamSize} members (including you).`
+      : `Teams must have ${minTeamSize}–${maxTeamSize} members (including you).`;
+} else if (minTeamSize) {
+  teamSizeText = `Teams must have at least ${minTeamSize} members (including you).`;
+} else if (maxTeamSize) {
+  teamSizeText = `Teams can have up to ${maxTeamSize} members (including you).`;
+}
+
+const defaultTeammateCount = isTeamEvent
+  ? Math.min(
+      Math.max((minTeamSize ?? 2) - 1, 0),
+      maxTeamSize ? Math.max(maxTeamSize - 1, 0) : Infinity
+    )
+  : 0;
+
+const memberFields = [
+  { field: 'name', type: 'text', placeholder: 'Full name' },
+  { field: 'email', type: 'email', placeholder: 'Email' },
+  { field: 'phone', type: 'tel', placeholder: 'Phone number' },
+  { field: 'roll_number', type: 'text', placeholder: 'Roll number' },
+  { field: 'branch', type: 'text', placeholder: 'Branch' },
+  { field: 'year_of_study', type: 'text', placeholder: 'Year of study' },
+  { field: 'section', type: 'text', placeholder: 'Section' },
+  { field: 'college', type: 'text', placeholder: 'College (if not VJIT)' },
+];
+---
+
+<BaseLayout title={`E-Cell VJIT | Register for ${event.title}`}>
+  <BackgroundShader />
+  <Navbar />
+
+  <section class="container mx-auto px-6 py-12 md:py-16 relative z-10 max-w-2xl">
+    <a
+      href={`/events/${event.slug}`}
+      class="inline-flex items-center gap-2 glass rounded-md px-4 py-2 text-sm font-inter text-gray-200 hover:text-white hover:border-red-500/30 transition-all mb-8"
+    >
+      <iconify-icon icon="solar:arrow-left-linear" width="16" height="16"></iconify-icon>
+      Back to {event.title}
+    </a>
+
+    <div class="mb-8">
+      <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-3">Register</p>
+      <h1 class="text-3xl md:text-4xl font-jakarta font-semibold tracking-tight mb-3">{event.title}</h1>
+      <p class="text-gray-400 font-inter text-sm">
+        {formattedDate}{event.time ? ` · ${event.time}` : ''} · {event.venue}
+      </p>
+    </div>
+
+    <div class="glass noise-overlay rounded-2xl p-6 md:p-8">
+      {!canRegister && (
+        <p class="text-gray-300 font-inter">
+          {deadlinePassed ? 'Registration has closed for this event.' : "Registration isn't open yet."}
+        </p>
+      )}
+
+      {canRegister && (
+        <form
+          id="registration-form"
+          class="flex flex-col gap-8"
+          data-event-id={event.id}
+          data-event-slug={event.slug}
+          data-min-team-size={isTeamEvent && minTeamSize ? minTeamSize : ''}
+          data-max-team-size={isTeamEvent && maxTeamSize ? maxTeamSize : ''}
+        >
+          <div>
+            <h2 class="text-lg font-jakarta font-semibold mb-4">Your details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input type="text" name="name" placeholder="Full name" required class="reg-input" />
+              <input type="email" name="email" placeholder="Email" required class="reg-input" />
+              <input type="tel" name="phone" placeholder="Phone number" class="reg-input" />
+              <input type="text" name="roll_number" placeholder="Roll number" class="reg-input" />
+              <input type="text" name="branch" placeholder="Branch" class="reg-input" />
+              <input type="text" name="year_of_study" placeholder="Year of study" class="reg-input" />
+              <input type="text" name="section" placeholder="Section" class="reg-input" />
+              <input type="text" name="college" placeholder="College (if not VJIT)" class="reg-input" />
+            </div>
+          </div>
+
+          {isTeamEvent && (
+            <div>
+              <h2 class="text-lg font-jakarta font-semibold mb-1">Team</h2>
+              <p class="text-gray-400 font-inter text-xs mb-4">{teamSizeText}</p>
+              <input type="text" name="team_name" placeholder="Team name" required class="reg-input w-full mb-4" />
+
+              <div id="team-members-list" class="space-y-4">
+                {Array.from({ length: defaultTeammateCount }).map(() => (
+                  <div class="team-member-block glass noise-overlay rounded-xl p-4 relative">
+                    <button type="button" class="remove-member-btn" aria-label="Remove teammate">&minus;</button>
+                    <label class="flex items-center gap-2 text-xs text-gray-400 font-inter mb-3">
+                      <input type="checkbox" class="same-as-me-checkbox" />
+                      Same as me (year, branch, section, college)
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {memberFields.map(({ field, type, placeholder }) => (
+                        <input type={type} data-field={field} placeholder={placeholder} class="reg-input" />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div class="flex items-center gap-4 mt-4">
+                <button type="button" id="add-member-btn" class="add-member-btn">
+                  + Add teammate
+                </button>
+                <span id="team-count-text" class="text-xs text-gray-400 font-inter"></span>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            class="rounded-full bg-red-500 hover:bg-red-400 transition-colors text-white font-inter font-medium py-3"
+          >
+            Submit registration
+          </button>
+
+          <p id="registration-status" class="text-sm font-inter" role="status"></p>
+        </form>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<template id="member-block-template">
+  <div class="team-member-block glass noise-overlay rounded-xl p-4 relative">
+    <button type="button" class="remove-member-btn" aria-label="Remove teammate">&minus;</button>
+    <label class="flex items-center gap-2 text-xs text-gray-400 font-inter mb-3">
+      <input type="checkbox" class="same-as-me-checkbox" />
+      Same as me (year, branch, section, college)
+    </label>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <input type="text" data-field="name" placeholder="Full name" class="reg-input" />
+      <input type="email" data-field="email" placeholder="Email" class="reg-input" />
+      <input type="tel" data-field="phone" placeholder="Phone number" class="reg-input" />
+      <input type="text" data-field="roll_number" placeholder="Roll number" class="reg-input" />
+      <input type="text" data-field="branch" placeholder="Branch" class="reg-input" />
+      <input type="text" data-field="year_of_study" placeholder="Year of study" class="reg-input" />
+      <input type="text" data-field="section" placeholder="Section" class="reg-input" />
+      <input type="text" data-field="college" placeholder="College (if not VJIT)" class="reg-input" />
+    </div>
+  </div>
+</template>
+
+<style>
+  .reg-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+  }
+
+  .reg-input:focus {
+    outline: none;
+    border-color: rgba(248, 113, 113, 0.5);
+  }
+
+  .team-member-block {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .remove-member-btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: rgba(127, 29, 29, 0.2);
+    color: rgb(254 202 202);
+    font-size: 0.9rem;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .remove-member-btn:hover {
+    background: rgba(127, 29, 29, 0.4);
+  }
+
+  .add-member-btn {
+    border: 1px dashed rgba(248, 113, 113, 0.35);
+    border-radius: 0.75rem;
+    padding: 0.6rem 1.1rem;
+    color: rgb(254 202 202);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+
+  .add-member-btn:hover:not(:disabled) {
+    background: rgba(127, 29, 29, 0.14);
+  }
+
+  .add-member-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+</style>
+
+<script>
+  import { supabase } from '../../../lib/supabase.js';
+
+  const form = document.getElementById('registration-form');
+  const status = document.getElementById('registration-status');
+  const teamMembersList = document.getElementById('team-members-list');
+  const addMemberBtn = document.getElementById('add-member-btn');
+  const memberTemplate = document.getElementById('member-block-template');
+  const teamCountText = document.getElementById('team-count-text');
+
+  const SAME_AS_ME_FIELDS = ['year_of_study', 'branch', 'section', 'college'];
+
+  const minTeamSize = form instanceof HTMLFormElement && form.dataset.minTeamSize
+    ? parseInt(form.dataset.minTeamSize, 10)
+    : null;
+  const maxTeamSize = form instanceof HTMLFormElement && form.dataset.maxTeamSize
+    ? parseInt(form.dataset.maxTeamSize, 10)
+    : null;
+
+  function currentMemberCount() {
+    return 1 + (teamMembersList?.querySelectorAll('.team-member-block').length ?? 0);
+  }
+
+  function updateTeamUI() {
+    const count = currentMemberCount();
+    if (teamCountText) {
+      if (minTeamSize && maxTeamSize) {
+        teamCountText.textContent = `${count} of ${minTeamSize}–${maxTeamSize} members`;
+      } else if (maxTeamSize) {
+        teamCountText.textContent = `${count} of up to ${maxTeamSize} members`;
+      } else if (minTeamSize) {
+        teamCountText.textContent = `${count} members (min ${minTeamSize})`;
+      } else {
+        teamCountText.textContent = `${count} members`;
+      }
+    }
+    if (addMemberBtn instanceof HTMLButtonElement) {
+      addMemberBtn.disabled = Boolean(maxTeamSize && count >= maxTeamSize);
+    }
+  }
+
+  function wireMemberBlock(block: Element) {
+    block.querySelector('.remove-member-btn')?.addEventListener('click', () => {
+      block.remove();
+      updateTeamUI();
+    });
+
+    const sameAsMeCheckbox = block.querySelector('.same-as-me-checkbox');
+    sameAsMeCheckbox?.addEventListener('change', (e) => {
+      if (!(e.target instanceof HTMLInputElement) || !e.target.checked || !(form instanceof HTMLFormElement)) return;
+      for (const field of SAME_AS_ME_FIELDS) {
+        const leadInput = form.querySelector<HTMLInputElement>(`[name="${field}"]`);
+        const memberInput = block.querySelector<HTMLInputElement>(`[data-field="${field}"]`);
+        if (leadInput && memberInput) memberInput.value = leadInput.value;
+      }
+    });
+  }
+
+  teamMembersList?.querySelectorAll('.team-member-block').forEach(wireMemberBlock);
+  updateTeamUI();
+
+  addMemberBtn?.addEventListener('click', () => {
+    if (!(memberTemplate instanceof HTMLTemplateElement) || !teamMembersList) return;
+    if (maxTeamSize && currentMemberCount() >= maxTeamSize) return;
+
+    const clone = memberTemplate.content.cloneNode(true) as DocumentFragment;
+    const block = clone.querySelector('.team-member-block');
+    teamMembersList.appendChild(clone);
+    if (block) wireMemberBlock(block);
+    updateTeamUI();
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!(e.target instanceof HTMLFormElement)) return;
+
+    const submitButton = e.target.querySelector('button[type="submit"]');
+
+    const formData = new FormData(e.target);
+    const eventId = e.target.dataset.eventId;
+    const eventSlug = e.target.dataset.eventSlug;
+    const teamName = formData.get('team_name')?.toString().trim() || null;
+
+    const teammates = Array.from(document.querySelectorAll('#team-members-list .team-member-block'))
+      .map((block) => {
+        const get = (field: string) => block.querySelector<HTMLInputElement>(`[data-field="${field}"]`)?.value.trim() || '';
+        return {
+          name: get('name'),
+          email: get('email'),
+          phone: get('phone') || null,
+          roll_number: get('roll_number') || null,
+          branch: get('branch') || null,
+          year_of_study: get('year_of_study') || null,
+          section: get('section') || null,
+          college: get('college') || null,
+        };
+      })
+      .filter((member) => member.name && member.email);
+
+    const totalMembers = 1 + teammates.length;
+
+    if (minTeamSize && totalMembers < minTeamSize) {
+      if (status) {
+        status.textContent = `This event needs at least ${minTeamSize} members per team (including you) — you currently have ${totalMembers}.`;
+        status.classList.add('text-red-300');
+      }
+      return;
+    }
+
+    if (maxTeamSize && totalMembers > maxTeamSize) {
+      if (status) {
+        status.textContent = `This event allows at most ${maxTeamSize} members per team (including you) — you currently have ${totalMembers}.`;
+        status.classList.add('text-red-300');
+      }
+      return;
+    }
+
+    submitButton?.setAttribute('disabled', 'true');
+    if (status) {
+      status.textContent = 'Submitting...';
+      status.classList.remove('text-red-300');
+    }
+
+    const rows = [
+      {
+        event_id: eventId,
+        ticket_id: crypto.randomUUID(),
+        team_name: teamName,
+        is_team_leader: teammates.length > 0,
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone') || null,
+        roll_number: formData.get('roll_number') || null,
+        branch: formData.get('branch') || null,
+        year_of_study: formData.get('year_of_study') || null,
+        section: formData.get('section') || null,
+        college: formData.get('college') || null,
+      },
+      ...teammates.map((member) => ({
+        event_id: eventId,
+        ticket_id: crypto.randomUUID(),
+        team_name: teamName,
+        is_team_leader: false,
+        ...member,
+      })),
+    ];
+
+    const { data: inserted, error } = await supabase.from('registrations').insert(rows).select('ticket_id');
+
+    if (error) {
+      if (status) {
+        status.textContent = error.code === '23505'
+          ? 'One of the emails entered is already registered for this event.'
+          : 'Something went wrong — please try again.';
+        status.classList.add('text-red-300');
+      }
+      submitButton?.removeAttribute('disabled');
+      return;
+    }
+
+    const ticketIds = (inserted ?? []).map((row) => row.ticket_id).join(',');
+    window.location.href = `/events/${eventSlug}/confirmation?tickets=${ticketIds}`;
+  });
+</script>
