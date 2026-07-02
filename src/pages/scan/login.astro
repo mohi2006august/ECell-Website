@@ -1,0 +1,53 @@
+---
+export const prerender = false;
+
+import ConsoleLayout from '../../layouts/ConsoleLayout.astro';
+import { verifyAdminPassword, createSessionToken, SCANNER_SESSION_COOKIE_NAME } from '../../lib/adminAuth.js';
+
+let errorMessage = '';
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const password = formData.get('password')?.toString() ?? '';
+
+  const isValid = await verifyAdminPassword(password);
+
+  if (isValid) {
+    Astro.cookies.set(SCANNER_SESSION_COOKIE_NAME, createSessionToken(), {
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      sameSite: 'strict',
+      path: '/scan',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    return Astro.redirect('/scan');
+  }
+
+  errorMessage = 'Incorrect password.';
+}
+---
+
+<ConsoleLayout title="Scanner Log in" showNav={false}>
+  <div class="max-w-sm mx-auto mt-16">
+    <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-3 text-center">E-Cell Check-in Scanner</p>
+    <h1 class="text-2xl font-jakarta font-semibold tracking-tight mb-6 text-center">Log in</h1>
+
+    <form method="POST" class="flex flex-col gap-4">
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        required
+        autofocus
+        class="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500/50"
+      />
+      {errorMessage && <p class="text-sm text-red-400 font-inter">{errorMessage}</p>}
+      <button
+        type="submit"
+        class="rounded-full bg-red-500 hover:bg-red-400 transition-colors text-white font-inter font-medium py-3"
+      >
+        Log in
+      </button>
+    </form>
+  </div>
+</ConsoleLayout>

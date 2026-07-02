@@ -13,7 +13,9 @@
     "@astrojs/vercel": "^9.0.5",
     "@supabase/supabase-js": "^2.110.0",
     "astro": "^5.5.5",
+    "bcryptjs": "^3.0.3",
     "csv-parser": "^3.2.0",
+    "html5-qrcode": "^2.3.8",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4"
   },

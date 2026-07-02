@@ -1,0 +1,190 @@
+---
+export const prerender = false;
+
+import ConsoleLayout from '../../layouts/ConsoleLayout.astro';
+---
+
+<ConsoleLayout title="Scanner" brandLabel="E-Cell Scanner" homeHref="/scan" logoutHref="/scan/logout">
+  <div class="max-w-md mx-auto">
+    <h1 class="text-2xl font-jakarta font-semibold tracking-tight mb-6 text-center">Check-in Scanner</h1>
+
+    <div id="scanner-view">
+      <div id="reader" class="rounded-2xl overflow-hidden border border-white/10"></div>
+      <p class="text-center text-gray-400 font-inter text-sm mt-4">Point the camera at an attendee's ticket QR code.</p>
+      <p id="camera-error" class="text-center text-red-400 font-inter text-sm mt-4 hidden"></p>
+    </div>
+
+    <div id="result-view" class="hidden">
+      <div id="result-banner" class="rounded-2xl p-6 text-center mb-4">
+        <p id="result-status" class="text-lg font-jakarta font-semibold mb-1"></p>
+        <p id="result-subtext" class="text-sm font-inter opacity-80"></p>
+      </div>
+
+      <div id="result-details" class="glass noise-overlay rounded-2xl p-6 hidden">
+        <p class="text-xs uppercase tracking-[0.2em] text-red-200/80 mb-1">Attendee</p>
+        <p id="detail-name" class="text-lg font-jakarta font-semibold mb-3"></p>
+
+        <p class="text-xs uppercase tracking-[0.2em] text-red-200/80 mb-1">Event</p>
+        <p id="detail-event" class="font-inter mb-3"></p>
+
+        <div id="detail-team-wrap" class="hidden">
+          <p class="text-xs uppercase tracking-[0.2em] text-red-200/80 mb-1">Team</p>
+          <p id="detail-team" class="font-inter mb-3"></p>
+        </div>
+      </div>
+
+      <button
+        id="scan-another-btn"
+        class="w-full mt-5 rounded-full bg-red-500 hover:bg-red-400 transition-colors text-white font-inter font-medium py-3"
+      >
+        Scan another
+      </button>
+    </div>
+  </div>
+</ConsoleLayout>
+
+<style>
+  .hidden {
+    display: none;
+  }
+
+  #reader {
+    width: 100%;
+  }
+
+  .result-success {
+    background: rgba(34, 197, 94, 0.14);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: rgb(187 247 208);
+  }
+
+  .result-warning {
+    background: rgba(234, 179, 8, 0.14);
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    color: rgb(254 240 138);
+  }
+
+  .result-error {
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: rgb(254 202 202);
+  }
+</style>
+
+<script>
+  import { Html5Qrcode } from 'html5-qrcode';
+
+  const scannerView = document.getElementById('scanner-view');
+  const resultView = document.getElementById('result-view');
+  const resultBanner = document.getElementById('result-banner');
+  const resultStatus = document.getElementById('result-status');
+  const resultSubtext = document.getElementById('result-subtext');
+  const resultDetails = document.getElementById('result-details');
+  const detailName = document.getElementById('detail-name');
+  const detailEvent = document.getElementById('detail-event');
+  const detailTeamWrap = document.getElementById('detail-team-wrap');
+  const detailTeam = document.getElementById('detail-team');
+  const scanAnotherBtn = document.getElementById('scan-another-btn');
+  const cameraError = document.getElementById('camera-error');
+
+  let html5QrCode: InstanceType<typeof Html5Qrcode> | null = null;
+  let isProcessing = false;
+
+  async function startScanner() {
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode('reader');
+    }
+    try {
+      await html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        () => {}
+      );
+      cameraError?.classList.add('hidden');
+    } catch (err) {
+      if (cameraError) {
+        cameraError.textContent = 'Could not access the camera. Check permissions and reload.';
+        cameraError.classList.remove('hidden');
+      }
+    }
+  }
+
+  async function stopScanner() {
+    if (html5QrCode) {
+      try {
+        await html5QrCode.stop();
+      } catch {
+        // already stopped
+      }
+    }
+  }
+
+  function formatEventMeta(event: any) {
+    if (!event) return '';
+    const date = new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    return `${event.title} — ${date}${event.time ? ` · ${event.time}` : ''} · ${event.venue}`;
+  }
+
+  function showResult(kind: 'success' | 'warning' | 'error', status: string, subtext: string, registration?: any) {
+    scannerView?.classList.add('hidden');
+    resultView?.classList.remove('hidden');
+
+    resultBanner?.classList.remove('result-success', 'result-warning', 'result-error');
+    resultBanner?.classList.add(`result-${kind}`);
+
+    if (resultStatus) resultStatus.textContent = status;
+    if (resultSubtext) resultSubtext.textContent = subtext;
+
+    if (registration) {
+      resultDetails?.classList.remove('hidden');
+      if (detailName) detailName.textContent = registration.name;
+      if (detailEvent) detailEvent.textContent = formatEventMeta(registration.events);
+      if (registration.team_name) {
+        detailTeamWrap?.classList.remove('hidden');
+        if (detailTeam) detailTeam.textContent = registration.team_name;
+      } else {
+        detailTeamWrap?.classList.add('hidden');
+      }
+    } else {
+      resultDetails?.classList.add('hidden');
+    }
+  }
+
+  async function onScanSuccess(decodedText: string) {
+    if (isProcessing) return;
+    isProcessing = true;
+    await stopScanner();
+
+    try {
+      const response = await fetch('/scan/actions/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId: decodedText.trim() }),
+      });
+      const result = await response.json();
+
+      if (!result.found) {
+        showResult('error', 'Ticket not found', 'This QR code doesn\'t match any registration.');
+      } else if (result.alreadyCheckedIn) {
+        const time = result.registration.checked_in_at
+          ? new Date(result.registration.checked_in_at).toLocaleTimeString('en-IN')
+          : '';
+        showResult('warning', 'Already checked in', time ? `First checked in at ${time}.` : 'Already checked in.', result.registration);
+      } else {
+        showResult('success', 'Checked in!', 'Attendee confirmed.', result.registration);
+      }
+    } catch {
+      showResult('error', 'Something went wrong', 'Could not reach the server. Try again.');
+    }
+  }
+
+  scanAnotherBtn?.addEventListener('click', async () => {
+    resultView?.classList.add('hidden');
+    scannerView?.classList.remove('hidden');
+    isProcessing = false;
+    await startScanner();
+  });
+
+  startScanner();
+</script>

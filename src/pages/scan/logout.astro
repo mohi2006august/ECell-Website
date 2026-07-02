@@ -1,0 +1,8 @@
+---
+export const prerender = false;
+
+import { SCANNER_SESSION_COOKIE_NAME } from '../../lib/adminAuth.js';
+
+Astro.cookies.delete(SCANNER_SESSION_COOKIE_NAME, { path: '/scan' });
+return Astro.redirect('/scan/login');
+---
