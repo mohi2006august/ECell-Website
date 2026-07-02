@@ -2,7 +2,18 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BackgroundShader from '../../components/BackgroundShader.astro';
 import Navbar from '../../components/Navbar.astro';
+import { supabase } from '../../lib/supabase.js';
 
+const { data: events, error } = await supabase
+  .from('events')
+  .select('id, slug, title, short_description, date, time, venue, mode, poster_url, registration_open, is_featured')
+  .order('date', { ascending: true });
+
+if (error) {
+  console.error('Failed to load events:', error.message);
+}
+
+const hasEvents = Array.isArray(events) && events.length > 0;
 ---
 
 <BaseLayout title="E-Cell VJIT | Events">
@@ -14,11 +25,32 @@ import Navbar from '../../components/Navbar.astro';
       <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">Events</p>
       <h1 class="text-4xl md:text-6xl font-jakarta font-semibold tracking-tight mb-4">Where the next campus moment will light up</h1>
       <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed max-w-2xl">
-        This space is intentionally empty for now, but designed to become a living archive of hackathons, workshops, speaker sessions, and campus initiatives.
+        {hasEvents
+          ? 'A living archive of hackathons, workshops, speaker sessions, and campus initiatives.'
+          : 'This space is intentionally empty for now, but designed to become a living archive of hackathons, workshops, speaker sessions, and campus initiatives.'}
       </p>
     </div>
 
-    <div class="glass noise-overlay events-stage rounded-3xl p-6 md:p-8 lg:p-10 mb-8 md:mb-10">
+    {hasEvents && (
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-7 mb-12 md:mb-16">
+        {events.map((event) => (
+          <a href={`/events/${event.slug}`} class="glass noise-overlay rounded-2xl p-6 md:p-7 flex flex-col gap-3 hover:bg-white/5 transition-colors">
+            <span class="events-ghost-label w-fit">{event.mode}</span>
+            <h3 class="text-xl font-jakarta font-semibold tracking-tight text-white">{event.title}</h3>
+            <p class="text-gray-300 font-inter text-sm leading-relaxed">{event.short_description}</p>
+            <div class="mt-auto pt-3 flex items-center justify-between text-xs text-gray-400 font-inter">
+              <span>{new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              <span>{event.venue}</span>
+            </div>
+            {event.registration_open && (
+              <span class="text-xs uppercase tracking-[0.2em] text-red-200/80">Registration open</span>
+            )}
+          </a>
+        ))}
+      </div>
+    )}
+
+    <div class="glass noise-overlay events-stage rounded-3xl p-6 md:p-8 lg:p-10 mb-8 md:mb-10" style={hasEvents ? 'display:none' : undefined}>
       <div class="events-stage-inner rounded-2xl p-6 md:p-8 lg:p-10">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
           <div class="max-w-2xl">

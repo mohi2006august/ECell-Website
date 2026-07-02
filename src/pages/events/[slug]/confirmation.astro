@@ -1,0 +1,296 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BackgroundShader from '../../../components/BackgroundShader.astro';
+import Navbar from '../../../components/Navbar.astro';
+import { supabase } from '../../../lib/supabase.js';
+
+export async function getStaticPaths() {
+  const { data: events, error } = await supabase.from('events').select('slug, title');
+
+  if (error) {
+    console.error('Failed to load events for static paths:', error.message);
+    return [];
+  }
+
+  return (events ?? []).map((event) => ({
+    params: { slug: event.slug },
+    props: { eventTitle: event.title },
+  }));
+}
+
+const { eventTitle } = Astro.props;
+---
+
+<BaseLayout title={`E-Cell VJIT | Registered for ${eventTitle}`}>
+  <BackgroundShader />
+  <Navbar />
+
+  <section class="container mx-auto px-6 py-16 md:py-20 relative z-10 max-w-xl">
+    <div id="loading-state" class="text-center">
+      <p class="text-gray-300 font-inter">Loading your tickets...</p>
+    </div>
+
+    <div id="error-state" class="text-center hidden">
+      <h1 class="text-3xl font-jakarta font-semibold tracking-tight mb-3">We couldn't find that registration</h1>
+      <p class="text-gray-300 font-inter mb-6">The link looks incomplete or incorrect.</p>
+      <a href="/events" class="hero-action hero-action-primary inline-flex items-center gap-2 text-white font-inter font-medium text-base rounded-full px-8 py-4">
+        Back to Events
+      </a>
+    </div>
+
+    <div id="ticket-state" class="hidden">
+      <div class="text-center mb-8">
+        <span class="events-ghost-label mx-auto mb-5">Registration confirmed</span>
+        <h1 id="confirmation-heading" class="text-3xl md:text-4xl font-jakarta font-semibold tracking-tight mb-3"></h1>
+        <p id="confirmation-subtext" class="text-gray-300 font-inter"></p>
+        <p id="email-status" class="text-xs text-gray-500 font-inter mt-3"></p>
+      </div>
+
+      <div id="download-all-wrap" class="text-center mb-6 hidden">
+        <button id="download-all-btn" class="download-btn download-btn-primary">
+          <iconify-icon icon="solar:download-linear" width="18" height="18"></iconify-icon>
+          Download all tickets
+        </button>
+      </div>
+
+      <div id="tickets-container" class="space-y-6"></div>
+
+      <div class="text-center mt-8">
+        <a href="/events" class="text-sm font-inter text-gray-300 hover:text-white transition-colors">Back to Events</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<template id="ticket-card-template">
+  <div class="glass noise-overlay rounded-2xl p-6 md:p-8 text-center">
+    <p class="text-xs uppercase tracking-[0.2em] text-red-200/80 mb-2 attendee-name-label"></p>
+    <h2 class="text-xl font-jakarta font-semibold mb-1 ticket-event-title"></h2>
+    <p class="text-gray-400 font-inter text-sm mb-6 ticket-event-meta"></p>
+    <canvas class="qr-canvas mx-auto rounded-xl bg-white p-3"></canvas>
+    <p class="text-xs text-gray-500 font-inter mt-4 mb-4 break-all ticket-id-text"></p>
+    <button class="download-btn download-btn-secondary download-single-btn">
+      <iconify-icon icon="solar:download-linear" width="16" height="16"></iconify-icon>
+      Download ticket
+    </button>
+  </div>
+</template>
+
+<style>
+  .hidden {
+    display: none;
+  }
+
+  .events-ghost-label {
+    width: fit-content;
+    border-radius: 999px;
+    padding: 0.28rem 0.58rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(254 202 202);
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: rgba(127, 29, 29, 0.14);
+    margin: 0 auto;
+  }
+
+  .hero-action {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, rgba(185, 28, 28, 0.96), rgba(249, 115, 22, 0.95));
+  }
+
+  /* global.css has a bare `canvas { position: fixed; ... }` rule for the background
+     shader canvas — override it here so the QR canvas renders inline in the card. */
+  .qr-canvas {
+    position: static;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    display: block;
+  }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 150ms ease, background-color 150ms ease;
+  }
+
+  .download-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .download-btn-primary {
+    background: linear-gradient(135deg, rgba(185, 28, 28, 0.96), rgba(249, 115, 22, 0.95));
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .download-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .download-btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgb(254 226 226);
+    border: 1px solid rgba(248, 113, 113, 0.22);
+  }
+
+  .download-btn-secondary:hover:not(:disabled) {
+    background: rgba(127, 29, 29, 0.18);
+  }
+</style>
+
+<script>
+  import { supabase } from '../../../lib/supabase.js';
+  import QRCode from 'qrcode';
+  import { generateTicketsPdf, downloadBlob } from '../../../lib/ticketPdf.js';
+
+  const loadingState = document.getElementById('loading-state');
+  const errorState = document.getElementById('error-state');
+  const ticketState = document.getElementById('ticket-state');
+  const ticketsContainer = document.getElementById('tickets-container');
+  const cardTemplate = document.getElementById('ticket-card-template');
+  const headingEl = document.getElementById('confirmation-heading');
+  const subtextEl = document.getElementById('confirmation-subtext');
+  const downloadAllWrap = document.getElementById('download-all-wrap');
+  const downloadAllBtn = document.getElementById('download-all-btn');
+  const emailStatus = document.getElementById('email-status');
+
+  function showError() {
+    loadingState?.classList.add('hidden');
+    errorState?.classList.remove('hidden');
+  }
+
+  function slugify(text: string) {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  async function withButtonBusy(button: Element | null, label: string, task: () => Promise<void>) {
+    if (!(button instanceof HTMLButtonElement)) {
+      await task();
+      return;
+    }
+    const original = button.innerHTML;
+    button.disabled = true;
+    button.textContent = label;
+    try {
+      await task();
+    } finally {
+      button.disabled = false;
+      button.innerHTML = original;
+    }
+  }
+
+  const ticketIds = (new URLSearchParams(window.location.search).get('tickets') ?? '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  if (ticketIds.length === 0) {
+    showError();
+  } else {
+    const { data: registrations, error } = await supabase
+      .from('registrations')
+      .select('name, email, phone, ticket_id, team_name, events (title, date, time, venue)')
+      .in('ticket_id', ticketIds);
+
+    if (error || !registrations || registrations.length === 0) {
+      showError();
+    } else {
+      loadingState?.classList.add('hidden');
+      ticketState?.classList.remove('hidden');
+
+      if (headingEl) {
+        headingEl.textContent =
+          registrations.length === 1 ? `You're in, ${registrations[0].name}!` : "Your team is registered!";
+      }
+      if (subtextEl) {
+        subtextEl.textContent =
+          registrations.length === 1
+            ? 'Check your email for a copy of this confirmation. Bring the QR code below to check in at the venue.'
+            : "Each teammate's ticket is below — everyone should bring their own individual QR code to check in at the venue.";
+      }
+
+      if (registrations.length > 1) {
+        downloadAllWrap?.classList.remove('hidden');
+      }
+
+      const eventTitleForFile = registrations[0]?.events?.title ?? 'event';
+
+      downloadAllBtn?.addEventListener('click', () => {
+        withButtonBusy(downloadAllBtn, 'Preparing PDF...', async () => {
+          const blob = await generateTicketsPdf(registrations);
+          downloadBlob(blob, `${slugify(eventTitleForFile)}-tickets.pdf`);
+        });
+      });
+
+      for (const registration of registrations) {
+        if (!(cardTemplate instanceof HTMLTemplateElement) || !ticketsContainer) continue;
+
+        const clone = cardTemplate.content.cloneNode(true) as DocumentFragment;
+        const nameLabel = clone.querySelector('.attendee-name-label');
+        const titleEl = clone.querySelector('.ticket-event-title');
+        const metaEl = clone.querySelector('.ticket-event-meta');
+        const idEl = clone.querySelector('.ticket-id-text');
+        const canvas = clone.querySelector('.qr-canvas');
+        const downloadBtn = clone.querySelector('.download-single-btn');
+
+        const event = registration.events;
+
+        if (nameLabel) nameLabel.textContent = registration.name;
+        if (titleEl) titleEl.textContent = event?.title ?? '';
+        if (metaEl && event) {
+          const date = new Date(event.date).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          });
+          metaEl.textContent = `${date}${event.time ? ` · ${event.time}` : ''} · ${event.venue}`;
+        }
+        if (idEl) idEl.textContent = `Ticket ID: ${registration.ticket_id}`;
+
+        downloadBtn?.addEventListener('click', () => {
+          withButtonBusy(downloadBtn, 'Preparing...', async () => {
+            const blob = await generateTicketsPdf([registration]);
+            downloadBlob(blob, `${slugify(event?.title ?? 'event')}-${slugify(registration.name)}-ticket.pdf`);
+          });
+        });
+
+        ticketsContainer.appendChild(clone);
+
+        if (canvas instanceof HTMLCanvasElement) {
+          await QRCode.toCanvas(canvas, registration.ticket_id, { width: 220, margin: 1 });
+        }
+      }
+
+      if (emailStatus) emailStatus.textContent = 'Emailing your ticket...';
+      try {
+        const response = await fetch('/api/send-ticket-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticketIds }),
+        });
+        const result = await response.json();
+        if (response.ok && result.sent?.length) {
+          if (emailStatus) emailStatus.textContent = 'Ticket emailed to you as well.';
+        } else if (emailStatus) {
+          emailStatus.textContent = '';
+        }
+      } catch {
+        if (emailStatus) emailStatus.textContent = '';
+      }
+    }
+  }
+</script>
