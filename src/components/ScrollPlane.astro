@@ -104,6 +104,17 @@
         .sort((a, b) => a.top - b.top);
       if (lanes.length < 2) return;
 
+      // Start offscreen on the right, then enter into the first real lane.
+      // Everything after this uses the existing route/animation logic.
+      const firstLane = lanes[0];
+      const entryY = firstLane.top - Math.min(240, window.innerHeight * 0.28);
+      lanes.unshift({
+        x: window.innerWidth + 180,
+        top: entryY,
+        bottom: entryY,
+        c: entryY,
+      });
+
       const prevTotal = totalLength;
       const nextMarks: { arc: number; y: number }[] = [{ arc: 0, y: lanes[0].top }];
       let d = `M ${lanes[0].x} ${lanes[0].top} L ${lanes[0].x} ${lanes[0].c}`;
