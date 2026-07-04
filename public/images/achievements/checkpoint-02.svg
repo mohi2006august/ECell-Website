@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" role="img" aria-label="Demo achievement image">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#09090b"/><stop offset=".5" stop-color="#450a0a"/><stop offset="1" stop-color="#fb923c"/></linearGradient>
+  </defs>
+  <rect width="900" height="450" fill="url(#bg)"/>
+  <g opacity=".2" stroke="#fff" stroke-width="1"><path d="M0 75h900M0 150h900M0 225h900M0 300h900M0 375h900M150 0v450M300 0v450M450 0v450M600 0v450M750 0v450"/></g>
+  <rect x="92" y="72" width="270" height="170" rx="22" fill="#fff" opacity=".08" stroke="#fecaca" stroke-opacity=".34"/>
+  <rect x="392" y="118" width="410" height="212" rx="26" fill="#120403" opacity=".72" stroke="#fb7185" stroke-opacity=".34"/>
+  <path d="M438 182h230M438 226h304M438 270h176" stroke="#fee2e2" stroke-width="15" stroke-linecap="round" opacity=".84"/>
+  <circle cx="219" cy="157" r="54" fill="#ef4444" opacity=".4"/>
+  <path d="M184 174c42-66 74-66 113 0" fill="none" stroke="#fee2e2" stroke-width="11" stroke-linecap="round"/>
+  <text x="72" y="390" fill="#fee2e2" font-family="Arial, sans-serif" font-size="38" font-weight="700">WORKSHOP SPRINT</text>
+</svg>
