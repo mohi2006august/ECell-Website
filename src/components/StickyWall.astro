@@ -1,0 +1,483 @@
+---
+// Community sticky-note wall. Anyone can add a note (stored in Supabase via
+// /api/sticky-notes, shared for everyone). Notes are draggable for fun; their
+// dragged positions are NOT saved — the wall re-scatters on every refresh.
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}
+
+const {
+  eyebrow = 'Leave your mark',
+  title = 'The E-Cell sticky wall',
+  description = "Stick a note for the community — a hello, an idea, a memory, or who you're looking to build with. Drag them around.",
+} = Astro.props as Props;
+
+const swatches = ['amber', 'rose', 'orange', 'lime', 'sky', 'violet'];
+---
+
+<section id="wall" class="container mx-auto px-6 py-14 md:py-20 relative z-10">
+  <div class="max-w-2xl mb-8">
+    <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+  </div>
+
+  <form class="sticky-form glass rounded-2xl p-5 md:p-6 mb-8" data-note-form novalidate>
+    <div class="grid gap-4 md:grid-cols-[1fr_2fr_auto] md:items-end">
+      <label class="block">
+        <span class="sticky-label">Your name <span class="opacity-60">(optional)</span></span>
+        <input type="text" name="name" maxlength="32" autocomplete="name" placeholder="anon"
+          class="sticky-input" data-note-name />
+      </label>
+      <label class="block">
+        <span class="sticky-label">Your note</span>
+        <input type="text" name="message" maxlength="140" required placeholder="say hi to the E-Cell wall…"
+          class="sticky-input" data-note-message />
+      </label>
+      <button type="submit" class="sticky-submit" data-note-submit>
+        <iconify-icon icon="solar:pin-linear" width="17" height="17"></iconify-icon>
+        Stick it
+      </button>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <span class="sticky-label !mb-0">Colour</span>
+      <div class="flex items-center gap-2" data-note-swatches role="radiogroup" aria-label="Note colour">
+        {swatches.map((c, i) => (
+          <button type="button" class={`sticky-swatch sticky-${c}`} data-color={c}
+            role="radio" aria-checked={i === 0 ? 'true' : 'false'} aria-label={c}></button>
+        ))}
+      </div>
+      <p class="sticky-error font-inter text-sm text-red-300 ml-auto" data-note-error role="status" aria-live="polite"></p>
+    </div>
+
+    <!-- honeypot: hidden from humans, catches bots -->
+    <input type="text" name="hp" data-note-hp tabindex="-1" autocomplete="off" aria-hidden="true" class="sticky-hp" />
+  </form>
+
+  <div class="board-frame">
+    <div class="sticky-board" data-board aria-label="Community notes">
+      <p class="sticky-board-state" data-board-state>Loading the wall…</p>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .sticky-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.8);
+  }
+
+  .sticky-input {
+    width: 100%;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: rgba(10, 3, 2, 0.55);
+    color: #fff;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  .sticky-input::placeholder { color: rgba(209, 213, 219, 0.4); }
+  .sticky-input:focus {
+    outline: none;
+    border-color: rgba(248, 113, 113, 0.55);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+  }
+
+  .sticky-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border-radius: 0.7rem;
+    padding: 0.65rem 1.2rem;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: #fff;
+    white-space: nowrap;
+    background: linear-gradient(135deg, rgba(185, 28, 28, 0.98), rgba(249, 115, 22, 0.96));
+    box-shadow: 0 10px 24px rgba(220, 38, 38, 0.32);
+    transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+  }
+  .sticky-submit:hover { transform: translateY(-1px); }
+  .sticky-submit:disabled { opacity: 0.6; cursor: progress; transform: none; }
+
+  .sticky-swatch {
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 0.4rem;
+    border: 2px solid transparent;
+    background: var(--bg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: transform 130ms ease, border-color 130ms ease;
+  }
+  .sticky-swatch:hover { transform: translateY(-2px) rotate(-4deg); }
+  .sticky-swatch[aria-checked='true'] { border-color: #fff; transform: translateY(-2px); }
+
+  .sticky-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Colour palette (shared by swatches + notes). */
+  .sticky-amber { --bg: #fbbf24; --ink: #3f2d00; }
+  .sticky-rose { --bg: #fb7185; --ink: #4a0716; }
+  .sticky-orange { --bg: #fb923c; --ink: #431a03; }
+  .sticky-lime { --bg: #a3e635; --ink: #1f2d02; }
+  .sticky-sky { --bg: #7dd3fc; --ink: #06283b; }
+  .sticky-violet { --bg: #c4b5fd; --ink: #241452; }
+
+  /* Wooden frame around the cork board. */
+  .board-frame {
+    padding: 16px;
+    border-radius: 0.55rem;
+    background:
+      repeating-linear-gradient(88deg, rgba(0, 0, 0, 0.16) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(92deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 6px),
+      linear-gradient(180deg, #7a4620, #4a2812 55%, #3a1f0d);
+    box-shadow:
+      0 26px 60px rgba(0, 0, 0, 0.55),
+      inset 0 0 0 2px rgba(0, 0, 0, 0.35),
+      inset 0 2px 3px rgba(255, 255, 255, 0.12);
+  }
+
+  /* Cork surface. */
+  .sticky-board {
+    position: relative;
+    width: 100%;
+    min-height: 34rem;
+    border-radius: 0.25rem;
+    background-color: #c8a366;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)' opacity='0.55'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    background-blend-mode: multiply;
+    box-shadow:
+      inset 0 0 46px rgba(74, 40, 16, 0.55),
+      inset 0 0 0 1px rgba(74, 40, 16, 0.35);
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+
+  .sticky-board-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    color: rgba(60, 33, 10, 0.85);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .sticky {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 8.5rem;
+    min-height: 7.75rem;
+    padding: 0.9rem 0.8rem 0.7rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 22%),
+      var(--bg);
+    color: var(--ink);
+    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.32), 0 16px 30px rgba(0, 0, 0, 0.22);
+    transform: rotate(var(--rot, 0deg));
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transition: box-shadow 150ms ease;
+    will-change: left, top;
+  }
+  .sticky:active { cursor: grabbing; }
+  .sticky.is-dragging {
+    box-shadow: 0 26px 46px rgba(0, 0, 0, 0.5);
+    transform: rotate(var(--rot, 0deg)) scale(1.05);
+  }
+
+  /* folded corner */
+  .sticky::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 18px 18px;
+    border-color: transparent transparent rgba(0, 0, 0, 0.16) transparent;
+  }
+
+  .sticky-pin {
+    position: absolute;
+    top: -0.5rem;
+    left: 50%;
+    width: 0.95rem;
+    height: 0.95rem;
+    margin-left: -0.47rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 28%, #ffe3e3, #ef4444 52%, #7f1d1d);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5), inset 0 -1px 2px rgba(0, 0, 0, 0.35);
+  }
+
+  .sticky-msg {
+    margin: 0.15rem 0 0.35rem;
+    font-family: 'Caveat', 'Segoe Print', 'Comic Sans MS', cursive;
+    font-weight: 600;
+    font-size: 1.15rem;
+    line-height: 1.12;
+    word-break: break-word;
+  }
+  .sticky-author {
+    margin: auto 0 0;
+    align-self: flex-end;
+    font-family: 'Caveat', 'Segoe Print', 'Comic Sans MS', cursive;
+    font-weight: 600;
+    font-size: 0.95rem;
+    opacity: 0.78;
+  }
+
+  @media (max-width: 640px) {
+    .sticky { width: 7.5rem; min-height: 7rem; }
+  }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById('wall');
+    if (!section) return;
+    const board = section.querySelector<HTMLElement>('[data-board]');
+    const stateEl = section.querySelector<HTMLElement>('[data-board-state]');
+    const form = section.querySelector<HTMLFormElement>('[data-note-form]');
+    const nameInput = section.querySelector<HTMLInputElement>('[data-note-name]');
+    const msgInput = section.querySelector<HTMLInputElement>('[data-note-message]');
+    const hpInput = section.querySelector<HTMLInputElement>('[data-note-hp]');
+    const submitBtn = section.querySelector<HTMLButtonElement>('[data-note-submit]');
+    const errorEl = section.querySelector<HTMLElement>('[data-note-error]');
+    const swatchWrap = section.querySelector<HTMLElement>('[data-note-swatches]');
+    if (!board || !form || !msgInput || !submitBtn) return;
+
+    const COLORS = ['amber', 'rose', 'orange', 'lime', 'sky', 'violet'];
+    interface Note { id: string; name: string | null; message: string; color: string; }
+
+    const els: HTMLElement[] = [];
+    let noteW = 136;
+    let topZ = 1;
+    let selectedColor = 'amber';
+
+    // ── Colour picker ───────────────────────────────────────────
+    swatchWrap?.querySelectorAll<HTMLButtonElement>('[data-color]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedColor = btn.dataset.color || 'amber';
+        swatchWrap.querySelectorAll('[data-color]').forEach((b) =>
+          b.setAttribute('aria-checked', b === btn ? 'true' : 'false'));
+      });
+    });
+
+    const buildNote = (n: Note): HTMLElement => {
+      const el = document.createElement('article');
+      const color = COLORS.includes(n.color) ? n.color : 'amber';
+      el.className = `sticky sticky-${color}`;
+      const pin = document.createElement('span');
+      pin.className = 'sticky-pin';
+      const msg = document.createElement('p');
+      msg.className = 'sticky-msg';
+      msg.textContent = n.message;
+      el.append(pin, msg);
+      // Only show an author line when a name was actually given.
+      if (n.name && n.name.trim()) {
+        const author = document.createElement('p');
+        author.className = 'sticky-author';
+        author.textContent = `— ${n.name.trim()}`;
+        el.append(author);
+      }
+      wireDrag(el);
+      return el;
+    };
+
+    // ── Scatter notes into a shuffled, jittered grid ───────────
+    // Each note gets its own random cell (with room to jitter + tilt inside
+    // it), so they land in random spots, slightly tilted, but never overlap.
+    // Positions are not persisted — the wall re-scatters on every refresh.
+    const layout = () => {
+      if (!els.length) return;
+      const bw = board.clientWidth;
+      noteW = bw < 480 ? 120 : 136;
+
+      // Measure the tallest note so every cell clears the tallest one.
+      let maxH = 0;
+      els.forEach((el) => { el.style.width = `${noteW}px`; maxH = Math.max(maxH, el.offsetHeight); });
+
+      const padSide = 14;
+      const padTop = 20;
+      const padBot = 22;
+      const gapX = bw < 480 ? 24 : 48; // extra room inside each cell = jitter range
+      const gapY = 46;
+      const cellW = noteW + gapX;
+      const cellH = maxH + gapY;
+
+      const usableW = Math.max(cellW, bw - padSide * 2);
+      const cols = Math.max(1, Math.floor(usableW / cellW));
+      const offX = padSide + Math.max(0, (usableW - cols * cellW) / 2);
+
+      // Build enough rows to fill the section height, then scatter notes into
+      // random cells across the WHOLE grid — so rows AND columns both vary and
+      // the notes aren't all stuck in the top row.
+      const targetH = Math.max(34 * 16, Math.round(window.innerHeight * 0.62));
+      const rowsToFill = Math.max(1, Math.floor((targetH - padTop - padBot) / cellH));
+      const rows = Math.max(rowsToFill, Math.ceil(els.length / cols));
+
+      const shuffle = (arr: number[]) => {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      };
+
+      // Pick a distinct cell per note. When rows ≥ notes, give each note its
+      // own row (random column) so a few notes still span the full height;
+      // otherwise scatter across random cells of the whole grid.
+      const chosen: number[] = [];
+      if (els.length <= rows) {
+        const rowPool = shuffle(Array.from({ length: rows }, (_, i) => i));
+        for (let k = 0; k < els.length; k++) {
+          chosen.push(rowPool[k] * cols + Math.floor(Math.random() * cols));
+        }
+      } else {
+        const cells = shuffle(Array.from({ length: cols * rows }, (_, i) => i));
+        for (let k = 0; k < els.length; k++) chosen.push(cells[k]);
+      }
+
+      els.forEach((el, idx) => {
+        const cell = chosen[idx];
+        const col = cell % cols;
+        const row = Math.floor(cell / cols);
+        const jx = Math.random() * (cellW - noteW);
+        const jy = Math.random() * (cellH - el.offsetHeight);
+        el.style.left = `${offX + col * cellW + jx}px`;
+        el.style.top = `${padTop + row * cellH + jy}px`;
+        // Slight tilt, both directions.
+        el.style.setProperty('--rot', `${(Math.random() * 12 - 6).toFixed(2)}deg`);
+      });
+
+      board.style.height = `${Math.max(34 * 16, padTop + rows * cellH + padBot)}px`;
+    };
+
+    // ── Dragging (client-only, resets on refresh) ───────────────
+    const wireDrag = (el: HTMLElement) => {
+      let startX = 0, startY = 0, baseL = 0, baseT = 0, dragging = false;
+      el.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        el.classList.add('is-dragging');
+        el.style.zIndex = String(++topZ);
+        startX = e.clientX; startY = e.clientY;
+        baseL = parseFloat(el.style.left) || 0;
+        baseT = parseFloat(el.style.top) || 0;
+        el.setPointerCapture(e.pointerId);
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const nx = baseL + (e.clientX - startX);
+        const ny = baseT + (e.clientY - startY);
+        el.style.left = `${Math.max(-noteW * 0.4, Math.min(board.clientWidth - noteW * 0.6, nx))}px`;
+        el.style.top = `${Math.max(0, ny)}px`;
+      });
+      const end = (e: PointerEvent) => {
+        dragging = false;
+        el.classList.remove('is-dragging');
+        try { el.releasePointerCapture(e.pointerId); } catch {}
+      };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    };
+
+    const setState = (msg: string | null) => {
+      if (!stateEl) return;
+      stateEl.textContent = msg ?? '';
+      stateEl.style.display = msg ? '' : 'none';
+    };
+
+    const addNote = (n: Note, fresh = false) => {
+      const el = buildNote(n);
+      board.appendChild(el);
+      if (fresh) {
+        els.unshift(el);
+        el.style.zIndex = String(++topZ);
+        layout(); // re-scatter so the new note tucks in without overlapping
+      } else {
+        els.push(el);
+      }
+    };
+
+    // ── Load the wall ───────────────────────────────────────────
+    fetch('/api/sticky-notes')
+      .then(async (r) => {
+        if (!r.ok) throw new Error('bad status');
+        return r.json();
+      })
+      .then((data: { notes?: Note[] }) => {
+        const notes = data.notes ?? [];
+        if (notes.length === 0) {
+          setState('Be the first to stick a note ✎');
+          return;
+        }
+        setState(null);
+        // Oldest first so newest sit on top of the pile.
+        notes.slice().reverse().forEach((n) => addNote(n));
+        layout();
+      })
+      .catch(() => setState('Could not load the wall right now.'));
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => { if (els.length) layout(); }, 180);
+    });
+
+    // ── Submit ──────────────────────────────────────────────────
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (errorEl) errorEl.textContent = '';
+      const message = msgInput.value.trim();
+      if (!message) { if (errorEl) errorEl.textContent = 'Write something first.'; return; }
+
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch('/api/sticky-notes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: nameInput?.value ?? '',
+            message,
+            color: selectedColor,
+            hp: hpInput?.value ?? '',
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+        if (data.note) {
+          setState(null);
+          addNote(data.note as Note, true);
+        }
+        msgInput.value = '';
+      } catch (err) {
+        if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  })();
+</script>

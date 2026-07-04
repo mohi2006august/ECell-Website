@@ -2,70 +2,22 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BackgroundShader from '../components/BackgroundShader.astro';
 import Navbar from '../components/Navbar.astro';
+import StickyWall from '../components/StickyWall.astro';
 ---
 
-<BaseLayout title="E-Cell VJIT | Community">
+<BaseLayout title="E-Cell VJIT | Interactions">
   <BackgroundShader />
   <Navbar />
 
-  <section class="container mx-auto px-6 py-14 md:py-20 relative z-10">
-    <div class="max-w-5xl mx-auto text-center mb-10 md:mb-14">
-      <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">Under Construction</p>
-      <h1 class="text-4xl md:text-6xl font-jakarta font-semibold tracking-tight mb-5">E-Cell Community</h1>
-      <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed max-w-3xl mx-auto">
-        This is the future E-Cell networking layer - a space for students, seniors, alumni, founders, and future mentors to stay connected even after college.
+  <section class="container mx-auto px-6 pt-14 md:pt-20 pb-2 relative z-10">
+    <div class="max-w-3xl">
+      <p class="font-pixel text-xs text-red-200/80 mb-4">Playground</p>
+      <h1 class="text-4xl md:text-6xl font-jakarta font-semibold tracking-tight mb-5">Interactions</h1>
+      <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">
+        Little interactive corners of E-Cell — say hi, leave a memory, mess around. More coming soon.
       </p>
     </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 md:gap-8 items-stretch max-w-7xl mx-auto">
-      <div class="glass noise-overlay rounded-3xl p-6 md:p-8 lg:p-10">
-        <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-red-100">
-          <span class="h-2 w-2 rounded-full bg-red-400 animate-pulse"></span>
-          In progress
-        </div>
-
-        <h2 class="text-2xl md:text-4xl font-jakarta font-semibold tracking-tight mb-4">A mini LinkedIn for the E-Cell ecosystem</h2>
-        <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed mb-5">
-          The idea is to give graduating seniors and founders a place to keep their E-Cell connections alive, discover people with similar goals, and stay visible to the college community.
-        </p>
-        <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed mb-5">
-          Each member would eventually have a public profile card with contact details, interests, startup stage, and the kind of support they are looking for - cofounders, mentors, users, collaborators, or speakers.
-        </p>
-        <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">
-          That makes the community useful both during college and after graduation: a place to launch beta versions, find future speakers, and build a long-term alumni network around E-Cell.
-        </p>
-      </div>
-
-      <div class="space-y-6">
-        <article class="glass noise-overlay rounded-3xl p-6 md:p-8">
-          <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">What it will do</p>
-          <div class="space-y-4 text-gray-300 font-inter leading-relaxed">
-            <p>• Let students discover seniors, alumni, and founders who are open to connecting.</p>
-            <p>• Create public profile cards for networking, mentorship, and startup collaboration.</p>
-            <p>• Make it easier to reconnect with E-Cell after graduation.</p>
-          </div>
-        </article>
-
-        <article class="glass noise-overlay rounded-3xl p-6 md:p-8">
-          <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">Launch angle</p>
-          <p class="text-gray-300 font-inter leading-relaxed">
-            This can be pitched as a resource for final-year students who want to keep building, find cofounders, reach mentors, or stay available for startup opportunities after B.Tech.
-          </p>
-        </article>
-      </div>
-    </div>
-
-    <div class="mt-8 md:mt-10 max-w-5xl mx-auto">
-      <div class="glass noise-overlay rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-        <div>
-          <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-2">Status</p>
-          <h3 class="text-2xl md:text-3xl font-jakarta font-semibold tracking-tight">Community platform coming soon</h3>
-        </div>
-        <a href="/events" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 font-inter text-gray-100 transition-all hover:border-red-400/40 hover:bg-red-500/10 hover:text-white">
-          Explore Events
-          <iconify-icon icon="solar:arrow-right-linear" width="16" height="16"></iconify-icon>
-        </a>
-      </div>
-    </div>
   </section>
+
+  <StickyWall />
 </BaseLayout>
