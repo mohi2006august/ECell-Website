@@ -1,4 +1,6 @@
 ---
+import RetroReel from './RetroReel.astro';
+
 interface Props {
   brand?: string;
   copyright?: string;
@@ -9,24 +11,13 @@ const {
   copyright = String(new Date().getFullYear()),
 } = Astro.props as Props;
 
-const footerLinks = [
-  {
-    title: 'About',
-    links: [
-      { label: 'Vision & Mission', href: '/#about' },
-      { label: 'Opportunities', href: '/#domains' },
-      { label: 'Traction', href: '/#traction' },
-      { label: 'Core Team', href: '/team' }
-    ]
-  },
-  {
-    title: 'Explore',
-    links: [
-      { label: 'Events', href: '/events' },
-      { label: 'Launch', href: '/events#register' },
-      { label: 'Team Directory', href: '/team' }
-    ]
-  }
+// About + Explore merged into one column; duplicate Team/Launch links removed.
+const exploreLinks = [
+  { label: 'Vision & Mission', href: '/#about' },
+  { label: 'Opportunities', href: '/#domains' },
+  { label: 'Traction', href: '/#traction' },
+  { label: 'Events', href: '/events' },
+  { label: 'Team', href: '/team' },
 ];
 
 const contactInfo = [
@@ -58,7 +49,7 @@ const socialLinks = [
     <div class="footer-bg" aria-hidden="true"></div>
 
     <div class="relative z-10 p-8 md:p-10 lg:p-12">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-8 lg:gap-12 pb-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.15fr_0.7fr_1.3fr_0.9fr] gap-10 md:gap-8 lg:gap-10 pb-10">
         <div class="space-y-4">
           <div class="flex items-center gap-3">
             <span class="footer-brand-icon">
@@ -71,18 +62,21 @@ const socialLinks = [
           </p>
         </div>
 
-        {footerLinks.map((section) => (
-          <div>
-            <h4 class="text-white text-lg font-semibold mb-5 font-jakarta">{section.title}</h4>
-            <ul class="space-y-3">
-              {section.links.map((link) => (
-                <li>
-                  <a href={link.href} class="footer-link">{link.label}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div>
+          <h4 class="text-white text-lg font-semibold mb-5 font-jakarta">Explore</h4>
+          <ul class="space-y-3">
+            {exploreLinks.map((link) => (
+              <li>
+                <a href={link.href} class="footer-link">{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="order-last md:order-none">
+          <h4 class="text-white text-lg font-semibold mb-5 font-jakarta">On Air</h4>
+          <RetroReel />
+        </div>
 
         <div>
           <h4 class="text-white text-lg font-semibold mb-5 font-jakarta">Contact</h4>
