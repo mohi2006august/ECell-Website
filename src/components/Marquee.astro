@@ -1,0 +1,127 @@
+---
+// Pixel-font scrolling ticker strip. Quotes live in src/data/tickerQuotes.js —
+// edit that file to change/remove lines. Two identical groups scroll as one
+// track so the loop is seamless; the strip pauses on hover and freezes under
+// prefers-reduced-motion.
+import quotes from '../data/tickerQuotes.js';
+
+interface Props {
+  items?: string[];
+  /** Seconds for one full loop. Higher = slower. */
+  speed?: number;
+  /** 'left' (default) or 'right' scroll direction. */
+  direction?: 'left' | 'right';
+  /** Pin the strip to the very top of the viewport (stays while scrolling). */
+  pinned?: boolean;
+}
+
+const { items = quotes, speed = 42, direction = 'left', pinned = false } = Astro.props as Props;
+const groups = [0, 1];
+const barHeight = '2.5rem';
+const style = pinned
+  ? `--marquee-duration:${speed}s; height:${barHeight}`
+  : `--marquee-duration:${speed}s`;
+---
+
+{pinned && <div class="marquee-spacer" style={`height:${barHeight}`} aria-hidden="true"></div>}
+
+<div
+  class:list={["marquee select-none", { 'marquee-reverse': direction === 'right', 'marquee-pinned': pinned }]}
+  style={style}
+  aria-hidden="true"
+>
+  <div class="marquee-track">
+    {groups.map(() => (
+      <div class="marquee-group font-pixel">
+        {items.map((quote) => (
+          <span class="marquee-item">
+            <span class="marquee-star">✦</span>
+            {quote}
+          </span>
+        ))}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .marquee {
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+    border-top: 1px solid rgba(248, 113, 113, 0.16);
+    border-bottom: 1px solid rgba(248, 113, 113, 0.16);
+    background:
+      linear-gradient(90deg, rgba(20, 4, 2, 0.0), rgba(60, 8, 4, 0.35), rgba(20, 4, 2, 0.0)),
+      rgba(10, 3, 2, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding-block: 0.75rem;
+    /* Fade the strip out at both edges so items enter/exit softly. */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  /* Pinned: a fixed announcement bar above the navbar; the spacer reserves
+     its height in the flow so nothing hides beneath it. */
+  .marquee-pinned {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    padding-block: 0;
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marqueeScroll var(--marquee-duration, 42s) linear infinite;
+  }
+
+  .marquee-reverse .marquee-track {
+    animation-direction: reverse;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  .marquee-group {
+    display: flex;
+    align-items: center;
+    flex: none;
+  }
+
+  .marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-inline: 1.4rem;
+    font-size: 0.82rem;
+    line-height: 1;
+    color: rgb(254 226 226);
+    white-space: nowrap;
+    text-shadow: 0 0 14px rgba(248, 113, 113, 0.28);
+  }
+
+  .marquee-star {
+    color: rgb(248 113 113);
+    font-size: 0.7rem;
+    filter: drop-shadow(0 0 6px rgba(248, 113, 113, 0.55));
+  }
+
+  @keyframes marqueeScroll {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      transform: none;
+    }
+  }
+</style>
