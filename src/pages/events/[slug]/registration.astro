@@ -63,13 +63,15 @@ const memberFields = [
   { field: 'section', type: 'text', placeholder: 'Section' },
   { field: 'college', type: 'text', placeholder: 'College (if not VJIT)' },
 ];
+
+const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Details', 'Confirm'];
 ---
 
 <BaseLayout title={`E-Cell VJIT | Register for ${event.title}`}>
   <BackgroundShader />
   <Navbar />
 
-  <section class="container mx-auto px-6 py-12 md:py-16 relative z-10 max-w-2xl">
+  <section class="container mx-auto px-6 py-12 md:py-16 relative z-10 max-w-5xl">
     <a
       href={`/events/${event.slug}`}
       class="inline-flex items-center gap-2 glass rounded-md px-4 py-2 text-sm font-inter text-gray-200 hover:text-white hover:border-red-500/30 transition-all mb-8"
@@ -86,7 +88,7 @@ const memberFields = [
       </p>
     </div>
 
-    <div class="glass noise-overlay rounded-2xl p-6 md:p-8">
+    <div class="registration-shell noise-overlay rounded-3xl p-5 md:p-8">
       {!canRegister && (
         <p class="text-gray-300 font-inter">
           {deadlinePassed ? 'Registration has closed for this event.' : "Registration isn't open yet."}
@@ -96,14 +98,27 @@ const memberFields = [
       {canRegister && (
         <form
           id="registration-form"
-          class="flex flex-col gap-8"
+          class="flex flex-col gap-7"
           data-event-id={event.id}
           data-event-slug={event.slug}
+          data-is-team-event={String(isTeamEvent)}
           data-min-team-size={isTeamEvent && minTeamSize ? minTeamSize : ''}
           data-max-team-size={isTeamEvent && maxTeamSize ? maxTeamSize : ''}
         >
-          <div>
-            <h2 class="text-lg font-jakarta font-semibold mb-4">Your details</h2>
+          <div class="stepper-shell" aria-label="Registration progress">
+            {registrationSteps.map((step, index) => (
+              <div class="stepper-item" data-step-indicator={index}>
+                <span>{index + 1}</span>
+                <p>{step}</p>
+              </div>
+            ))}
+          </div>
+
+          <section class="form-step is-active" data-step-panel="0">
+            <div class="step-card-heading">
+              <p class="font-pixel">Step 01</p>
+              <h2>Your details</h2>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input type="text" name="name" placeholder="Full name" required class="reg-input" />
               <input type="email" name="email" placeholder="Email" required class="reg-input" />
@@ -114,12 +129,15 @@ const memberFields = [
               <input type="text" name="section" placeholder="Section" class="reg-input" />
               <input type="text" name="college" placeholder="College (if not VJIT)" class="reg-input" />
             </div>
-          </div>
+          </section>
 
           {isTeamEvent && (
-            <div>
-              <h2 class="text-lg font-jakarta font-semibold mb-1">Team</h2>
-              <p class="text-gray-400 font-inter text-xs mb-4">{teamSizeText}</p>
+            <section class="form-step" data-step-panel="1">
+              <div class="step-card-heading">
+                <p class="font-pixel">Step 02</p>
+                <h2>Team</h2>
+              </div>
+              <p class="text-gray-400 font-inter text-sm mb-5">{teamSizeText}</p>
               <input type="text" name="team_name" placeholder="Team name" required class="reg-input w-full mb-4" />
 
               <div id="team-members-list" class="space-y-4">
@@ -145,15 +163,33 @@ const memberFields = [
                 </button>
                 <span id="team-count-text" class="text-xs text-gray-400 font-inter"></span>
               </div>
-            </div>
+            </section>
           )}
 
-          <button
-            type="submit"
-            class="rounded-full bg-red-500 hover:bg-red-400 transition-colors text-white font-inter font-medium py-3"
-          >
-            Submit registration
-          </button>
+          <section class="form-step" data-step-panel={isTeamEvent ? '2' : '1'}>
+            <div class="step-card-heading">
+              <p class="font-pixel">{isTeamEvent ? 'Step 03' : 'Step 02'}</p>
+              <h2>Confirm</h2>
+            </div>
+            <div class="confirm-pass-preview">
+              <div class="confirm-pass-head">
+                <div>
+                  <p class="font-pixel">Ready to issue</p>
+                  <h3>{event.title}</h3>
+                  <span>{formattedDate}{event.time ? ` · ${event.time}` : ''}</span>
+                </div>
+                <iconify-icon icon="solar:ticket-sale-linear" width="54" height="54"></iconify-icon>
+              </div>
+              <div id="review-panel" class="review-panel confirm-review-panel"></div>
+            </div>
+            <p class="text-gray-400 font-inter text-sm">Once confirmed, individual QR tickets will be generated for every registered attendee.</p>
+          </section>
+
+          <div class="step-actions">
+            <button type="button" id="step-back-btn" class="step-btn step-btn-ghost">Back</button>
+            <button type="button" id="step-next-btn" class="step-btn step-btn-primary">Next</button>
+            <button type="submit" id="confirm-submit-btn" class="step-btn step-btn-primary hidden">Confirm registration</button>
+          </div>
 
           <p id="registration-status" class="text-sm font-inter" role="status"></p>
         </form>
@@ -183,13 +219,109 @@ const memberFields = [
 </template>
 
 <style>
+  .registration-shell {
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    background:
+      radial-gradient(circle at 78% 12%, rgba(248, 113, 113, 0.16), transparent 32%),
+      linear-gradient(145deg, rgba(24, 5, 4, 0.82), rgba(8, 2, 2, 0.92));
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  }
+
+  .stepper-shell {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+    padding: 0.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.2rem;
+    background: rgba(0, 0, 0, 0.26);
+  }
+
+  .stepper-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    border-radius: 0.9rem;
+    padding: 0.7rem;
+    color: rgb(156, 163, 175);
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+
+  .stepper-item span {
+    width: 1.75rem;
+    height: 1.75rem;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+  }
+
+  .stepper-item p {
+    overflow: hidden;
+    margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .stepper-item.is-active {
+    color: white;
+    background: linear-gradient(135deg, rgba(185, 28, 28, 0.48), rgba(249, 115, 22, 0.18));
+  }
+
+  .stepper-item.is-complete {
+    color: rgb(254, 202, 202);
+  }
+
+  .stepper-item.is-complete span {
+    border-color: rgba(248, 113, 113, 0.5);
+    background: rgba(127, 29, 29, 0.22);
+  }
+
+  .form-step {
+    display: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .form-step.is-active {
+    display: block;
+    animation: stepIn 260ms ease-out;
+  }
+
+  .step-card-heading {
+    margin-bottom: 1rem;
+  }
+
+  .step-card-heading p {
+    margin-bottom: 0.4rem;
+    color: rgb(254, 202, 202);
+    font-size: 0.68rem;
+  }
+
+  .step-card-heading h2 {
+    color: white;
+    font-size: clamp(1.4rem, 3vw, 2.35rem);
+    line-height: 1;
+    letter-spacing: 0;
+  }
+
   .reg-input {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     color: white;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Prosto One', system-ui, sans-serif;
     width: 100%;
   }
 
@@ -228,7 +360,7 @@ const memberFields = [
     border-radius: 0.75rem;
     padding: 0.6rem 1.1rem;
     color: rgb(254 202 202);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Prosto One', system-ui, sans-serif;
     font-size: 0.9rem;
     background: transparent;
     cursor: pointer;
@@ -243,6 +375,157 @@ const memberFields = [
     opacity: 0.4;
     cursor: not-allowed;
   }
+
+  .solo-pass-card,
+  .confirm-pass-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 1.1rem;
+    padding: 1rem;
+    background:
+      linear-gradient(135deg, rgba(127, 29, 29, 0.3), rgba(255, 255, 255, 0.04)),
+      rgba(0, 0, 0, 0.24);
+  }
+
+  .solo-pass-card span,
+  .confirm-pass-preview iconify-icon {
+    color: rgb(254, 202, 202);
+    filter: drop-shadow(0 0 14px rgba(248, 113, 113, 0.35));
+  }
+
+  .solo-pass-card h3,
+  .confirm-pass-preview h3 {
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .solo-pass-card p,
+  .confirm-pass-preview span {
+    color: rgb(209, 213, 219);
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+  }
+
+  .confirm-pass-preview {
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .confirm-pass-preview p {
+    margin-bottom: 0.45rem;
+    color: rgb(254, 202, 202);
+    font-size: 0.68rem;
+  }
+
+  .review-panel {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .review-card {
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    border-radius: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .review-card h3 {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .review-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .review-list p {
+    margin: 0;
+    color: rgb(156, 163, 175);
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .review-list strong {
+    display: block;
+    margin-top: 0.25rem;
+    color: rgb(243, 244, 246);
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0;
+    text-transform: none;
+    overflow-wrap: anywhere;
+  }
+
+  .step-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+
+  .step-btn {
+    min-height: 3rem;
+    border-radius: 999px;
+    padding: 0.75rem 1.35rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: transform 160ms ease, background-color 160ms ease, opacity 160ms ease;
+  }
+
+  .step-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .step-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .step-btn-primary {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(185, 28, 28, 0.96), rgba(249, 115, 22, 0.95));
+    box-shadow: 0 14px 36px rgba(185, 28, 28, 0.22);
+  }
+
+  .step-btn-ghost {
+    color: rgb(254, 226, 226);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  @keyframes stepIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .stepper-shell {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .review-list {
+      grid-template-columns: 1fr;
+    }
+
+    .step-actions {
+      flex-direction: column-reverse;
+    }
+  }
 </style>
 
 <script>
@@ -254,8 +537,17 @@ const memberFields = [
   const addMemberBtn = document.getElementById('add-member-btn');
   const memberTemplate = document.getElementById('member-block-template');
   const teamCountText = document.getElementById('team-count-text');
+  const stepPanels = Array.from(document.querySelectorAll<HTMLElement>('[data-step-panel]'));
+  const stepIndicators = Array.from(document.querySelectorAll<HTMLElement>('[data-step-indicator]'));
+  const backBtn = document.getElementById('step-back-btn');
+  const nextBtn = document.getElementById('step-next-btn');
+  const confirmBtn = document.getElementById('confirm-submit-btn');
+  const reviewPanel = document.getElementById('review-panel');
 
   const SAME_AS_ME_FIELDS = ['year_of_study', 'branch', 'section', 'college'];
+  const DETAIL_FIELDS = ['name', 'email', 'phone', 'roll_number', 'branch', 'year_of_study', 'section', 'college'];
+  const isTeamEvent = form instanceof HTMLFormElement && form.dataset.isTeamEvent === 'true';
+  let currentStep = 0;
 
   const minTeamSize = form instanceof HTMLFormElement && form.dataset.minTeamSize
     ? parseInt(form.dataset.minTeamSize, 10)
@@ -266,6 +558,137 @@ const memberFields = [
 
   function currentMemberCount() {
     return 1 + (teamMembersList?.querySelectorAll('.team-member-block').length ?? 0);
+  }
+
+  function setStatus(message = '', isError = false) {
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle('text-red-300', isError);
+  }
+
+  function getFormValue(field: string) {
+    if (!(form instanceof HTMLFormElement)) return '';
+    return form.querySelector<HTMLInputElement>(`[name="${field}"]`)?.value.trim() ?? '';
+  }
+
+  function collectTeammates() {
+    return Array.from(document.querySelectorAll('#team-members-list .team-member-block'))
+      .map((block) => {
+        const get = (field: string) => block.querySelector<HTMLInputElement>(`[data-field="${field}"]`)?.value.trim() || '';
+        return {
+          name: get('name'),
+          email: get('email'),
+          phone: get('phone') || null,
+          roll_number: get('roll_number') || null,
+          branch: get('branch') || null,
+          year_of_study: get('year_of_study') || null,
+          section: get('section') || null,
+          college: get('college') || null,
+        };
+      })
+      .filter((member) => member.name && member.email);
+  }
+
+  function validateStep(step: number) {
+    if (!(form instanceof HTMLFormElement)) return false;
+
+    if (step === 0) {
+      for (const field of ['name', 'email']) {
+        const input = form.querySelector<HTMLInputElement>(`[name="${field}"]`);
+        if (input && !input.reportValidity()) return false;
+      }
+    }
+
+    if (step === 1 && isTeamEvent) {
+      const teamNameInput = form.querySelector<HTMLInputElement>('[name="team_name"]');
+      if (teamNameInput && !teamNameInput.reportValidity()) return false;
+
+      const totalMembers = currentMemberCount();
+      if (minTeamSize && totalMembers < minTeamSize) {
+        setStatus(`This event needs at least ${minTeamSize} members per team (including you) - you currently have ${totalMembers}.`, true);
+        return false;
+      }
+
+      if (maxTeamSize && totalMembers > maxTeamSize) {
+        setStatus(`This event allows at most ${maxTeamSize} members per team (including you) - you currently have ${totalMembers}.`, true);
+        return false;
+      }
+    }
+
+    setStatus();
+    return true;
+  }
+
+  function reviewItem(label: string, value: string | null | undefined) {
+    return `<p>${label}<strong>${value || 'Not provided'}</strong></p>`;
+  }
+
+  function renderReview() {
+    if (!reviewPanel) return;
+
+    const teammates = collectTeammates();
+    const detailLabels: Record<string, string> = {
+      name: 'Name',
+      email: 'Email',
+      phone: 'Phone',
+      roll_number: 'Roll number',
+      branch: 'Branch',
+      year_of_study: 'Year',
+      section: 'Section',
+      college: 'College',
+    };
+
+    const detailsHtml = DETAIL_FIELDS.map((field) => reviewItem(detailLabels[field], getFormValue(field))).join('');
+    const teamHtml = isTeamEvent
+      ? `
+        <div class="review-card">
+          <h3>Team pass</h3>
+          <div class="review-list">
+            ${reviewItem('Team name', getFormValue('team_name'))}
+            ${reviewItem('Total tickets', String(1 + teammates.length))}
+          </div>
+          ${teammates.length ? `<div class="mt-4 grid gap-3">${teammates.map((member, index) => `
+            <div class="review-card">
+              <h3>Teammate ${index + 1}</h3>
+              <div class="review-list">
+                ${reviewItem('Name', member.name)}
+                ${reviewItem('Email', member.email)}
+                ${reviewItem('Phone', member.phone)}
+                ${reviewItem('Branch', member.branch)}
+              </div>
+            </div>
+          `).join('')}</div>` : ''}
+        </div>
+      `
+      : `
+        <div class="review-card">
+          <h3>Registration type</h3>
+          <div class="review-list">${reviewItem('Ticket mode', 'Solo pass')}</div>
+        </div>
+      `;
+
+    reviewPanel.innerHTML = `
+      <div class="review-card">
+        <h3>Lead attendee</h3>
+        <div class="review-list">${detailsHtml}</div>
+      </div>
+      ${teamHtml}
+    `;
+  }
+
+  function setStep(step: number) {
+    currentStep = Math.max(0, Math.min(3, step));
+    stepPanels.forEach((panel, index) => panel.classList.toggle('is-active', index === currentStep));
+    stepIndicators.forEach((indicator, index) => {
+      indicator.classList.toggle('is-active', index === currentStep);
+      indicator.classList.toggle('is-complete', index < currentStep);
+    });
+
+    if (backBtn instanceof HTMLButtonElement) backBtn.disabled = currentStep === 0;
+    nextBtn?.classList.toggle('hidden', currentStep === 3);
+    confirmBtn?.classList.toggle('hidden', currentStep !== 3);
+
+    if (currentStep >= 2) renderReview();
   }
 
   function updateTeamUI() {
@@ -305,6 +728,17 @@ const memberFields = [
 
   teamMembersList?.querySelectorAll('.team-member-block').forEach(wireMemberBlock);
   updateTeamUI();
+  setStep(0);
+
+  nextBtn?.addEventListener('click', () => {
+    if (!validateStep(currentStep)) return;
+    setStep(currentStep + 1);
+  });
+
+  backBtn?.addEventListener('click', () => {
+    setStatus();
+    setStep(currentStep - 1);
+  });
 
   addMemberBtn?.addEventListener('click', () => {
     if (!(memberTemplate instanceof HTMLTemplateElement) || !teamMembersList) return;
@@ -321,6 +755,11 @@ const memberFields = [
     e.preventDefault();
     if (!(e.target instanceof HTMLFormElement)) return;
 
+    if (currentStep !== 3) {
+      if (validateStep(currentStep)) setStep(currentStep + 1);
+      return;
+    }
+
     const submitButton = e.target.querySelector('button[type="submit"]');
 
     const formData = new FormData(e.target);
@@ -328,23 +767,19 @@ const memberFields = [
     const eventSlug = e.target.dataset.eventSlug;
     const teamName = formData.get('team_name')?.toString().trim() || null;
 
-    const teammates = Array.from(document.querySelectorAll('#team-members-list .team-member-block'))
-      .map((block) => {
-        const get = (field: string) => block.querySelector<HTMLInputElement>(`[data-field="${field}"]`)?.value.trim() || '';
-        return {
-          name: get('name'),
-          email: get('email'),
-          phone: get('phone') || null,
-          roll_number: get('roll_number') || null,
-          branch: get('branch') || null,
-          year_of_study: get('year_of_study') || null,
-          section: get('section') || null,
-          college: get('college') || null,
-        };
-      })
-      .filter((member) => member.name && member.email);
+    const teammates = collectTeammates();
 
     const totalMembers = 1 + teammates.length;
+
+    if (minTeamSize && totalMembers < minTeamSize) {
+      setStatus(`This event needs at least ${minTeamSize} members per team (including you) - you currently have ${totalMembers}.`, true);
+      return;
+    }
+
+    if (maxTeamSize && totalMembers > maxTeamSize) {
+      setStatus(`This event allows at most ${maxTeamSize} members per team (including you) - you currently have ${totalMembers}.`, true);
+      return;
+    }
 
     if (minTeamSize && totalMembers < minTeamSize) {
       if (status) {

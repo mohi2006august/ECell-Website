@@ -25,7 +25,7 @@ const { eventTitle } = Astro.props;
   <BackgroundShader />
   <Navbar />
 
-  <section class="container mx-auto px-6 py-16 md:py-20 relative z-10 max-w-xl">
+  <section class="container mx-auto px-6 py-16 md:py-20 relative z-10 max-w-4xl">
     <div id="loading-state" class="text-center">
       <p class="text-gray-300 font-inter">Loading your tickets...</p>
     </div>
@@ -53,7 +53,7 @@ const { eventTitle } = Astro.props;
         </button>
       </div>
 
-      <div id="tickets-container" class="space-y-6"></div>
+      <div id="tickets-container" class="ticket-wallet-grid"></div>
 
       <div class="text-center mt-8">
         <a href="/events" class="text-sm font-inter text-gray-300 hover:text-white transition-colors">Back to Events</a>
@@ -63,16 +63,60 @@ const { eventTitle } = Astro.props;
 </BaseLayout>
 
 <template id="ticket-card-template">
-  <div class="glass noise-overlay rounded-2xl p-6 md:p-8 text-center">
-    <p class="text-xs uppercase tracking-[0.2em] text-red-200/80 mb-2 attendee-name-label"></p>
-    <h2 class="text-xl font-jakarta font-semibold mb-1 ticket-event-title"></h2>
-    <p class="text-gray-400 font-inter text-sm mb-6 ticket-event-meta"></p>
-    <canvas class="qr-canvas mx-auto rounded-xl bg-white p-3"></canvas>
-    <p class="text-xs text-gray-500 font-inter mt-4 mb-4 break-all ticket-id-text"></p>
-    <button class="download-btn download-btn-secondary download-single-btn">
-      <iconify-icon icon="solar:download-linear" width="16" height="16"></iconify-icon>
-      Download ticket
-    </button>
+  <div class="wallet-pass">
+    <div class="wallet-pass-top">
+      <div>
+        <p class="wallet-kicker">E-CELL VJIT PASS</p>
+        <h2 class="ticket-event-title"></h2>
+      </div>
+      <span class="wallet-live-dot">
+        <span></span>
+        LIVE
+      </span>
+    </div>
+
+    <div class="wallet-pass-body">
+      <div class="wallet-main-info">
+        <p class="attendee-name-label"></p>
+        <span class="ticket-event-meta"></span>
+      </div>
+
+      <div class="wallet-qr-wrap">
+        <canvas class="qr-canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="wallet-pass-cut" aria-hidden="true"></div>
+
+    <div class="wallet-pass-bottom">
+      <div class="wallet-field">
+        <span>Email</span>
+        <strong class="ticket-email-text"></strong>
+      </div>
+      <div class="wallet-field">
+        <span>Phone</span>
+        <strong class="ticket-phone-text"></strong>
+      </div>
+      <div class="wallet-field">
+        <span>Team</span>
+        <strong class="ticket-team-text"></strong>
+      </div>
+      <div class="wallet-field wallet-field-wide">
+        <span>Ticket ID</span>
+        <strong class="ticket-id-text"></strong>
+      </div>
+      <button class="download-btn download-btn-secondary download-single-btn">
+        <iconify-icon icon="solar:download-linear" width="16" height="16"></iconify-icon>
+        Download ticket
+      </button>
+      <div class="whatsapp-join-wrap hidden">
+        <p class="whatsapp-join-copy"></p>
+        <a class="whatsapp-join-btn" target="_blank" rel="noopener noreferrer">
+          <iconify-icon icon="mdi:whatsapp" width="17" height="17"></iconify-icon>
+          Join WhatsApp group
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -102,6 +146,178 @@ const { eventTitle } = Astro.props;
     background: linear-gradient(135deg, rgba(185, 28, 28, 0.96), rgba(249, 115, 22, 0.95));
   }
 
+  .ticket-wallet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .wallet-pass {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 1.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(254, 202, 202, 0.34), transparent 26%),
+      radial-gradient(circle at 100% 18%, rgba(249, 115, 22, 0.28), transparent 32%),
+      linear-gradient(145deg, rgba(127, 29, 29, 0.96), rgba(22, 4, 3, 0.98) 54%, rgba(3, 1, 1, 0.96));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 24px 70px rgba(0, 0, 0, 0.44);
+  }
+
+  .wallet-pass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(120deg, transparent 0 34%, rgba(255, 255, 255, 0.08) 42%, transparent 52%),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 7px);
+    opacity: 0.7;
+  }
+
+  .wallet-pass-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.35rem 1.35rem 1rem;
+  }
+
+  .wallet-kicker,
+  .wallet-live-dot,
+  .wallet-field span {
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .wallet-kicker {
+    margin-bottom: 0.45rem;
+    color: rgb(254, 226, 226);
+    font-size: 0.72rem;
+  }
+
+  .ticket-event-title {
+    color: white;
+    font-size: clamp(1.35rem, 3vw, 2.1rem);
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  .wallet-live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: fit-content;
+    border-radius: 999px;
+    padding: 0.36rem 0.62rem;
+    color: rgb(255, 241, 242);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.24);
+    font-size: 0.68rem;
+  }
+
+  .wallet-live-dot span {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: rgb(34, 197, 94);
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.85);
+  }
+
+  .wallet-pass-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: end;
+    padding: 0 1.35rem 1.25rem;
+  }
+
+  .attendee-name-label {
+    margin-bottom: 0.55rem;
+    color: white;
+    font-size: clamp(1.6rem, 4vw, 2.65rem);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .ticket-event-meta {
+    display: block;
+    color: rgb(254, 226, 226);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .wallet-qr-wrap {
+    border-radius: 1.15rem;
+    padding: 0.65rem;
+    background: white;
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+      0 16px 34px rgba(0, 0, 0, 0.32);
+  }
+
+  .wallet-pass-cut {
+    position: relative;
+    height: 1px;
+    margin: 0 1.45rem;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  }
+
+  .wallet-pass-cut::before,
+  .wallet-pass-cut::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 999px;
+    background: #050101;
+    transform: translateY(-50%);
+  }
+
+  .wallet-pass-cut::before {
+    left: -2.3rem;
+  }
+
+  .wallet-pass-cut::after {
+    right: -2.3rem;
+  }
+
+  .wallet-pass-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    padding: 1.25rem 1.35rem 1.35rem;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .wallet-field {
+    min-width: 0;
+  }
+
+  .wallet-field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .wallet-field span {
+    display: block;
+    margin-bottom: 0.28rem;
+    color: rgb(252, 165, 165);
+    font-size: 0.68rem;
+  }
+
+  .wallet-field strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: rgb(243, 244, 246);
+    font-size: 0.82rem;
+    font-weight: 400;
+  }
+
   /* global.css has a bare `canvas { position: fixed; ... }` rule for the background
      shader canvas — override it here so the QR canvas renders inline in the card. */
   .qr-canvas {
@@ -110,6 +326,10 @@ const { eventTitle } = Astro.props;
     left: auto;
     z-index: auto;
     display: block;
+    width: 9.5rem;
+    height: 9.5rem;
+    padding: 0;
+    background: white;
   }
 
   .download-btn {
@@ -119,7 +339,7 @@ const { eventTitle } = Astro.props;
     gap: 0.5rem;
     border-radius: 999px;
     padding: 0.6rem 1.2rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Prosto One', system-ui, sans-serif;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -142,6 +362,7 @@ const { eventTitle } = Astro.props;
   }
 
   .download-btn-secondary {
+    grid-column: 1 / -1;
     background: rgba(255, 255, 255, 0.04);
     color: rgb(254 226 226);
     border: 1px solid rgba(248, 113, 113, 0.22);
@@ -149,6 +370,51 @@ const { eventTitle } = Astro.props;
 
   .download-btn-secondary:hover:not(:disabled) {
     background: rgba(127, 29, 29, 0.18);
+  }
+
+  .whatsapp-join-wrap {
+    grid-column: 1 / -1;
+    border-radius: 1rem;
+    border: 1px solid rgba(34, 197, 94, 0.24);
+    background: rgba(20, 83, 45, 0.14);
+    padding: 0.85rem;
+  }
+
+  .whatsapp-join-copy {
+    margin: 0 0 0.7rem;
+    color: rgb(220, 252, 231);
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .whatsapp-join-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    border-radius: 999px;
+    padding: 0.65rem 1rem;
+    color: rgb(5, 46, 22);
+    background: rgb(134, 239, 172);
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.82rem;
+    transition: transform 150ms ease, background-color 150ms ease;
+  }
+
+  .whatsapp-join-btn:hover {
+    transform: translateY(-1px);
+    background: rgb(187, 247, 208);
+  }
+
+  @media (max-width: 640px) {
+    .wallet-pass-body {
+      grid-template-columns: 1fr;
+    }
+
+    .wallet-qr-wrap {
+      width: fit-content;
+    }
   }
 </style>
 
@@ -203,7 +469,7 @@ const { eventTitle } = Astro.props;
   } else {
     const { data: registrations, error } = await supabase
       .from('registrations')
-      .select('name, email, phone, ticket_id, team_name, events (title, date, time, venue)')
+      .select('name, email, phone, ticket_id, team_name, events (title, date, time, venue, whatsapp_group_link)')
       .in('ticket_id', ticketIds);
 
     if (error || !registrations || registrations.length === 0) {
@@ -244,8 +510,14 @@ const { eventTitle } = Astro.props;
         const titleEl = clone.querySelector('.ticket-event-title');
         const metaEl = clone.querySelector('.ticket-event-meta');
         const idEl = clone.querySelector('.ticket-id-text');
+        const emailEl = clone.querySelector('.ticket-email-text');
+        const phoneEl = clone.querySelector('.ticket-phone-text');
+        const teamEl = clone.querySelector('.ticket-team-text');
         const canvas = clone.querySelector('.qr-canvas');
         const downloadBtn = clone.querySelector('.download-single-btn');
+        const whatsappWrap = clone.querySelector('.whatsapp-join-wrap');
+        const whatsappCopy = clone.querySelector('.whatsapp-join-copy');
+        const whatsappBtn = clone.querySelector('.whatsapp-join-btn');
 
         const event = registration.events;
 
@@ -259,7 +531,18 @@ const { eventTitle } = Astro.props;
           });
           metaEl.textContent = `${date}${event.time ? ` · ${event.time}` : ''} · ${event.venue}`;
         }
-        if (idEl) idEl.textContent = `Ticket ID: ${registration.ticket_id}`;
+        if (idEl) idEl.textContent = registration.ticket_id;
+        if (emailEl) emailEl.textContent = registration.email;
+        if (phoneEl) phoneEl.textContent = registration.phone || 'Not provided';
+        if (teamEl) teamEl.textContent = registration.team_name || 'Solo';
+
+        if (event?.whatsapp_group_link && whatsappWrap instanceof HTMLElement && whatsappBtn instanceof HTMLAnchorElement) {
+          whatsappWrap.classList.remove('hidden');
+          whatsappBtn.href = event.whatsapp_group_link;
+          if (whatsappCopy) {
+            whatsappCopy.textContent = `Join the "${event.title ?? 'event'}" event WhatsApp group for updates.`;
+          }
+        }
 
         downloadBtn?.addEventListener('click', () => {
           withButtonBusy(downloadBtn, 'Preparing...', async () => {

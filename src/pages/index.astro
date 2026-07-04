@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import BackgroundShader from '../components/BackgroundShader.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
+import Marquee from '../components/Marquee.astro';
 import About from '../components/About.astro';
 import WhatWeDo from '../components/WhatWeDo.astro';
 import Events from '../components/Events.astro';
@@ -12,6 +13,7 @@ import ScrollPlane from '../components/ScrollPlane.astro';
 ---
 
 <BaseLayout title="E-Cell VJIT" showPreloader={true}>
+  <Marquee />
   <BackgroundShader />
   <Navbar />
   <Hero />

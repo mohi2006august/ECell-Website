@@ -1,28 +1,30 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import QRCode from 'qrcode';
 
-const PAGE_WIDTH = 380;
-const PAGE_HEIGHT = 600;
-const MARGIN = 20;
+const PAGE_WIDTH = 1000;
+const PAGE_HEIGHT = 650;
+const MARGIN = 38;
 
 const CARD_X = MARGIN;
 const CARD_Y = MARGIN;
 const CARD_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const CARD_HEIGHT = PAGE_HEIGHT - MARGIN * 2;
 
-const RED = rgb(0.73, 0.11, 0.11);
-const ORANGE = rgb(0.98, 0.45, 0.09);
-const DARK_TEXT = rgb(0.1, 0.09, 0.09);
-const GRAY_TEXT = rgb(0.42, 0.42, 0.42);
-const LIGHT_GRAY = rgb(0.85, 0.85, 0.85);
+const BLACK = rgb(0.02, 0, 0);
+const DARK_RED = rgb(0.16, 0.02, 0.015);
+const RED_LEFT = rgb(0.52, 0.17, 0.18);
+const RED_LINE = rgb(0.42, 0.18, 0.15);
 const WHITE = rgb(1, 1, 1);
+const SOFT_WHITE = rgb(1, 0.94, 0.94);
+const MUTED_RED = rgb(0.98, 0.66, 0.66);
+const GREEN = rgb(0.13, 0.77, 0.37);
 
 function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-function drawAccentBar(page, x, y, width, height) {
-  const steps = 48;
+function drawHorizontalGradient(page, x, y, width, height, from, to) {
+  const steps = 110;
   const stepWidth = width / steps;
   for (let i = 0; i < steps; i++) {
     const t = i / (steps - 1);
@@ -31,163 +33,167 @@ function drawAccentBar(page, x, y, width, height) {
       y,
       width: stepWidth + 0.5,
       height,
-      color: rgb(lerp(RED.red, ORANGE.red, t), lerp(RED.green, ORANGE.green, t), lerp(RED.blue, ORANGE.blue, t)),
+      color: rgb(
+        lerp(from.red, to.red, t),
+        lerp(from.green, to.green, t),
+        lerp(from.blue, to.blue, t)
+      ),
     });
   }
 }
 
-function drawDashedLineHorizontal(page, y, xStart, xEnd, color) {
-  const dash = 4;
-  const gap = 3;
-  let x = xStart;
-  while (x < xEnd) {
-    const segmentEnd = Math.min(x + dash, xEnd);
-    page.drawLine({ start: { x, y }, end: { x: segmentEnd, y }, thickness: 1, color });
-    x += dash + gap;
+function drawSubtleStripes(page, x, y, width, height) {
+  for (let stripeX = x + 8; stripeX < x + width; stripeX += 8) {
+    page.drawLine({
+      start: { x: stripeX, y },
+      end: { x: stripeX, y: y + height },
+      thickness: 0.35,
+      color: rgb(0.32, 0.12, 0.1),
+      opacity: 0.42,
+    });
   }
 }
 
 function fitText(font, text, size, maxWidth) {
-  if (font.widthOfTextAtSize(text, size) <= maxWidth) return text;
-  let truncated = text;
-  while (truncated.length > 1 && font.widthOfTextAtSize(`${truncated}…`, size) > maxWidth) {
+  const safeText = String(text ?? '');
+  if (font.widthOfTextAtSize(safeText, size) <= maxWidth) return safeText;
+  let truncated = safeText;
+  while (truncated.length > 1 && font.widthOfTextAtSize(`${truncated}...`, size) > maxWidth) {
     truncated = truncated.slice(0, -1);
   }
-  return `${truncated}…`;
+  return `${truncated}...`;
 }
 
-async function loadLogoBytes(baseUrl = '') {
-  // In the browser, a relative URL resolves against the page origin. Node's
-  // fetch (used server-side, e.g. the email API route) has no implicit origin,
-  // so callers running server-side must pass an absolute baseUrl.
-  try {
-    const response = await fetch(`${baseUrl}/images/ecell-logo.png`);
-    if (!response.ok) return null;
-    return await response.arrayBuffer();
-  } catch {
-    return null;
-  }
-}
-
-async function drawTicketPage(pdfDoc, fonts, logoImage, registration) {
+async function drawTicketPage(pdfDoc, fonts, registration) {
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   const { bold, regular } = fonts;
   const event = registration.events ?? {};
-  const contentWidth = CARD_WIDTH - 44;
 
-  page.drawRectangle({ x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT, color: WHITE });
+  page.drawRectangle({ x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT, color: BLACK });
 
-  // Card
+  drawHorizontalGradient(page, CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, RED_LEFT, BLACK);
   page.drawRectangle({
     x: CARD_X,
     y: CARD_Y,
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderColor: LIGHT_GRAY,
+    borderColor: RED_LINE,
+    borderWidth: 1.1,
+  });
+  drawSubtleStripes(page, CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT);
+  page.drawRectangle({
+    x: CARD_X,
+    y: CARD_Y,
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    color: DARK_RED,
+    opacity: 0.16,
+  });
+
+  const contentX = CARD_X + 26;
+  const topY = CARD_Y + CARD_HEIGHT - 40;
+
+  page.drawText('E-CELL VJIT PASS', {
+    x: contentX,
+    y: topY,
+    size: 10,
+    font: bold,
+    color: SOFT_WHITE,
+  });
+
+  const liveX = CARD_X + CARD_WIDTH - 94;
+  const liveY = topY - 8;
+  page.drawRectangle({
+    x: liveX,
+    y: liveY,
+    width: 62,
+    height: 30,
+    borderColor: RED_LINE,
     borderWidth: 1,
+    color: rgb(0.12, 0.04, 0.03),
+    opacity: 0.78,
+  });
+  page.drawCircle({ x: liveX + 15, y: liveY + 15, size: 4.5, color: GREEN });
+  page.drawText('LIVE', { x: liveX + 25, y: liveY + 11, size: 8, font: bold, color: WHITE });
+
+  page.drawText(fitText(bold, String(event.title ?? 'Event').toUpperCase(), 34, 560), {
+    x: contentX,
+    y: topY - 50,
+    size: 34,
+    font: bold,
     color: WHITE,
   });
 
-  // Top accent bar
-  drawAccentBar(page, CARD_X, CARD_Y + CARD_HEIGHT - 6, CARD_WIDTH, 6);
-
-  const contentX = CARD_X + 22;
-  let cursorY = CARD_Y + CARD_HEIGHT - 28;
-
-  // Logo + wordmark
-  if (logoImage) {
-    const logoSize = 24;
-    page.drawImage(logoImage, { x: contentX, y: cursorY - logoSize + 6, width: logoSize, height: logoSize });
-    page.drawText('E-CELL VJIT', {
-      x: contentX + logoSize + 10,
-      y: cursorY - logoSize / 2 - 2,
-      size: 11,
-      font: bold,
-      color: DARK_TEXT,
-    });
-  } else {
-    page.drawText('E-CELL VJIT', { x: contentX, y: cursorY - 9, size: 11, font: bold, color: DARK_TEXT });
-  }
-
-  cursorY -= 36;
-
-  // Event title
-  const title = fitText(bold, event.title ?? 'Event', 16, contentWidth);
-  page.drawText(title, { x: contentX, y: cursorY, size: 16, font: bold, color: DARK_TEXT });
-  cursorY -= 20;
-
-  // Date / time / venue
   const dateStr = event.date
     ? new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
-  const meta = fitText(regular, [dateStr, event.time, event.venue].filter(Boolean).join('  ·  '), 9, contentWidth);
-  page.drawText(meta, { x: contentX, y: cursorY, size: 9, font: regular, color: GRAY_TEXT });
-  cursorY -= 22;
+  const meta = fitText(regular, [dateStr, event.time, event.venue].filter(Boolean).join(' - '), 14, 560);
 
-  // Perforation (horizontal, cutting across the full card width)
-  drawDashedLineHorizontal(page, cursorY, CARD_X + 4, CARD_X + CARD_WIDTH - 4, LIGHT_GRAY);
-  page.drawCircle({ x: CARD_X, y: cursorY, size: 9, color: WHITE });
-  page.drawCircle({ x: CARD_X + CARD_WIDTH, y: cursorY, size: 9, color: WHITE });
-  cursorY -= 24;
+  page.drawText(fitText(bold, registration.name ?? 'Attendee', 42, 560), {
+    x: contentX,
+    y: CARD_Y + 252,
+    size: 42,
+    font: bold,
+    color: WHITE,
+  });
+  page.drawText(meta, { x: contentX, y: CARD_Y + 218, size: 14, font: bold, color: SOFT_WHITE });
 
-  // Attendee details
-  const rows = [
-    { label: 'NAME', value: registration.name },
-    { label: 'EMAIL', value: registration.email },
-    { label: 'PHONE', value: registration.phone },
-    { label: 'TEAM', value: registration.team_name },
-  ].filter((row) => row.value);
-
-  const labelWidth = 56;
-  for (const row of rows) {
-    page.drawText(row.label, { x: contentX, y: cursorY, size: 8, font: bold, color: RED });
-    const value = fitText(regular, String(row.value), 10.5, contentWidth - labelWidth);
-    page.drawText(value, { x: contentX + labelWidth, y: cursorY, size: 10.5, font: regular, color: DARK_TEXT });
-    cursorY -= 20;
-  }
-
-  cursorY -= 18;
-
-  // Big QR, centered
   const qrDataUrl = await QRCode.toDataURL(registration.ticket_id, { width: 500, margin: 1 });
   const qrBytes = await fetch(qrDataUrl).then((r) => r.arrayBuffer());
   const qrImage = await pdfDoc.embedPng(qrBytes);
 
-  const qrSize = Math.min(260, contentWidth);
-  const qrX = CARD_X + CARD_WIDTH / 2 - qrSize / 2;
-  const qrY = cursorY - qrSize;
+  const qrSize = 270;
+  const qrPadding = 18;
+  const qrBox = qrSize + qrPadding * 2;
+  const qrX = CARD_X + CARD_WIDTH - qrBox - 26 + qrPadding;
+  const qrY = CARD_Y + 226;
+  page.drawRectangle({
+    x: qrX - qrPadding,
+    y: qrY - qrPadding,
+    width: qrBox,
+    height: qrBox,
+    color: WHITE,
+  });
   page.drawImage(qrImage, { x: qrX, y: qrY, width: qrSize, height: qrSize });
 
-  const scanLabel = 'SCAN TO CHECK IN';
-  const scanLabelWidth = bold.widthOfTextAtSize(scanLabel, 9);
-  page.drawText(scanLabel, {
-    x: CARD_X + CARD_WIDTH / 2 - scanLabelWidth / 2,
-    y: qrY - 18,
-    size: 9,
-    font: bold,
-    color: GRAY_TEXT,
+  const cutY = CARD_Y + 184;
+  page.drawLine({
+    start: { x: CARD_X, y: cutY },
+    end: { x: CARD_X + CARD_WIDTH, y: cutY },
+    thickness: 1,
+    color: RED_LINE,
+    opacity: 0.8,
   });
+  page.drawCircle({ x: CARD_X, y: cutY, size: 14, color: BLACK });
+  page.drawCircle({ x: CARD_X + CARD_WIDTH, y: cutY, size: 14, color: BLACK });
 
-  const ticketIdText = `Ticket ID: ${registration.ticket_id}`;
-  const ticketIdWidth = regular.widthOfTextAtSize(ticketIdText, 7);
-  page.drawText(ticketIdText, {
-    x: CARD_X + CARD_WIDTH / 2 - ticketIdWidth / 2,
-    y: CARD_Y + 14,
-    size: 7,
-    font: regular,
-    color: GRAY_TEXT,
-  });
+  const fieldTop = CARD_Y + 150;
+  const fields = [
+    { label: 'EMAIL', value: registration.email, x: contentX, y: fieldTop, width: 340 },
+    { label: 'PHONE', value: registration.phone || 'Not provided', x: contentX + 370, y: fieldTop, width: 170 },
+    { label: 'TEAM', value: registration.team_name || 'Solo', x: contentX + 570, y: fieldTop, width: 300 },
+    { label: 'TICKET ID', value: registration.ticket_id, x: contentX, y: fieldTop - 62, width: 830 },
+  ];
+
+  for (const field of fields) {
+    page.drawText(field.label, { x: field.x, y: field.y, size: 9, font: bold, color: MUTED_RED });
+    page.drawText(fitText(bold, field.value, 13, field.width), {
+      x: field.x,
+      y: field.y - 28,
+      size: 13,
+      font: bold,
+      color: WHITE,
+    });
+  }
 }
 
-export async function generateTicketsPdfBytes(registrations, { baseUrl = '' } = {}) {
+export async function generateTicketsPdfBytes(registrations) {
   const pdfDoc = await PDFDocument.create();
   const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const regular = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const logoBytes = await loadLogoBytes(baseUrl);
-  const logoImage = logoBytes ? await pdfDoc.embedPng(logoBytes) : null;
 
   for (const registration of registrations) {
-    await drawTicketPage(pdfDoc, { bold, regular }, logoImage, registration);
+    await drawTicketPage(pdfDoc, { bold, regular }, registration);
   }
 
   return pdfDoc.save();

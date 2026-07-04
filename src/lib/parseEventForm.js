@@ -39,6 +39,7 @@ export function parseEventForm(formData) {
     registration_deadline: str(formData, 'registration_deadline'),
     requirements: str(formData, 'requirements'),
     prerequisites: str(formData, 'prerequisites'),
+    whatsapp_group_link: str(formData, 'whatsapp_group_link'),
     is_team_event: bool(formData, 'is_team_event'),
     min_team_size: num(formData, 'min_team_size'),
     max_team_size: num(formData, 'max_team_size'),
