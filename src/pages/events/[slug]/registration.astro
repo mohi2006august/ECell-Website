@@ -58,10 +58,6 @@ const memberFields = [
   { field: 'email', type: 'email', placeholder: 'Email' },
   { field: 'phone', type: 'tel', placeholder: 'Phone number' },
   { field: 'roll_number', type: 'text', placeholder: 'Roll number' },
-  { field: 'branch', type: 'text', placeholder: 'Branch' },
-  { field: 'year_of_study', type: 'text', placeholder: 'Year of study' },
-  { field: 'section', type: 'text', placeholder: 'Section' },
-  { field: 'college', type: 'text', placeholder: 'College (if not VJIT)' },
 ];
 
 const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Details', 'Confirm'];
@@ -119,15 +115,74 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
               <p class="font-pixel">Step 01</p>
               <h2>Your details</h2>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input type="text" name="name" placeholder="Full name" required class="reg-input" />
-              <input type="email" name="email" placeholder="Email" required class="reg-input" />
-              <input type="tel" name="phone" placeholder="Phone number" class="reg-input" />
-              <input type="text" name="roll_number" placeholder="Roll number" class="reg-input" />
-              <input type="text" name="branch" placeholder="Branch" class="reg-input" />
-              <input type="text" name="year_of_study" placeholder="Year of study" class="reg-input" />
-              <input type="text" name="section" placeholder="Section" class="reg-input" />
-              <input type="text" name="college" placeholder="College (if not VJIT)" class="reg-input" />
+            <div class="detail-card-grid">
+              <div class="detail-input-card">
+                <div class="detail-input-card-head">
+                  <span>
+                    <iconify-icon icon="solar:user-rounded-linear" width="20" height="20"></iconify-icon>
+                  </span>
+                  <div>
+                    <p class="font-pixel">Personal</p>
+                    <h3>Contact details</h3>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input type="text" name="name" placeholder="Full name" required class="reg-input" />
+                  <input type="email" name="email" placeholder="Email" required class="reg-input" />
+                  <input type="tel" name="phone" placeholder="Phone number" class="reg-input sm:col-span-2" />
+                </div>
+              </div>
+
+              <div class="detail-input-card">
+                <div class="detail-input-card-head">
+                  <span>
+                    <iconify-icon icon="solar:buildings-2-linear" width="20" height="20"></iconify-icon>
+                  </span>
+                  <div>
+                    <p class="font-pixel">College</p>
+                    <h3>Academic details</h3>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input type="text" name="roll_number" placeholder="Roll number" class="reg-input" />
+                  <div class="field-with-other">
+                    <select name="branch" class="reg-input" data-other-select data-other-target="branch_other" required>
+                      <option value="">Branch</option>
+                      <option value="CSE">CSE</option>
+                      <option value="IT">IT</option>
+                      <option value="CSE AIML">CSE AIML</option>
+                      <option value="CSE DS">CSE DS</option>
+                      <option value="Mechanical">Mechanical</option>
+                      <option value="Civil">Civil</option>
+                      <option value="ECE">ECE</option>
+                      <option value="EEE">EEE</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="branch_other" placeholder="Type branch" class="reg-input other-input hidden" />
+                  </div>
+                  <select name="year_of_study" class="reg-input">
+                    <option value="">Year</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select>
+                  <select name="section" class="reg-input">
+                    <option value="">Section</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                  </select>
+                  <div class="field-with-other sm:col-span-2">
+                    <select name="college" class="reg-input" data-other-select data-other-target="college_other">
+                      <option value="VJIT">VJIT</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="college_other" placeholder="Type college name" class="reg-input other-input hidden" />
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -152,6 +207,42 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
                       {memberFields.map(({ field, type, placeholder }) => (
                         <input type={type} data-field={field} placeholder={placeholder} class="reg-input" />
                       ))}
+                      <div class="field-with-other">
+                        <select data-field="branch" class="reg-input" data-other-select data-other-target="member_branch_other">
+                          <option value="">Branch</option>
+                          <option value="CSE">CSE</option>
+                          <option value="IT">IT</option>
+                          <option value="CSE AIML">CSE AIML</option>
+                          <option value="CSE DS">CSE DS</option>
+                          <option value="Mechanical">Mechanical</option>
+                          <option value="Civil">Civil</option>
+                          <option value="ECE">ECE</option>
+                          <option value="EEE">EEE</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <input type="text" data-field="branch_other" placeholder="Type branch" class="reg-input other-input hidden" />
+                      </div>
+                      <select data-field="year_of_study" class="reg-input">
+                        <option value="">Year</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                      <select data-field="section" class="reg-input">
+                        <option value="">Section</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                      </select>
+                      <div class="field-with-other">
+                        <select data-field="college" class="reg-input" data-other-select data-other-target="member_college_other">
+                          <option value="VJIT">VJIT</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <input type="text" data-field="college_other" placeholder="Type college name" class="reg-input other-input hidden" />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -206,14 +297,45 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
       Same as me (year, branch, section, college)
     </label>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <input type="text" data-field="name" placeholder="Full name" class="reg-input" />
-      <input type="email" data-field="email" placeholder="Email" class="reg-input" />
-      <input type="tel" data-field="phone" placeholder="Phone number" class="reg-input" />
-      <input type="text" data-field="roll_number" placeholder="Roll number" class="reg-input" />
-      <input type="text" data-field="branch" placeholder="Branch" class="reg-input" />
-      <input type="text" data-field="year_of_study" placeholder="Year of study" class="reg-input" />
-      <input type="text" data-field="section" placeholder="Section" class="reg-input" />
-      <input type="text" data-field="college" placeholder="College (if not VJIT)" class="reg-input" />
+      {memberFields.map(({ field, type, placeholder }) => (
+        <input type={type} data-field={field} placeholder={placeholder} class="reg-input" />
+      ))}
+      <div class="field-with-other">
+        <select data-field="branch" class="reg-input" data-other-select data-other-target="member_branch_other">
+          <option value="">Branch</option>
+          <option value="CSE">CSE</option>
+          <option value="IT">IT</option>
+          <option value="CSE AIML">CSE AIML</option>
+          <option value="CSE DS">CSE DS</option>
+          <option value="Mechanical">Mechanical</option>
+          <option value="Civil">Civil</option>
+          <option value="ECE">ECE</option>
+          <option value="EEE">EEE</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" data-field="branch_other" placeholder="Type branch" class="reg-input other-input hidden" />
+      </div>
+      <select data-field="year_of_study" class="reg-input">
+        <option value="">Year</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+      <select data-field="section" class="reg-input">
+        <option value="">Section</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+      <div class="field-with-other">
+        <select data-field="college" class="reg-input" data-other-select data-other-target="member_college_other">
+          <option value="VJIT">VJIT</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" data-field="college_other" placeholder="Type college name" class="reg-input other-input hidden" />
+      </div>
     </div>
   </div>
 </template>
@@ -229,7 +351,7 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
 
   .stepper-shell {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
     gap: 0.65rem;
     padding: 0.45rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -325,9 +447,77 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     width: 100%;
   }
 
+  select.reg-input {
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, rgba(254, 202, 202, 0.8) 50%),
+      linear-gradient(135deg, rgba(254, 202, 202, 0.8) 50%, transparent 50%);
+    background-position:
+      calc(100% - 18px) 50%,
+      calc(100% - 12px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 2.4rem;
+  }
+
+  select.reg-input option {
+    background: rgb(20, 4, 3);
+    color: white;
+  }
+
+  .field-with-other {
+    display: grid;
+    gap: 0.65rem;
+  }
+
   .reg-input:focus {
     outline: none;
     border-color: rgba(248, 113, 113, 0.5);
+  }
+
+  .detail-card-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .detail-input-card {
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    border-radius: 1.15rem;
+    padding: 1rem;
+    background:
+      linear-gradient(135deg, rgba(127, 29, 29, 0.18), rgba(255, 255, 255, 0.025)),
+      rgba(0, 0, 0, 0.16);
+  }
+
+  .detail-input-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-input-card-head > span {
+    width: 2.4rem;
+    height: 2.4rem;
+    display: grid;
+    place-items: center;
+    border-radius: 0.85rem;
+    color: rgb(254, 202, 202);
+    border: 1px solid rgba(248, 113, 113, 0.24);
+    background: rgba(127, 29, 29, 0.18);
+  }
+
+  .detail-input-card-head p {
+    margin: 0 0 0.15rem;
+    color: rgb(254, 202, 202);
+    font-size: 0.65rem;
+  }
+
+  .detail-input-card-head h3 {
+    margin: 0;
+    color: white;
+    font-size: 1.05rem;
+    letter-spacing: 0;
   }
 
   .team-member-block {
@@ -376,11 +566,7 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     cursor: not-allowed;
   }
 
-  .solo-pass-card,
   .confirm-pass-preview {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
     border: 1px solid rgba(248, 113, 113, 0.2);
     border-radius: 1.1rem;
     padding: 1rem;
@@ -389,20 +575,17 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
       rgba(0, 0, 0, 0.24);
   }
 
-  .solo-pass-card span,
   .confirm-pass-preview iconify-icon {
     color: rgb(254, 202, 202);
     filter: drop-shadow(0 0 14px rgba(248, 113, 113, 0.35));
   }
 
-  .solo-pass-card h3,
   .confirm-pass-preview h3 {
     color: white;
     font-size: 1.2rem;
     margin-bottom: 0.3rem;
   }
 
-  .solo-pass-card p,
   .confirm-pass-preview span {
     color: rgb(209, 213, 219);
     font-family: 'Prosto One', system-ui, sans-serif;
@@ -410,7 +593,16 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
   }
 
   .confirm-pass-preview {
+    margin-bottom: 1rem;
+    display: grid;
+    align-items: stretch;
+  }
+
+  .confirm-pass-head {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 1rem;
     margin-bottom: 1rem;
   }
 
@@ -432,10 +624,23 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     background: rgba(255, 255, 255, 0.035);
   }
 
+  .review-card.review-card-primary {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(248, 113, 113, 0.12), transparent 42%),
+      rgba(255, 255, 255, 0.045);
+  }
+
   .review-card h3 {
     color: white;
     font-size: 1rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .review-card-subtitle {
+    margin: 0 0 0.9rem;
+    color: rgb(156, 163, 175);
+    font-size: 0.82rem;
+    line-height: 1.45;
   }
 
   .review-list {
@@ -444,8 +649,14 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     gap: 0.75rem;
   }
 
-  .review-list p {
+  .review-field {
     margin: 0;
+    min-width: 0;
+  }
+
+  .review-field span {
+    display: block;
+    margin-bottom: 0.25rem;
     color: rgb(156, 163, 175);
     font-family: 'Pixelify Sans', ui-monospace, monospace;
     font-size: 0.72rem;
@@ -453,9 +664,8 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     text-transform: uppercase;
   }
 
-  .review-list strong {
+  .review-field strong {
     display: block;
-    margin-top: 0.25rem;
     color: rgb(243, 244, 246);
     font-family: 'Prosto One', system-ui, sans-serif;
     font-size: 0.9rem;
@@ -545,9 +755,9 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
   const reviewPanel = document.getElementById('review-panel');
 
   const SAME_AS_ME_FIELDS = ['year_of_study', 'branch', 'section', 'college'];
-  const DETAIL_FIELDS = ['name', 'email', 'phone', 'roll_number', 'branch', 'year_of_study', 'section', 'college'];
   const isTeamEvent = form instanceof HTMLFormElement && form.dataset.isTeamEvent === 'true';
   let currentStep = 0;
+  const maxStep = Math.max(0, stepPanels.length - 1);
 
   const minTeamSize = form instanceof HTMLFormElement && form.dataset.minTeamSize
     ? parseInt(form.dataset.minTeamSize, 10)
@@ -568,22 +778,33 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
 
   function getFormValue(field: string) {
     if (!(form instanceof HTMLFormElement)) return '';
-    return form.querySelector<HTMLInputElement>(`[name="${field}"]`)?.value.trim() ?? '';
+    const value = form.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${field}"]`)?.value.trim() ?? '';
+    if (value === 'Other') {
+      return form.querySelector<HTMLInputElement>(`[name="${field}_other"]`)?.value.trim() ?? '';
+    }
+    return value;
+  }
+
+  function getBlockValue(block: Element, field: string) {
+    const value = block.querySelector<HTMLInputElement | HTMLSelectElement>(`[data-field="${field}"]`)?.value.trim() || '';
+    if (value === 'Other') {
+      return block.querySelector<HTMLInputElement>(`[data-field="${field}_other"]`)?.value.trim() || '';
+    }
+    return value;
   }
 
   function collectTeammates() {
     return Array.from(document.querySelectorAll('#team-members-list .team-member-block'))
       .map((block) => {
-        const get = (field: string) => block.querySelector<HTMLInputElement>(`[data-field="${field}"]`)?.value.trim() || '';
         return {
-          name: get('name'),
-          email: get('email'),
-          phone: get('phone') || null,
-          roll_number: get('roll_number') || null,
-          branch: get('branch') || null,
-          year_of_study: get('year_of_study') || null,
-          section: get('section') || null,
-          college: get('college') || null,
+          name: getBlockValue(block, 'name'),
+          email: getBlockValue(block, 'email'),
+          phone: getBlockValue(block, 'phone') || null,
+          roll_number: getBlockValue(block, 'roll_number') || null,
+          branch: getBlockValue(block, 'branch') || null,
+          year_of_study: getBlockValue(block, 'year_of_study') || null,
+          section: getBlockValue(block, 'section') || null,
+          college: getBlockValue(block, 'college') || null,
         };
       })
       .filter((member) => member.name && member.email);
@@ -620,29 +841,30 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
   }
 
   function reviewItem(label: string, value: string | null | undefined) {
-    return `<p>${label}<strong>${value || 'Not provided'}</strong></p>`;
+    return `<div class="review-field"><span>${label}</span><strong>${value || 'Not provided'}</strong></div>`;
   }
 
   function renderReview() {
     if (!reviewPanel) return;
 
     const teammates = collectTeammates();
-    const detailLabels: Record<string, string> = {
-      name: 'Name',
-      email: 'Email',
-      phone: 'Phone',
-      roll_number: 'Roll number',
-      branch: 'Branch',
-      year_of_study: 'Year',
-      section: 'Section',
-      college: 'College',
-    };
-
-    const detailsHtml = DETAIL_FIELDS.map((field) => reviewItem(detailLabels[field], getFormValue(field))).join('');
+    const personalHtml = [
+      reviewItem('Name', getFormValue('name')),
+      reviewItem('Email', getFormValue('email')),
+      reviewItem('Phone', getFormValue('phone')),
+    ].join('');
+    const collegeHtml = [
+      reviewItem('Roll number', getFormValue('roll_number')),
+      reviewItem('Branch', getFormValue('branch')),
+      reviewItem('Year', getFormValue('year_of_study')),
+      reviewItem('Section', getFormValue('section')),
+      reviewItem('College', getFormValue('college')),
+    ].join('');
     const teamHtml = isTeamEvent
       ? `
         <div class="review-card">
           <h3>Team pass</h3>
+          <p class="review-card-subtitle">Tickets will be generated for the lead attendee and every listed teammate.</p>
           <div class="review-list">
             ${reviewItem('Team name', getFormValue('team_name'))}
             ${reviewItem('Total tickets', String(1 + teammates.length))}
@@ -663,21 +885,28 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
       : `
         <div class="review-card">
           <h3>Registration type</h3>
+          <p class="review-card-subtitle">This is a solo registration. One QR ticket will be issued.</p>
           <div class="review-list">${reviewItem('Ticket mode', 'Solo pass')}</div>
         </div>
       `;
 
     reviewPanel.innerHTML = `
+      <div class="review-card review-card-primary">
+        <h3>Personal details</h3>
+        <p class="review-card-subtitle">Used for ticket delivery and check-in verification.</p>
+        <div class="review-list">${personalHtml}</div>
+      </div>
       <div class="review-card">
-        <h3>Lead attendee</h3>
-        <div class="review-list">${detailsHtml}</div>
+        <h3>College details</h3>
+        <p class="review-card-subtitle">Shown to the organizing team for attendee verification.</p>
+        <div class="review-list">${collegeHtml}</div>
       </div>
       ${teamHtml}
     `;
   }
 
   function setStep(step: number) {
-    currentStep = Math.max(0, Math.min(3, step));
+    currentStep = Math.max(0, Math.min(maxStep, step));
     stepPanels.forEach((panel, index) => panel.classList.toggle('is-active', index === currentStep));
     stepIndicators.forEach((indicator, index) => {
       indicator.classList.toggle('is-active', index === currentStep);
@@ -685,10 +914,10 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     });
 
     if (backBtn instanceof HTMLButtonElement) backBtn.disabled = currentStep === 0;
-    nextBtn?.classList.toggle('hidden', currentStep === 3);
-    confirmBtn?.classList.toggle('hidden', currentStep !== 3);
+    nextBtn?.classList.toggle('hidden', currentStep === maxStep);
+    confirmBtn?.classList.toggle('hidden', currentStep !== maxStep);
 
-    if (currentStep >= 2) renderReview();
+    if (currentStep === maxStep) renderReview();
   }
 
   function updateTeamUI() {
@@ -719,14 +948,42 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     sameAsMeCheckbox?.addEventListener('change', (e) => {
       if (!(e.target instanceof HTMLInputElement) || !e.target.checked || !(form instanceof HTMLFormElement)) return;
       for (const field of SAME_AS_ME_FIELDS) {
-        const leadInput = form.querySelector<HTMLInputElement>(`[name="${field}"]`);
-        const memberInput = block.querySelector<HTMLInputElement>(`[data-field="${field}"]`);
-        if (leadInput && memberInput) memberInput.value = leadInput.value;
+        const leadValue = getFormValue(field);
+        const memberInput = block.querySelector<HTMLInputElement | HTMLSelectElement>(`[data-field="${field}"]`);
+        if (!memberInput) continue;
+        const matchingOption = memberInput instanceof HTMLSelectElement
+          ? [...memberInput.options].some((option) => option.value === leadValue)
+          : true;
+        memberInput.value = matchingOption ? leadValue : 'Other';
+        memberInput.dispatchEvent(new Event('change', { bubbles: true }));
+        if (!matchingOption) {
+          const otherInput = block.querySelector<HTMLInputElement>(`[data-field="${field}_other"]`);
+          if (otherInput) otherInput.value = leadValue;
+        }
       }
+    });
+
+    wireOtherSelects(block);
+  }
+
+  function wireOtherSelects(root: ParentNode = document) {
+    root.querySelectorAll<HTMLSelectElement>('[data-other-select]').forEach((select) => {
+      const sync = () => {
+        const wrapper = select.closest('.field-with-other') || select.parentElement;
+        const input = wrapper?.querySelector<HTMLInputElement>('.other-input');
+        if (!input) return;
+        const show = select.value === 'Other';
+        input.classList.toggle('hidden', !show);
+        input.required = show;
+        if (!show) input.value = '';
+      };
+      select.addEventListener('change', sync);
+      sync();
     });
   }
 
   teamMembersList?.querySelectorAll('.team-member-block').forEach(wireMemberBlock);
+  wireOtherSelects(document);
   updateTeamUI();
   setStep(0);
 
@@ -755,7 +1012,7 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     e.preventDefault();
     if (!(e.target instanceof HTMLFormElement)) return;
 
-    if (currentStep !== 3) {
+    if (currentStep !== maxStep) {
       if (validateStep(currentStep)) setStep(currentStep + 1);
       return;
     }
@@ -809,14 +1066,14 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
         ticket_id: crypto.randomUUID(),
         team_name: teamName,
         is_team_leader: teammates.length > 0,
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone') || null,
-        roll_number: formData.get('roll_number') || null,
-        branch: formData.get('branch') || null,
-        year_of_study: formData.get('year_of_study') || null,
-        section: formData.get('section') || null,
-        college: formData.get('college') || null,
+        name: getFormValue('name'),
+        email: getFormValue('email'),
+        phone: getFormValue('phone') || null,
+        roll_number: getFormValue('roll_number') || null,
+        branch: getFormValue('branch') || null,
+        year_of_study: getFormValue('year_of_study') || null,
+        section: getFormValue('section') || null,
+        college: getFormValue('college') || null,
       },
       ...teammates.map((member) => ({
         event_id: eventId,
