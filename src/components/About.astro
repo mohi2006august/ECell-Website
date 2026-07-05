@@ -21,7 +21,7 @@ const flagships = ['PitchQuest', 'E-Conclave', 'Startup Bootcamps', 'Mentorship 
 
 <section id="about" class="container mx-auto px-6 py-16 md:py-24 relative z-10">
   <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
-    <div>
+    <div class="about-content">
       <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
       <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
       <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed max-w-3xl">{description}</p>
@@ -35,8 +35,8 @@ const flagships = ['PitchQuest', 'E-Conclave', 'Startup Bootcamps', 'Mentorship 
         ))}
       </div>
 
-      <div class="mt-8 grid gap-5 md:grid-cols-[240px_minmax(0,1fr)]">
-        <div class="orbit-panel glass rounded-2xl border border-red-500/15 p-6 flex flex-col items-center justify-center gap-4">
+      <div class="mt-8 grid gap-5 md:grid-cols-[210px_minmax(0,1fr)]">
+        <div class="orbit-panel glass rounded-2xl border border-red-500/15 p-5 md:p-6 flex flex-col items-center justify-center gap-4">
           <div class="orbit-stage" aria-hidden="true">
             <span class="orbit-ring orbit-ring-outer"></span>
             <span class="orbit-ring orbit-ring-inner"></span>
@@ -59,7 +59,7 @@ const flagships = ['PitchQuest', 'E-Conclave', 'Startup Bootcamps', 'Mentorship 
         </div>
 
         <div class="grid gap-5">
-          <article class="glass rounded-2xl p-6 border border-red-500/15">
+          <article class="glass rounded-2xl p-5 md:p-6 border border-red-500/15">
             <div class="flex items-center gap-3 mb-3">
               <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
                 <iconify-icon icon="solar:eye-linear" width="20" height="20"></iconify-icon>
@@ -68,7 +68,7 @@ const flagships = ['PitchQuest', 'E-Conclave', 'Startup Bootcamps', 'Mentorship 
             </div>
             <p class="text-gray-200 font-inter text-sm md:text-base leading-relaxed">{vision}</p>
           </article>
-          <article class="glass rounded-2xl p-6 border border-red-500/15">
+          <article class="glass rounded-2xl p-5 md:p-6 border border-red-500/15">
             <div class="flex items-center gap-3 mb-3">
               <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
                 <iconify-icon icon="solar:target-linear" width="20" height="20"></iconify-icon>
@@ -96,6 +96,13 @@ const flagships = ['PitchQuest', 'E-Conclave', 'Startup Bootcamps', 'Mentorship 
 </section>
 
 <style>
+  @media (min-width: 1024px) {
+    .about-content {
+      max-width: min(100%, 58rem);
+      margin-right: auto;
+    }
+  }
+
   .orbit-stage {
     position: relative;
     width: 150px;

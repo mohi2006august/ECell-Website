@@ -44,16 +44,16 @@ const { domains = [
       <span class="plane-stop" data-plane-stop></span>
     </div>
 
-    <div>
+    <div class="domains-content">
       <div class="max-w-3xl mb-10 lg:ml-auto lg:text-right">
         <p class="font-pixel text-xs text-red-200/80 mb-4">Opportunities</p>
         <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">Ways to learn, build and grow</h2>
         <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">Hands-on tracks that take students from curiosity to execution.</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
         {domains.map((domain, index) => (
-          <article class="domain-card glass rounded-xl p-6 group hover:border-red-500/30 transition-all">
+          <article class="domain-card glass rounded-xl p-5 md:p-6 group hover:border-red-500/30 transition-all">
             <div class="flex items-start justify-between mb-4">
               <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-red-400 group-hover:bg-red-500/20 transition-colors">
                 <iconify-icon icon={domain.icon} width="26" height="26"></iconify-icon>
@@ -77,6 +77,13 @@ const { domains = [
 <style>
   .domain-card:hover {
     transform: translateY(-3px);
+  }
+
+  @media (min-width: 1024px) {
+    .domains-content {
+      max-width: min(100%, 58rem);
+      margin-left: auto;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

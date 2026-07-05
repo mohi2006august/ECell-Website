@@ -39,16 +39,16 @@ const {
 
 <section id="traction" class="container mx-auto px-6 py-16 md:py-24 relative z-10">
   <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
-    <div>
+    <div class="traction-content">
       <div class="max-w-3xl mb-10">
         <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
         <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
         <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-8">
         {stats.map((stat) => (
-          <div class="glass rounded-xl p-5 text-center group hover:border-red-500/30 transition-colors">
+          <div class="glass rounded-xl p-4 md:p-5 text-center group hover:border-red-500/30 transition-colors">
             <div class="mb-2 flex justify-center text-red-400">
               <iconify-icon icon={stat.icon} width="26" height="26"></iconify-icon>
             </div>
@@ -58,7 +58,7 @@ const {
         ))}
       </div>
 
-      <div class="glass rounded-2xl border border-red-500/15 p-6 md:p-8 grid gap-8 md:grid-cols-[220px_minmax(0,1fr)] items-center">
+      <div class="glass traction-milestone-card rounded-2xl border border-red-500/15 p-6 md:p-7 grid gap-7 md:grid-cols-[180px_minmax(0,1fr)] items-center">
         <div class="flex flex-col items-center gap-4">
           <div class="radar-stage" aria-hidden="true">
             <span class="radar-ring" style="inset: 0"></span>
@@ -97,6 +97,13 @@ const {
 </section>
 
 <style>
+  @media (min-width: 1024px) {
+    .traction-content {
+      max-width: min(100%, 58rem);
+      margin-right: auto;
+    }
+  }
+
   .radar-stage {
     position: relative;
     width: 160px;
