@@ -1,0 +1,188 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackgroundShader from '../../components/BackgroundShader.astro';
+import Navbar from '../../components/Navbar.astro';
+import interactions from '../../data/interactions.js';
+---
+
+<BaseLayout title="E-Cell VJIT | Interactions">
+  <BackgroundShader />
+  <Navbar />
+
+  <section class="container mx-auto px-6 py-16 md:py-24 relative z-10">
+    <div class="max-w-3xl mb-10 md:mb-14">
+      <p class="font-pixel text-xs text-red-200/80 mb-4">Playground</p>
+      <h1 class="text-4xl md:text-6xl font-jakarta font-semibold tracking-tight mb-5">Interactions</h1>
+      <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">
+        Little interactive corners of E-Cell. Pick one to jump in.
+      </p>
+    </div>
+
+    <ul class="ix-list" data-ix-list>
+      {interactions.map((it, i) => (
+        <li class="ix-item" style={`--i:${i}; --accent:${it.accent}`}>
+          <a class="ix-row" href={`/interactions/${it.slug}`}>
+            <span class="ix-fill" aria-hidden="true"></span>
+            <iconify-icon class="ix-watermark" icon={it.icon} width="120" height="120" aria-hidden="true"></iconify-icon>
+            <span class="ix-index font-pixel">{String(i + 1).padStart(2, '0')}</span>
+            <span class="ix-main">
+              <span class="ix-title">{it.title}</span>
+              <span class="ix-tagline">{it.tagline}</span>
+            </span>
+            <span class="ix-go">
+              <iconify-icon icon="solar:arrow-right-linear" width="26" height="26"></iconify-icon>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .ix-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ix-item {
+    perspective: 1100px;
+    opacity: 0;
+    animation: ixReveal 0.7s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 95ms);
+  }
+
+  .ix-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.6rem 1.5rem;
+    border-top: 1px solid rgba(248, 113, 113, 0.16);
+    overflow: hidden;
+    color: #fff;
+    transform-style: preserve-3d;
+    transition: transform 220ms cubic-bezier(0.2, 0.9, 0.2, 1);
+    will-change: transform;
+  }
+  .ix-item:last-child .ix-row {
+    border-bottom: 1px solid rgba(248, 113, 113, 0.16);
+  }
+
+  /* Accent sweep that fills the row on hover. */
+  .ix-fill {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      linear-gradient(115deg, rgba(255, 255, 255, 0.28), transparent 42%),
+      var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 460ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+  .ix-row:hover .ix-fill,
+  .ix-row:focus-visible .ix-fill {
+    transform: scaleX(1);
+  }
+
+  .ix-watermark {
+    position: absolute;
+    top: 50%;
+    right: 4.5rem;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-50%) translateX(34px);
+    transition: transform 520ms cubic-bezier(0.2, 0.9, 0.2, 1), color 400ms ease;
+    pointer-events: none;
+  }
+  .ix-row:hover .ix-watermark {
+    color: rgba(20, 8, 2, 0.14);
+    transform: translateY(-50%) translateX(0);
+  }
+
+  .ix-index,
+  .ix-main,
+  .ix-go {
+    position: relative;
+    z-index: 2;
+    transition: color 300ms ease, transform 300ms ease;
+  }
+
+  .ix-index {
+    font-size: 1.05rem;
+    color: rgba(254, 202, 202, 0.45);
+    letter-spacing: 0.1em;
+  }
+
+  .ix-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .ix-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-size: clamp(1.7rem, 4.2vw, 2.9rem);
+    line-height: 1;
+  }
+  .ix-tagline {
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.95rem;
+    color: rgb(209, 213, 219);
+  }
+
+  .ix-go {
+    color: rgba(254, 202, 202, 0.5);
+    transform: translateX(-8px);
+    opacity: 0.5;
+  }
+
+  /* Hover: row lights up in its accent; text flips to dark for contrast. */
+  .ix-row:hover .ix-index { color: rgba(20, 8, 2, 0.5); }
+  .ix-row:hover .ix-title { color: #160902; }
+  .ix-row:hover .ix-tagline { color: rgba(20, 8, 2, 0.7); }
+  .ix-row:hover .ix-go { color: #160902; opacity: 1; transform: translateX(0); }
+
+  @keyframes ixReveal {
+    from {
+      opacity: 0;
+      transform: perspective(1100px) rotateX(-64deg) translateY(34px);
+      transform-origin: top center;
+    }
+    to {
+      opacity: 1;
+      transform: perspective(1100px) rotateX(0deg) translateY(0);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .ix-watermark { display: none; }
+    .ix-row { gap: 1rem; padding: 1.3rem 1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ix-item { animation: none; opacity: 1; }
+    .ix-row, .ix-fill, .ix-watermark, .ix-index, .ix-main, .ix-go { transition: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rows = document.querySelectorAll<HTMLElement>('.ix-row');
+    rows.forEach((row) => {
+      row.addEventListener('pointermove', (e) => {
+        const r = row.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        row.style.transform = `rotateX(${(-py * 5).toFixed(2)}deg) rotateY(${(px * 7).toFixed(2)}deg) translateZ(8px)`;
+      });
+      row.addEventListener('pointerleave', () => { row.style.transform = ''; });
+    });
+  })();
+</script>

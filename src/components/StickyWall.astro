@@ -11,7 +11,7 @@ interface Props {
 const {
   eyebrow = 'Leave your mark',
   title = 'The E-Cell sticky wall',
-  description = "Stick a note for the community — a hello, an idea, a memory, or who you're looking to build with. Drag them around.",
+  description = "Stick a note for everyone — a hello, an idea, a memory, or who you're looking to build with. Drag them around.",
 } = Astro.props as Props;
 
 const swatches = ['amber', 'rose', 'orange', 'lime', 'sky', 'violet'];
@@ -58,7 +58,7 @@ const swatches = ['amber', 'rose', 'orange', 'lime', 'sky', 'violet'];
   </form>
 
   <div class="board-frame">
-    <div class="sticky-board" data-board aria-label="Community notes">
+    <div class="sticky-board" data-board aria-label="Sticky notes">
       <p class="sticky-board-state" data-board-state>Loading the wall…</p>
     </div>
   </div>
