@@ -150,6 +150,10 @@ const stats = [
         </ol>
       </div>
     </div>
+
+    <div class="achievement-end-quote noise-overlay">
+      <p>Still cooking. Still launching. Never stopping.</p>
+    </div>
   </section>
 </BaseLayout>
 
@@ -222,10 +226,10 @@ const stats = [
 
   .achievement-stat {
     border: 1px solid rgba(248, 113, 113, 0.18);
-    border-radius: 1.1rem;
     padding: 1rem;
     background: rgba(12, 3, 2, 0.62);
     backdrop-filter: blur(14px);
+    clip-path: polygon(0.85rem 0, 100% 0, 100% calc(100% - 0.85rem), calc(100% - 0.85rem) 100%, 0 100%, 0 0.85rem);
   }
 
   .achievement-stat span {
@@ -249,7 +253,7 @@ const stats = [
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(248, 113, 113, 0.18);
-    border-radius: 1.7rem;
+    clip-path: polygon(1.4rem 0, 100% 0, 100% calc(100% - 1.4rem), calc(100% - 1.4rem) 100%, 0 100%, 0 1.4rem);
     background:
       radial-gradient(120% 90% at 50% 0%, rgba(127, 29, 29, 0.26), transparent 46%),
       linear-gradient(165deg, rgba(20, 4, 3, 0.82), rgba(5, 1, 1, 0.86));
@@ -401,8 +405,8 @@ const stats = [
     overflow: hidden;
     grid-column: 2;
     border: 1px solid rgba(248, 113, 113, 0.18);
-    border-radius: 1.35rem;
     padding: 0.78rem;
+    clip-path: polygon(1rem 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%, 0 1rem);
     background:
       linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 34%),
       rgba(11, 2, 2, 0.72);
@@ -435,11 +439,11 @@ const stats = [
   .checkpoint-media {
     position: relative;
     overflow: hidden;
-    border-radius: 0.95rem;
     margin: 0 0 1rem;
     aspect-ratio: 16 / 8;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.035);
+    clip-path: polygon(0.75rem 0, 100% 0, 100% calc(100% - 0.75rem), calc(100% - 0.75rem) 100%, 0 100%, 0 0.75rem);
   }
 
   .checkpoint-media::after {
@@ -525,12 +529,32 @@ const stats = [
   .checkpoint-icon {
     width: 3rem;
     height: 3rem;
-    border-radius: 1rem;
     display: grid;
     place-items: center;
     color: rgb(254 226 226);
     border: 1px solid rgba(248, 113, 113, 0.25);
     background: linear-gradient(135deg, rgba(127, 29, 29, 0.45), rgba(255, 255, 255, 0.035));
+    clip-path: polygon(0.7rem 0, 100% 0, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0 100%, 0 0.7rem);
+  }
+
+  .achievement-end-quote {
+    margin: 3rem auto 0;
+    max-width: 58rem;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent 34%),
+      rgba(12, 3, 2, 0.68);
+    clip-path: polygon(1.15rem 0, 100% 0, 100% calc(100% - 1.15rem), calc(100% - 1.15rem) 100%, 0 100%, 0 1.15rem);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    text-align: center;
+  }
+
+  .achievement-end-quote p {
+    color: rgb(254 226 226);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: clamp(1.15rem, 3vw, 2.2rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .checkpoint-kicker {
