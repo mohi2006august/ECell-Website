@@ -1,0 +1,244 @@
+---
+// Startup Idea Generator Machine — pull the lever, three reels spin and combine
+// a random tech + audience + twist into a (usually ridiculous) startup idea.
+// Purely client-side.
+interface Props { eyebrow?: string; title?: string; description?: string; }
+const {
+  eyebrow = 'Idea machine',
+  title = 'Pull the lever',
+  description = 'A slot machine for startup ideas. It smashes random tech, audiences, and twists together — most are terrible, some are genius.',
+} = Astro.props as Props;
+---
+
+<section id="idea-machine" class="container mx-auto px-6 py-14 md:py-20 relative z-10">
+  <div class="max-w-2xl mb-8">
+    <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+  </div>
+
+  <div class="im-machine" data-im>
+    <div class="im-cabinet">
+      <div class="im-reels">
+        <div class="im-reel" data-im-reel="0"><span class="im-word">An AI app</span></div>
+        <div class="im-reel" data-im-reel="1"><span class="im-word">college students</span></div>
+        <div class="im-reel" data-im-reel="2"><span class="im-word">that gamifies naps</span></div>
+      </div>
+
+      <button type="button" class="im-lever" data-im-lever aria-label="Pull the lever">
+        <span class="im-lever-track"></span>
+        <span class="im-lever-arm"><span class="im-lever-knob"></span></span>
+        <span class="im-lever-label font-pixel">PULL</span>
+      </button>
+    </div>
+
+    <div class="im-readout" data-im-readout>
+      <p class="im-idea font-jakarta" data-im-idea>Pull the lever to generate your billion-dollar idea…</p>
+      <p class="im-tag font-pixel" data-im-tag hidden></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .im-machine {
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  .im-cabinet {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.4rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    background: linear-gradient(158deg, #2a130b, #160705 60%, #0d0403);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.05), 0 26px 56px rgba(0, 0, 0, 0.5);
+  }
+
+  .im-reels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+  }
+  .im-reel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 5.5rem;
+    padding: 0.6rem;
+    border-radius: 0.8rem;
+    text-align: center;
+    background: radial-gradient(120% 120% at 50% 0%, rgba(20, 6, 4, 0.9), #050201);
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85), inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+  }
+  .im-word {
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+    line-height: 1.15;
+    color: rgb(254 226 226);
+  }
+  .im-reel.is-spinning .im-word {
+    filter: blur(1.5px);
+    opacity: 0.85;
+  }
+
+  .im-lever {
+    position: relative;
+    width: 3.4rem;
+    height: 8rem;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .im-lever-track {
+    position: absolute;
+    left: 50%;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 8px;
+    margin-left: -4px;
+    border-radius: 999px;
+    background: linear-gradient(#3a1710, #0c0402);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+  }
+  .im-lever-arm {
+    position: absolute;
+    left: 50%;
+    bottom: 1rem;
+    width: 6px;
+    height: 5rem;
+    margin-left: -3px;
+    border-radius: 999px;
+    background: linear-gradient(#9aa0a6, #4b5157);
+    transform-origin: bottom center;
+    transition: transform 220ms cubic-bezier(0.34, 1.4, 0.5, 1);
+  }
+  .im-lever-knob {
+    position: absolute;
+    top: -0.7rem;
+    left: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-left: -0.75rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #ff8a8a, #ef4444 55%, #7f1d1d);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+  }
+  .im-machine.is-pulling .im-lever-arm { transform: translateY(2rem) rotate(2deg); }
+  .im-lever-label {
+    position: absolute;
+    bottom: -0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.5rem;
+    letter-spacing: 0.16em;
+    color: rgba(254, 202, 202, 0.6);
+  }
+
+  .im-readout {
+    margin-top: 1.2rem;
+    padding: 1.3rem 1.5rem;
+    border-radius: 1.1rem;
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    background: linear-gradient(150deg, rgba(40, 8, 5, 0.5), rgba(12, 4, 3, 0.65));
+  }
+  .im-idea {
+    margin: 0;
+    font-size: clamp(1.15rem, 3vw, 1.7rem);
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+  }
+  .im-machine.is-revealed .im-idea { animation: imPop 400ms ease; }
+  .im-tag {
+    margin: 0.7rem 0 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: rgb(134 239 172);
+  }
+
+  @keyframes imPop {
+    0% { opacity: 0.3; transform: translateY(8px) scale(0.98); }
+    100% { opacity: 1; transform: none; }
+  }
+
+  @media (max-width: 560px) {
+    .im-cabinet { grid-template-columns: 1fr; }
+    .im-lever { justify-self: center; height: 6rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .im-lever-arm, .im-reel.is-spinning .im-word { transition: none; filter: none; }
+    .im-machine.is-revealed .im-idea { animation: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    const machine = document.querySelector<HTMLElement>('[data-im]');
+    if (!machine) return;
+    const lever = machine.querySelector<HTMLButtonElement>('[data-im-lever]');
+    const reels = Array.from(machine.querySelectorAll<HTMLElement>('[data-im-reel]'));
+    const ideaEl = machine.querySelector<HTMLElement>('[data-im-idea]');
+    const tagEl = machine.querySelector<HTMLElement>('[data-im-tag]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const banks = [
+      ['An AI app', 'A blockchain', 'A Chrome extension', 'A dating app', 'A subscription box', 'A no-code tool', 'A mobile game', 'A social network', 'A smart wearable', 'A drone service'],
+      ['college students', 'goldfish owners', 'gym bros', 'sleep-deprived founders', 'cats', 'grandparents', 'night-shift coders', 'wedding planners', 'introverts', 'conspiracy theorists'],
+      ['that gamifies naps', 'to avoid doing laundry', 'that judges your code', 'powered entirely by memes', 'but only on Sundays', 'that pays you in snacks', 'with a built-in life coach', 'that runs purely on vibes', 'for people who hate apps', 'that never works but looks amazing'],
+    ];
+    const tags = ['Pre-seed. Obviously.', 'YC would reject this.', 'Unicorn potential (trust me).', 'Already overvalued at ₹500 cr.', 'The next big thing™.', 'Pivot #4 incoming.'];
+
+    const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+    let spinning = false;
+
+    const pull = () => {
+      if (spinning) return;
+      spinning = true;
+      machine.classList.remove('is-revealed');
+      machine.classList.add('is-pulling');
+      if (tagEl) tagEl.hidden = true;
+      window.setTimeout(() => machine.classList.remove('is-pulling'), 260);
+
+      const finals = banks.map((b) => pick(b));
+
+      if (reduced) {
+        reels.forEach((r, i) => { const w = r.querySelector('.im-word'); if (w) w.textContent = finals[i]; });
+        reveal(finals);
+        spinning = false;
+        return;
+      }
+
+      const intervals: number[] = [];
+      reels.forEach((reel, i) => {
+        reel.classList.add('is-spinning');
+        const word = reel.querySelector('.im-word');
+        intervals[i] = window.setInterval(() => { if (word) word.textContent = pick(banks[i]); }, 70);
+      });
+
+      // Stop reels one by one for that slot-machine cadence.
+      reels.forEach((reel, i) => {
+        window.setTimeout(() => {
+          window.clearInterval(intervals[i]);
+          const word = reel.querySelector('.im-word');
+          if (word) word.textContent = finals[i];
+          reel.classList.remove('is-spinning');
+          if (i === reels.length - 1) { reveal(finals); spinning = false; }
+        }, 650 + i * 380);
+      });
+    };
+
+    const reveal = (finals: string[]) => {
+      if (ideaEl) ideaEl.textContent = `${finals[0]} for ${finals[1]} ${finals[2]}.`;
+      if (tagEl) { tagEl.textContent = pick(tags); tagEl.hidden = false; }
+      machine.classList.add('is-revealed');
+    };
+
+    lever?.addEventListener('click', pull);
+  })();
+</script>

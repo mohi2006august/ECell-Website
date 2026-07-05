@@ -118,7 +118,7 @@ const stats = [
       </div>
 
       <div class="timeline-stage" data-achievement-timeline>
-        <div class="timeline-rail" aria-hidden="true">
+        <div class="timeline-rail" aria-hidden="true" data-timeline-rail>
           <span class="timeline-rail-track"></span>
           <span class="timeline-rail-progress" data-timeline-progress></span>
         </div>
@@ -165,16 +165,28 @@ const stats = [
 
 <script>
   const timeline = document.querySelector<HTMLElement>('[data-achievement-timeline]');
+  const rail = document.querySelector<HTMLElement>('[data-timeline-rail]');
   const progress = document.querySelector<HTMLElement>('[data-timeline-progress]');
   const checkpoints = Array.from(document.querySelectorAll<HTMLElement>('[data-achievement-checkpoint]'));
 
-  if (timeline && progress && checkpoints.length) {
+  if (timeline && rail && progress && checkpoints.length) {
+    let progressFrame = 0;
+
     const updateProgress = () => {
-      const rect = timeline.getBoundingClientRect();
-      const viewportAnchor = window.innerHeight * 0.58;
-      const raw = (viewportAnchor - rect.top) / Math.max(rect.height - window.innerHeight * 0.18, 1);
-      const clamped = Math.min(Math.max(raw, 0), 1);
-      progress.style.setProperty('--timeline-progress', `${clamped * 100}%`);
+      progressFrame = 0;
+      const rect = rail.getBoundingClientRect();
+      const viewportCenter = window.innerHeight * 0.5;
+      const fill = Math.min(Math.max(viewportCenter - rect.top, 0), rect.height);
+      const percent = rect.height > 0 ? fill / rect.height : 0;
+
+      progress.style.setProperty('--timeline-progress-px', `${fill.toFixed(1)}px`);
+      progress.style.setProperty('--timeline-progress-percent', `${(percent * 100).toFixed(2)}%`);
+      timeline.classList.toggle('has-progress', fill > 4);
+    };
+
+    const requestProgressUpdate = () => {
+      if (progressFrame) return;
+      progressFrame = window.requestAnimationFrame(updateProgress);
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -191,8 +203,8 @@ const stats = [
 
     checkpoints.forEach((checkpoint) => observer.observe(checkpoint));
     updateProgress();
-    window.addEventListener('scroll', updateProgress, { passive: true });
-    window.addEventListener('resize', updateProgress);
+    window.addEventListener('scroll', requestProgressUpdate, { passive: true });
+    window.addEventListener('resize', requestProgressUpdate);
     document.addEventListener('astro:page-load', updateProgress);
   }
 </script>
@@ -334,6 +346,8 @@ const stats = [
   .timeline-stage {
     position: relative;
     padding: 2.2rem 1.1rem 2.8rem;
+    --timeline-progress-px: 0px;
+    --timeline-progress-percent: 0%;
   }
 
   .timeline-rail {
@@ -341,26 +355,62 @@ const stats = [
     top: 2.8rem;
     bottom: 3rem;
     left: 1.75rem;
-    width: 0.34rem;
+    width: 0.52rem;
     border-radius: 999px;
-    overflow: hidden;
+    overflow: visible;
+    z-index: 0;
   }
 
   .timeline-rail-track,
   .timeline-rail-progress {
     position: absolute;
-    inset: 0;
     border-radius: inherit;
+    left: 50%;
+    top: 0;
+    width: 0.22rem;
+    transform: translateX(-50%);
   }
 
   .timeline-rail-track {
-    background: rgba(255, 255, 255, 0.08);
+    bottom: 0;
+    background:
+      linear-gradient(180deg, rgba(254, 202, 202, 0.08), rgba(254, 202, 202, 0.18), rgba(254, 202, 202, 0.08)),
+      rgba(255, 255, 255, 0.04);
+    box-shadow: 0 0 0 1px rgba(254, 202, 202, 0.04);
   }
 
   .timeline-rail-progress {
-    height: var(--timeline-progress, 0%);
-    background: linear-gradient(180deg, #fecaca, #ef4444, #fb923c);
-    box-shadow: 0 0 24px rgba(248, 113, 113, 0.44);
+    height: var(--timeline-progress-px, 0px);
+    min-height: 0;
+    background:
+      linear-gradient(180deg, #fff7ed 0%, #fecaca 18%, #fb7185 48%, #ef4444 72%, #fb923c 100%);
+    box-shadow:
+      0 0 12px rgba(254, 202, 202, 0.74),
+      0 0 28px rgba(248, 113, 113, 0.38),
+      0 0 46px rgba(251, 146, 60, 0.12);
+  }
+
+  .timeline-rail-progress::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 999px;
+    transform: translate(-50%, 50%);
+    border: 1px solid rgba(254, 226, 226, 0.74);
+    background:
+      radial-gradient(circle at 50% 45%, #fff7ed 0 24%, #fecaca 26% 42%, rgba(127, 29, 29, 0.98) 45%);
+    box-shadow:
+      0 0 0 0.42rem rgba(248, 113, 113, 0.14),
+      0 0 26px rgba(248, 113, 113, 0.62);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .timeline-stage.has-progress .timeline-rail-progress::after {
+    opacity: 1;
   }
 
   .timeline-list {

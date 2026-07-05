@@ -1,0 +1,288 @@
+---
+// Question Drop Box — students drop questions for founders, mentors, or the
+// E-Cell team. On submit, a paper note animates into the mailbox. Stored in
+// Supabase via /api/question-box; recent questions show below.
+interface Props { eyebrow?: string; title?: string; description?: string; }
+const {
+  eyebrow = 'Question drop box',
+  title = 'Ask anything',
+  description = 'Drop a question for founders, mentors, or the E-Cell team. We collect them for AMAs and sessions.',
+} = Astro.props as Props;
+
+const targets = ['Founders', 'Mentors', 'E-Cell'];
+---
+
+<section id="question-box" class="container mx-auto px-6 py-14 md:py-20 relative z-10">
+  <div class="max-w-2xl mb-8">
+    <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+  </div>
+
+  <div class="qb-top grid gap-8 lg:grid-cols-[1.4fr_1fr] items-start">
+    <form class="qb-form glass rounded-2xl p-5 md:p-6" data-qb-form novalidate>
+      <label class="block mb-4">
+        <span class="qb-label">Your question</span>
+        <textarea class="qb-input" data-qb-question maxlength="240" rows="3" required placeholder="What do you wish you knew before starting up?"></textarea>
+      </label>
+
+      <div class="mb-4">
+        <span class="qb-label">Ask</span>
+        <div class="qb-targets" role="radiogroup" aria-label="Who is this for" data-qb-targets>
+          {targets.map((t, i) => (
+            <button type="button" class="qb-target" data-target={t} role="radio" aria-checked={i === 0 ? 'true' : 'false'}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <label class="block">
+          <span class="qb-label">Your name <span class="opacity-60">(optional)</span></span>
+          <input type="text" class="qb-input" data-qb-name maxlength="32" placeholder="anon" />
+        </label>
+        <button type="submit" class="qb-submit" data-qb-submit>
+          <iconify-icon icon="solar:plain-2-linear" width="17" height="17"></iconify-icon>
+          Drop it
+        </button>
+      </div>
+      <p class="qb-error font-inter text-sm text-red-300 mt-3" data-qb-error role="status" aria-live="polite"></p>
+      <input type="text" data-qb-hp tabindex="-1" autocomplete="off" aria-hidden="true" class="qb-hp" />
+    </form>
+
+    <div class="qb-boxwrap">
+      <div class="qb-note" data-qb-note aria-hidden="true"></div>
+      <svg class="qb-box" data-qb-box viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="qbBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a0f08" />
+            <stop offset="100%" stop-color="#160604" />
+          </linearGradient>
+        </defs>
+        <rect x="36" y="60" width="128" height="96" rx="12" fill="url(#qbBody)" stroke="rgba(248,113,113,0.4)" stroke-width="2" />
+        <rect x="70" y="78" width="60" height="9" rx="4.5" fill="#0a0302" stroke="rgba(248,113,113,0.5)" stroke-width="1.5" />
+        <path d="M36 84 h128" stroke="rgba(248,113,113,0.15)" stroke-width="1" />
+        <line x1="150" y1="60" x2="150" y2="18" stroke="rgba(248,113,113,0.5)" stroke-width="3" stroke-linecap="round" class="qb-flag-pole" />
+        <rect x="150" y="18" width="26" height="16" rx="2" fill="#ef4444" class="qb-flag" />
+        <text x="100" y="132" text-anchor="middle" class="qb-box-label">DROP BOX</text>
+      </svg>
+      <p class="qb-count font-pixel" data-qb-count></p>
+    </div>
+  </div>
+
+  <div class="qb-feed" data-qb-feed>
+    <p class="qb-state font-inter" data-qb-state>Loading questions…</p>
+  </div>
+</section>
+
+<style is:global>
+  .qb-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.8);
+  }
+  .qb-input {
+    width: 100%;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: rgba(10, 3, 2, 0.55);
+    color: #fff;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    resize: vertical;
+  }
+  .qb-input::placeholder { color: rgba(209, 213, 219, 0.4); }
+  .qb-input:focus { outline: none; border-color: rgba(248, 113, 113, 0.55); box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14); }
+
+  .qb-targets { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; }
+  .qb-target {
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.75);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    background: rgba(10, 3, 2, 0.4);
+    transition: all 150ms ease;
+  }
+  .qb-target[aria-checked='true'] {
+    color: #fff;
+    background: rgba(127, 29, 29, 0.58);
+    border-color: rgba(254, 202, 202, 0.48);
+  }
+  .qb-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    clip-path: polygon(0.72rem 0, 100% 0, 100% calc(100% - 0.72rem), calc(100% - 0.72rem) 100%, 0 100%, 0 0.72rem);
+    border: 0;
+    padding: 0.65rem 1.3rem;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: rgb(254 226 226);
+    white-space: nowrap;
+    background: rgba(10, 2, 2, 0.24);
+    box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.58);
+    transition: transform 150ms ease, opacity 150ms ease, background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+  .qb-submit:hover { transform: translateY(-1px); color: #fff; background: rgba(127, 29, 29, 0.58); box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.8), 0 0 18px rgba(248, 113, 113, 0.2); }
+  .qb-submit:disabled { opacity: 0.6; cursor: progress; }
+  .qb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+  .qb-boxwrap { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 1rem; }
+  .qb-box { width: min(16rem, 80%); height: auto; filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45)); }
+  .qb-box-label { font-family: 'Pixelify Sans', ui-monospace, monospace; font-size: 12px; letter-spacing: 2px; fill: rgba(254, 202, 202, 0.55); }
+  .qb-flag, .qb-flag-pole { transform-box: fill-box; transform-origin: bottom left; transition: transform 500ms cubic-bezier(0.2, 0.9, 0.2, 1); }
+  .qb-boxwrap.is-dropping .qb-flag { transform: rotate(-38deg) translateY(-2px); }
+  .qb-count { margin-top: 0.5rem; font-size: 0.6rem; letter-spacing: 0.1em; color: rgba(254, 202, 202, 0.6); }
+
+  .qb-note {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 3.4rem;
+    height: 2.4rem;
+    margin-left: -1.7rem;
+    border-radius: 3px;
+    background: repeating-linear-gradient(#fff 0 6px, #f1f1f1 6px 7px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .qb-boxwrap.is-dropping .qb-note { animation: qbDrop 640ms cubic-bezier(0.4, 0, 0.7, 1) forwards; }
+  @keyframes qbDrop {
+    0% { opacity: 1; transform: translateY(-10px) rotate(-6deg) scale(1); }
+    70% { opacity: 1; transform: translateY(58px) rotate(6deg) scale(0.7); }
+    100% { opacity: 0; transform: translateY(64px) rotate(6deg) scale(0.5); }
+  }
+
+  .qb-feed {
+    margin-top: 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: 0.9rem;
+  }
+  .qb-state { grid-column: 1 / -1; padding: 1.5rem 0; text-align: center; color: rgb(156 163 175); }
+  .qb-qcard {
+    padding: 1rem 1.1rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    background: linear-gradient(150deg, rgba(40, 8, 5, 0.5), rgba(12, 4, 3, 0.6));
+  }
+  .qb-qtarget {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(254 226 226);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: rgba(127, 29, 29, 0.25);
+  }
+  .qb-qtext { margin: 0 0 0.4rem; font-family: 'Prosto One', system-ui, sans-serif; font-size: 0.95rem; line-height: 1.3; color: #fff; word-break: break-word; }
+  .qb-qname { margin: 0; font-family: 'Pixelify Sans', ui-monospace, monospace; font-size: 0.58rem; color: rgba(252, 165, 165, 0.7); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qb-boxwrap.is-dropping .qb-note { animation: none; }
+    .qb-flag, .qb-flag-pole { transition: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById('question-box');
+    if (!section) return;
+    const form = section.querySelector<HTMLFormElement>('[data-qb-form]');
+    const qInput = section.querySelector<HTMLTextAreaElement>('[data-qb-question]');
+    const nameInput = section.querySelector<HTMLInputElement>('[data-qb-name]');
+    const hpInput = section.querySelector<HTMLInputElement>('[data-qb-hp]');
+    const submitBtn = section.querySelector<HTMLButtonElement>('[data-qb-submit]');
+    const errorEl = section.querySelector<HTMLElement>('[data-qb-error]');
+    const targetsWrap = section.querySelector<HTMLElement>('[data-qb-targets]');
+    const boxwrap = section.querySelector<HTMLElement>('.qb-boxwrap');
+    const feed = section.querySelector<HTMLElement>('[data-qb-feed]');
+    const stateEl = section.querySelector<HTMLElement>('[data-qb-state]');
+    const countEl = section.querySelector<HTMLElement>('[data-qb-count]');
+    if (!form || !qInput || !submitBtn || !feed) return;
+
+    interface Item { id: string; question: string; target: string; name: string | null; }
+    let target = 'Founders';
+    let count = 0;
+
+    targetsWrap?.querySelectorAll<HTMLButtonElement>('[data-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        target = btn.dataset.target || 'Founders';
+        targetsWrap.querySelectorAll('[data-target]').forEach((b) => b.setAttribute('aria-checked', b === btn ? 'true' : 'false'));
+      });
+    });
+
+    const setState = (msg: string | null) => { if (stateEl) { stateEl.textContent = msg ?? ''; stateEl.style.display = msg ? '' : 'none'; } };
+    const setCount = () => { if (countEl) countEl.textContent = count ? `${count} question${count === 1 ? '' : 's'} dropped` : ''; };
+
+    const card = (it: Item): HTMLElement => {
+      const el = document.createElement('article');
+      el.className = 'qb-qcard';
+      const chip = document.createElement('span'); chip.className = 'qb-qtarget'; chip.textContent = 'For ' + it.target;
+      const q = document.createElement('p'); q.className = 'qb-qtext'; q.textContent = it.question;
+      el.append(chip, q);
+      if (it.name) { const n = document.createElement('p'); n.className = 'qb-qname'; n.textContent = '— ' + it.name; el.append(n); }
+      return el;
+    };
+
+    fetch('/api/question-box')
+      .then(async (r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data: { items?: Item[] }) => {
+        const items = data.items ?? [];
+        count = items.length; setCount();
+        if (items.length === 0) { setState('Be the first to drop a question.'); return; }
+        setState(null);
+        items.forEach((it) => feed.appendChild(card(it)));
+      })
+      .catch(() => setState('Could not load questions right now.'));
+
+    const playDrop = () => {
+      if (!boxwrap) return;
+      boxwrap.classList.remove('is-dropping');
+      void boxwrap.offsetWidth;
+      boxwrap.classList.add('is-dropping');
+      window.setTimeout(() => boxwrap.classList.remove('is-dropping'), 800);
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (errorEl) errorEl.textContent = '';
+      const question = qInput.value.trim();
+      if (!question) { if (errorEl) errorEl.textContent = 'Type your question first.'; return; }
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch('/api/question-box', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question, target, name: nameInput?.value ?? '', hp: hpInput?.value ?? '' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+        playDrop();
+        if (data.item) {
+          setState(null);
+          window.setTimeout(() => { feed.prepend(card(data.item as Item)); count++; setCount(); }, 500);
+        }
+        qInput.value = '';
+      } catch (err) {
+        if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  })();
+</script>
