@@ -88,16 +88,6 @@ const stats = [
           A dummy-data mission log for now. Each checkpoint lights up as you scroll, mapping how E-Cell moves from ideas to execution.
         </p>
       </div>
-
-      <div class="achievement-orbital" aria-hidden="true">
-        <span class="orbit-ring orbit-ring-outer"></span>
-        <span class="orbit-ring orbit-ring-mid"></span>
-        <span class="orbit-core">
-          <iconify-icon icon="solar:cup-star-linear" width="42" height="42"></iconify-icon>
-        </span>
-        <span class="orbit-satellite orbit-satellite-one"></span>
-        <span class="orbit-satellite orbit-satellite-two"></span>
-      </div>
     </div>
 
     <div class="achievement-stat-strip">
@@ -220,63 +210,7 @@ const stats = [
     grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
     align-items: center;
-  }
-
-  .achievement-orbital {
-    position: relative;
-    width: min(74vw, 320px);
-    aspect-ratio: 1;
-    margin-inline: auto;
-    border-radius: 999px;
-    filter: drop-shadow(0 0 36px rgba(248, 113, 113, 0.16));
-  }
-
-  .orbit-ring,
-  .orbit-core,
-  .orbit-satellite {
-    position: absolute;
-    border-radius: 999px;
-  }
-
-  .orbit-ring {
-    inset: 0;
-    border: 1px solid rgba(248, 113, 113, 0.18);
-    background: conic-gradient(from 180deg, transparent, rgba(248, 113, 113, 0.2), transparent 34%, rgba(251, 146, 60, 0.16), transparent);
-    animation: orbitSpin 18s linear infinite;
-  }
-
-  .orbit-ring-mid {
-    inset: 18%;
-    animation-duration: 11s;
-    animation-direction: reverse;
-  }
-
-  .orbit-core {
-    inset: 36%;
-    display: grid;
-    place-items: center;
-    color: rgb(254 226 226);
-    border: 1px solid rgba(254, 202, 202, 0.34);
-    background: radial-gradient(circle at 50% 25%, rgba(248, 113, 113, 0.34), rgba(10, 2, 2, 0.88));
-    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.06), 0 0 28px rgba(248, 113, 113, 0.24);
-  }
-
-  .orbit-satellite {
-    width: 0.7rem;
-    height: 0.7rem;
-    background: rgb(252 165 165);
-    box-shadow: 0 0 18px rgba(248, 113, 113, 0.9);
-  }
-
-  .orbit-satellite-one {
-    top: 17%;
-    right: 22%;
-  }
-
-  .orbit-satellite-two {
-    left: 18%;
-    bottom: 27%;
-    background: rgb(251 146 60);
+    max-width: 58rem;
   }
 
   .achievement-stat-strip {
@@ -631,12 +565,6 @@ const stats = [
     color: rgb(254 226 226);
   }
 
-  @keyframes orbitSpin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   @keyframes livePulse {
     70% {
       box-shadow: 0 0 0 10px rgba(248, 113, 113, 0);
@@ -647,10 +575,6 @@ const stats = [
   }
 
   @media (min-width: 768px) {
-    .achievement-hero-grid {
-      grid-template-columns: minmax(0, 1fr) 340px;
-    }
-
     .achievement-stat-strip {
       max-width: 720px;
     }
@@ -710,7 +634,6 @@ const stats = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .orbit-ring,
     .timeline-live-dot {
       animation: none;
     }
