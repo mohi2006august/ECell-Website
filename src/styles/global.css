@@ -14,6 +14,7 @@ body {
 body {
   background: #000;
   color: #fff;
+  font-family: 'Prosto One', system-ui, sans-serif;
 }
 
 canvas {
@@ -48,11 +49,117 @@ canvas {
 }
 
 .font-inter {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Prosto One', system-ui, sans-serif;
 }
 
 .font-jakarta {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Prosto One', system-ui, sans-serif;
+}
+
+.font-pixel {
+  font-family: 'Pixelify Sans', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.pixel-highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  background: rgba(127, 29, 29, 0.22);
+  color: rgb(254 226 226);
+  font-family: 'Pixelify Sans', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.1);
+}
+
+.stroke-button {
+  --stroke-button-fill: rgba(127, 29, 29, 0.48);
+  --stroke-button-glow: rgba(248, 113, 113, 0.22);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3.25rem;
+  min-width: min(100%, 15.5rem);
+  padding: 0.82rem 1.65rem;
+  color: rgb(254 226 226);
+  background: rgba(10, 2, 2, 0.2);
+  border: 0;
+  clip-path: polygon(1rem 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%, 0 1rem);
+  font-family: 'Prosto One', system-ui, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-align: center;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: color 180ms ease, transform 180ms ease, filter 180ms ease;
+}
+
+.stroke-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1.4px;
+  clip-path: inherit;
+  background:
+    linear-gradient(135deg, rgba(254, 202, 202, 0.92), rgba(248, 113, 113, 0.62) 48%, rgba(251, 146, 60, 0.82)),
+    rgba(248, 113, 113, 0.38);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.stroke-button::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -2;
+  clip-path: inherit;
+  background:
+    linear-gradient(90deg, rgba(254, 202, 202, 0.16), transparent 18%),
+    linear-gradient(135deg, var(--stroke-button-fill), rgba(251, 146, 60, 0.18));
+  transform: translateX(-104%);
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+.stroke-button:hover {
+  color: white;
+  transform: translateY(-2px);
+  filter: drop-shadow(0 0 18px var(--stroke-button-glow));
+}
+
+.stroke-button:hover::after {
+  transform: translateX(0);
+}
+
+.stroke-button:active {
+  transform: translateY(0) scale(0.985);
+  filter: drop-shadow(0 0 12px var(--stroke-button-glow));
+}
+
+.stroke-button:focus-visible {
+  outline: 2px solid rgba(254, 202, 202, 0.86);
+  outline-offset: 4px;
+}
+
+.stroke-button-strong {
+  --stroke-button-fill: rgba(185, 28, 28, 0.56);
+  --stroke-button-glow: rgba(248, 113, 113, 0.3);
+}
+
+.stroke-button-muted {
+  --stroke-button-fill: rgba(60, 12, 8, 0.62);
+  --stroke-button-glow: rgba(251, 146, 60, 0.2);
 }
 
 .noise-overlay {
@@ -135,6 +242,26 @@ canvas {
   .leadership-lane {
     display: none;
   }
+}
+
+/* Reserved column where the scroll paper plane travels; empty by design. */
+.plane-lane {
+  position: relative;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .plane-lane {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.plane-stop {
+  display: block;
+  width: 1px;
+  height: 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {

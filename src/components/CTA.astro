@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title = 'Start your journey with us.',
-  description = 'Explore upcoming events, join hands-on programs, and register to build with the E-Cell VJIT community.',
+  description = 'Explore upcoming events, join hands-on programs, and build with the E-Cell VJIT community.',
   primaryAction = 'View Upcoming Events',
   secondaryAction = 'Register for Events',
   primaryHref = '/events',
@@ -19,18 +19,55 @@ const {
 ---
 
 <section id="launch" class="container mx-auto px-6 py-16 md:py-24 relative z-10">
-  <div class="glass rounded-2xl p-8 md:p-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-    <div class="max-w-2xl">
-      <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
-      <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+  <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
+    <div class="launch-panel glass rounded-2xl p-8 md:p-12 relative overflow-hidden">
+      <span class="launch-tick launch-tick-tl" aria-hidden="true"></span>
+      <span class="launch-tick launch-tick-tr" aria-hidden="true"></span>
+      <span class="launch-tick launch-tick-bl" aria-hidden="true"></span>
+      <span class="launch-tick launch-tick-br" aria-hidden="true"></span>
+
+      <div class="flex flex-wrap items-center gap-2 mb-6">
+        <span class="pixel-highlight rounded-full px-3 py-1 text-[0.68rem]">
+          <span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+          Boarding Now
+        </span>
+        <span class="font-pixel rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] text-gray-300">Registrations Open</span>
+      </div>
+
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="max-w-2xl">
+          <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+          <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+        </div>
+        <div class="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0">
+          <a href={primaryHref} class="stroke-button stroke-button-strong">
+            {primaryAction}
+          </a>
+          <a href={secondaryHref} class="stroke-button stroke-button-muted">
+            {secondaryAction}
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="flex flex-col sm:flex-row gap-3">
-      <a href={primaryHref} class="bg-gradient-to-r from-red-700 to-orange-600 text-white font-inter font-medium text-base rounded-md px-8 py-4 hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-all shadow-lg shadow-red-900/20 text-center">
-        {primaryAction}
-      </a>
-      <a href={secondaryHref} class="glass font-inter text-base rounded-md px-8 py-4 hover:bg-white/5 transition-all text-center">
-        {secondaryAction}
-      </a>
+
+    <div class="plane-lane" aria-hidden="true">
+      <span class="plane-stop" data-plane-stop></span>
     </div>
   </div>
 </section>
+
+<style>
+  .launch-tick {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-color: rgba(248, 113, 113, 0.5);
+    border-style: solid;
+    border-width: 0;
+  }
+
+  .launch-tick-tl { top: 10px; left: 10px; border-top-width: 1.5px; border-left-width: 1.5px; }
+  .launch-tick-tr { top: 10px; right: 10px; border-top-width: 1.5px; border-right-width: 1.5px; }
+  .launch-tick-bl { bottom: 10px; left: 10px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+  .launch-tick-br { bottom: 10px; right: 10px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+</style>

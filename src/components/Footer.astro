@@ -15,16 +15,18 @@ const footerLinks = [
     links: [
       { label: 'Vision & Mission', href: '/#about' },
       { label: 'Opportunities', href: '/#domains' },
-      { label: 'Traction', href: '/#traction' },
-      { label: 'Core Team', href: '/team' }
+      { label: 'Achievements', href: '/achievements' },
+      { label: 'Core Team', href: '/team' },
+      { label: 'Contact', href: '/contact' }
     ]
   },
   {
     title: 'Explore',
     links: [
       { label: 'Events', href: '/events' },
-      { label: 'Launch', href: '/events#register' },
-      { label: 'Team Directory', href: '/team' }
+      { label: 'Register', href: '/events#register' },
+      { label: 'Team Directory', href: '/team' },
+      { label: 'Interactions', href: '/interactions' }
     ]
   }
 ];
@@ -44,12 +46,18 @@ const contactInfo = [
     icon: 'mdi:linkedin',
     text: 'LinkedIn',
     href: 'https://www.linkedin.com/company/e-cell-vjit/about/'
+  },
+  {
+    icon: 'mdi:youtube',
+    text: 'YouTube',
+    href: 'https://www.youtube.com/@E-cellVJIT/videos'
   }
 ];
 
 const socialLinks = [
   { icon: 'mdi:instagram', label: 'Instagram', href: 'https://www.instagram.com/ecell_vjit?igsh=MTM3c3ExdXVwaXBreg==' },
-  { icon: 'mdi:linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/e-cell-vjit/about/' }
+  { icon: 'mdi:linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/e-cell-vjit/about/' },
+  { icon: 'mdi:youtube', label: 'YouTube', href: 'https://www.youtube.com/@E-cellVJIT/videos' }
 ];
 ---
 
@@ -119,7 +127,7 @@ const socialLinks = [
         <span class="footer-badge">Built for student founders</span>
       </div>
 
-      <div class="hidden lg:flex h-44 -mb-16 pointer-events-none select-none mt-6" data-footer-hover>
+      <div class="hidden lg:flex h-44 -mb-16 pointer-events-none select-none mt-6">
         <svg width="100%" height="100%" viewBox="0 0 1200 220" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
           <defs>
             <linearGradient id="footerTextGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -127,76 +135,15 @@ const socialLinks = [
               <stop offset="50%" stop-color="#ef4444" />
               <stop offset="100%" stop-color="#fb923c" />
             </linearGradient>
-
-            <radialGradient id="footerRevealMaskGradient" cx="50%" cy="50%" r="24%">
-              <stop offset="0%" stop-color="white" />
-              <stop offset="100%" stop-color="black" />
-            </radialGradient>
-
-            <mask id="footerTextMask">
-              <rect x="0" y="0" width="1200" height="220" fill="url(#footerRevealMaskGradient)" />
-            </mask>
           </defs>
 
           <text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" class="footer-hover-outline">E-CELL VJIT</text>
           <text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" class="footer-hover-stroke">E-CELL VJIT</text>
-          <text x="50%" y="56%" text-anchor="middle" dominant-baseline="middle" stroke="url(#footerTextGradient)" mask="url(#footerTextMask)" class="footer-hover-reveal">E-CELL VJIT</text>
         </svg>
       </div>
     </div>
   </div>
 </footer>
-
-<script is:inline>
-  (() => {
-    const root = document.querySelector('[data-footer-hover]');
-    if (!(root instanceof HTMLElement)) return;
-
-    const svg = root.querySelector('svg');
-    const revealGradient = root.querySelector('#footerRevealMaskGradient');
-    if (!(svg instanceof SVGSVGElement) || !(revealGradient instanceof SVGRadialGradientElement)) return;
-
-    let targetX = 50;
-    let targetY = 50;
-    let currentX = 50;
-    let currentY = 50;
-    let ticking = false;
-
-    const animate = () => {
-      currentX += (targetX - currentX) * 0.16;
-      currentY += (targetY - currentY) * 0.16;
-      revealGradient.setAttribute('cx', `${currentX}%`);
-      revealGradient.setAttribute('cy', `${currentY}%`);
-      if (Math.abs(targetX - currentX) > 0.02 || Math.abs(targetY - currentY) > 0.02) {
-        requestAnimationFrame(animate);
-      } else {
-        ticking = false;
-      }
-    };
-
-    const queueAnimation = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(animate);
-      }
-    };
-
-    const moveMask = (event) => {
-      const rect = svg.getBoundingClientRect();
-      targetX = ((event.clientX - rect.left) / rect.width) * 100;
-      targetY = ((event.clientY - rect.top) / rect.height) * 100;
-      queueAnimation();
-    };
-
-    root.addEventListener('mousemove', moveMask, { passive: true });
-    root.addEventListener('mouseenter', queueAnimation, { passive: true });
-    root.addEventListener('mouseleave', () => {
-      targetX = 50;
-      targetY = 50;
-      queueAnimation();
-    }, { passive: true });
-  })();
-</script>
 
 <style>
   .footer-shell {
@@ -269,35 +216,52 @@ const socialLinks = [
   }
 
   .footer-hover-outline,
-  .footer-hover-stroke,
-  .footer-hover-reveal {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 130px;
-    font-weight: 700;
+  .footer-hover-stroke {
+    font-family: 'Notable', 'Climate Crisis', 'Prosto One', sans-serif;
+    font-size: 112px;
+    font-weight: 400;
     fill: transparent;
-    letter-spacing: 4px;
+    letter-spacing: 0;
+    paint-order: stroke fill;
   }
 
   .footer-hover-outline {
-    stroke: rgba(255, 226, 226, 0.24);
-    stroke-width: 0.5;
+    stroke: rgba(255, 240, 240, 0.3);
+    stroke-width: 0.62;
   }
 
   .footer-hover-stroke {
-    stroke: rgba(255, 120, 110, 0.92);
-    stroke-width: 0.6;
+    stroke: rgba(255, 145, 132, 0.95);
+    stroke-width: 0.78;
     stroke-dasharray: 950;
     stroke-dashoffset: 950;
-    animation: footerStrokeDraw 5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 14px rgba(255, 92, 82, 0.42));
   }
 
-  .footer-hover-reveal {
-    stroke-width: 0.42;
+  body:not(.loading) .footer-hover-stroke {
+    animation: footerStrokeIgnite 4.8s ease-in-out infinite;
   }
 
-  @keyframes footerStrokeDraw {
-    to {
+  body.loading .footer-hover-stroke {
+    animation: none;
+    stroke-dashoffset: 950;
+    opacity: 0.18;
+  }
+
+  @keyframes footerStrokeIgnite {
+    0%,
+    14% {
+      stroke-dashoffset: 950;
+      opacity: 0.18;
+    }
+    38%,
+    78% {
       stroke-dashoffset: 0;
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: 950;
+      opacity: 0.18;
     }
   }
 

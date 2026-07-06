@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackgroundShader from '../../components/BackgroundShader.astro';
+import Navbar from '../../components/Navbar.astro';
+import IdeaMachine from '../../components/IdeaMachine.astro';
+---
+
+<BaseLayout title="E-Cell VJIT | Idea Machine">
+  <BackgroundShader />
+  <Navbar />
+
+  <div class="container mx-auto px-6 pt-8 relative z-10">
+    <a href="/interactions" class="inline-flex items-center gap-2 text-sm font-pixel text-red-200/80 hover:text-white transition-colors">
+      <iconify-icon icon="solar:arrow-left-linear" width="15" height="15"></iconify-icon>
+      All interactions
+    </a>
+  </div>
+
+  <IdeaMachine />
+</BaseLayout>

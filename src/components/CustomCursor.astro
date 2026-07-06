@@ -1,0 +1,164 @@
+<div class="site-cursor-dot" data-cursor-dot aria-hidden="true"></div>
+<div class="site-cursor-pulse" data-cursor-pulse aria-hidden="true"></div>
+
+<script is:inline>
+  (() => {
+    const dot = document.querySelector('[data-cursor-dot]');
+    const pulse = document.querySelector('[data-cursor-pulse]');
+    if (!(dot instanceof HTMLElement) || !(pulse instanceof HTMLElement)) return;
+
+    const finePointer = window.matchMedia('(pointer: fine)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let visible = false;
+    let enabled = false;
+
+    const moveCursor = () => {
+      dot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      pulse.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    };
+
+    const setEnabled = () => {
+      enabled = finePointer.matches && !reducedMotion.matches;
+      document.documentElement.classList.toggle('custom-cursor-enabled', enabled);
+      dot.classList.toggle('is-enabled', enabled);
+      pulse.classList.toggle('is-enabled', enabled);
+      if (!enabled) {
+        visible = false;
+        dot.classList.remove('is-visible', 'is-pressed');
+        pulse.classList.remove('is-visible', 'is-clicking');
+      }
+    };
+
+    window.addEventListener('pointermove', (event) => {
+      if (!enabled) return;
+      x = event.clientX;
+      y = event.clientY;
+      moveCursor();
+      if (!visible) {
+        visible = true;
+        dot.classList.add('is-visible');
+        pulse.classList.add('is-visible');
+      }
+    }, { passive: true });
+
+    window.addEventListener('pointerdown', () => {
+      if (!enabled) return;
+      dot.classList.add('is-pressed');
+      pulse.classList.remove('is-clicking');
+      void pulse.offsetWidth;
+      pulse.classList.add('is-clicking');
+    }, { passive: true });
+
+    window.addEventListener('pointerup', () => {
+      dot.classList.remove('is-pressed');
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+      visible = false;
+      dot.classList.remove('is-visible', 'is-pressed');
+      pulse.classList.remove('is-visible', 'is-clicking');
+    });
+
+    document.addEventListener('mouseenter', () => {
+      if (!enabled) return;
+      dot.classList.add('is-visible');
+      pulse.classList.add('is-visible');
+      visible = true;
+    });
+
+    finePointer.addEventListener('change', setEnabled);
+    reducedMotion.addEventListener('change', setEnabled);
+    setEnabled();
+    moveCursor();
+  })();
+</script>
+
+<style>
+  .site-cursor-dot,
+  .site-cursor-pulse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .site-cursor-dot {
+    width: 0.46rem;
+    height: 0.46rem;
+    border-radius: 999px;
+    background: rgb(255, 245, 245);
+    box-shadow:
+      0 0 8px rgba(255, 245, 245, 0.95),
+      0 0 20px rgba(248, 113, 113, 0.72),
+      0 0 38px rgba(239, 68, 68, 0.42);
+    transition:
+      opacity 150ms ease,
+      width 120ms ease,
+      height 120ms ease,
+      background-color 120ms ease;
+  }
+
+  .site-cursor-pulse {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(254, 202, 202, 0.45);
+    box-shadow: 0 0 24px rgba(248, 113, 113, 0.22);
+    transform-origin: center;
+  }
+
+  .site-cursor-dot.is-enabled.is-visible {
+    opacity: 1;
+  }
+
+  .site-cursor-pulse.is-enabled.is-visible {
+    opacity: 0.42;
+  }
+
+  .site-cursor-dot.is-pressed {
+    width: 0.34rem;
+    height: 0.34rem;
+    background: rgb(254, 202, 202);
+  }
+
+  .site-cursor-pulse.is-clicking {
+    animation: cursorClickPulse 420ms ease-out;
+  }
+
+  @keyframes cursorClickPulse {
+    0% {
+      opacity: 0.58;
+      width: 1rem;
+      height: 1rem;
+      border-color: rgba(254, 226, 226, 0.72);
+    }
+    100% {
+      opacity: 0;
+      width: 3.2rem;
+      height: 3.2rem;
+      border-color: rgba(248, 113, 113, 0);
+    }
+  }
+
+  @media (pointer: fine) {
+    :global(.custom-cursor-enabled),
+    :global(.custom-cursor-enabled *),
+    :global(.custom-cursor-enabled *::before),
+    :global(.custom-cursor-enabled *::after) {
+      cursor: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce), (pointer: coarse) {
+    .site-cursor-dot,
+    .site-cursor-pulse {
+      display: none;
+    }
+  }
+</style>

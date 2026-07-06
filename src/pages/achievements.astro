@@ -1,0 +1,674 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BackgroundShader from '../components/BackgroundShader.astro';
+import Navbar from '../components/Navbar.astro';
+
+const milestones = [
+  {
+    year: '2024',
+    code: 'CP-01',
+    title: 'E-Cell rebooted as a student builder hub',
+    summary: 'The team shaped a fresh operating rhythm for events, mentorship, domain crews, and startup-facing campus activity.',
+    metric: 'Core systems',
+    icon: 'solar:rocket-2-linear',
+    image: '/images/achievements/checkpoint-01.svg',
+    side: 'left'
+  },
+  {
+    year: '2024',
+    code: 'CP-02',
+    title: 'First workshop sprint crossed campus',
+    summary: 'Hands-on sessions helped students move from passive interest to practical startup and product thinking.',
+    metric: 'Workshops',
+    icon: 'solar:book-bookmark-linear',
+    image: '/images/achievements/checkpoint-02.svg',
+    side: 'right'
+  },
+  {
+    year: '2025',
+    code: 'CP-03',
+    title: 'Hackathon culture started taking shape',
+    summary: 'Student teams began testing ideas under pressure, pitching sharper solutions, and shipping rough prototypes faster.',
+    metric: 'Build sprints',
+    icon: 'solar:code-square-linear',
+    image: '/images/achievements/checkpoint-03.svg',
+    side: 'left'
+  },
+  {
+    year: '2025',
+    code: 'CP-04',
+    title: 'Mentorship loop went live',
+    summary: 'Founders, alumni, faculty, and senior students began guiding teams through validation, execution, and presentation.',
+    metric: 'Mentor network',
+    icon: 'solar:medal-ribbons-star-linear',
+    image: '/images/achievements/checkpoint-04.svg',
+    side: 'right'
+  },
+  {
+    year: '2026',
+    code: 'CP-05',
+    title: 'Digital systems replaced manual chaos',
+    summary: 'Events, registrations, ticketing, QR validation, and community surfaces moved into a cleaner online flow.',
+    metric: 'Platform launch',
+    icon: 'solar:server-square-cloud-linear',
+    image: '/images/achievements/checkpoint-05.svg',
+    side: 'left'
+  },
+  {
+    year: '2026',
+    code: 'CP-06',
+    title: 'Next checkpoint: stronger startup pipeline',
+    summary: 'The mission now points toward repeatable idea discovery, founder circles, showcase days, and campus-wide execution.',
+    metric: 'Next orbit',
+    icon: 'solar:star-fall-minimalistic-2-linear',
+    image: '/images/achievements/checkpoint-06.svg',
+    side: 'right'
+  }
+];
+
+const stats = [
+  { label: 'Milestones', value: '06' },
+  { label: 'Mission years', value: '03' },
+  { label: 'Launch mode', value: 'ON' }
+];
+---
+
+<BaseLayout title="E-Cell VJIT | Achievements">
+  <BackgroundShader />
+  <Navbar />
+
+  <section class="achievements-hero container mx-auto px-6 pt-14 md:pt-20 pb-10 relative z-10">
+    <div class="achievement-hero-grid">
+      <div class="max-w-4xl">
+        <p class="font-pixel text-xs text-red-200/80 mb-4">Achievements timeline</p>
+        <h1 class="text-4xl md:text-7xl font-jakarta font-semibold tracking-tight mb-6">
+          Launch checkpoints from the E-Cell journey.
+        </h1>
+        <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed max-w-2xl">
+          A dummy-data mission log for now. Each checkpoint lights up as you scroll, mapping how E-Cell moves from ideas to execution.
+        </p>
+      </div>
+    </div>
+
+    <div class="achievement-stat-strip">
+      {stats.map((stat) => (
+        <div class="achievement-stat">
+          <span>{stat.label}</span>
+          <strong>{stat.value}</strong>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="achievement-timeline-shell container mx-auto px-6 pb-20 md:pb-28 relative z-10">
+    <div class="timeline-console noise-overlay">
+      <div class="timeline-topbar">
+        <span class="timeline-live-dot"></span>
+        <span>Mission archive / checkpoints</span>
+      </div>
+
+      <div class="timeline-stage" data-achievement-timeline>
+        <div class="timeline-rail" aria-hidden="true" data-timeline-rail>
+          <span class="timeline-rail-track"></span>
+          <span class="timeline-rail-progress" data-timeline-progress></span>
+        </div>
+
+        <ol class="timeline-list">
+          {milestones.map((milestone, index) => (
+            <li class:list={['timeline-checkpoint', `timeline-checkpoint-${milestone.side}`]} data-achievement-checkpoint>
+              <article class="checkpoint-card">
+                <div class="checkpoint-card-glow" aria-hidden="true"></div>
+                <figure class="checkpoint-media">
+                  <img src={milestone.image} alt="" loading="lazy" decoding="async" />
+                  <figcaption>{milestone.metric}</figcaption>
+                </figure>
+                <div class="checkpoint-meta">
+                  <span>{milestone.code}</span>
+                  <span>{milestone.year}</span>
+                </div>
+                <div class="checkpoint-body">
+                  <div class="checkpoint-icon">
+                    <iconify-icon icon={milestone.icon} width="24" height="24"></iconify-icon>
+                  </div>
+                  <div>
+                    <p class="checkpoint-kicker">Launch checkpoint {String(index + 1).padStart(2, '0')}</p>
+                    <h2>{milestone.title}</h2>
+                    <p>{milestone.summary}</p>
+                  </div>
+                </div>
+                <div class="checkpoint-footer">
+                  <span>{milestone.metric}</span>
+                  <span class="checkpoint-status">Pending lock</span>
+                </div>
+              </article>
+
+              <span class="checkpoint-node" aria-hidden="true">
+                <span></span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <div class="achievement-end-quote noise-overlay">
+      <p>Still cooking. Still launching. Never stopping.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const timeline = document.querySelector<HTMLElement>('[data-achievement-timeline]');
+  const rail = document.querySelector<HTMLElement>('[data-timeline-rail]');
+  const progress = document.querySelector<HTMLElement>('[data-timeline-progress]');
+  const checkpoints = Array.from(document.querySelectorAll<HTMLElement>('[data-achievement-checkpoint]'));
+
+  if (timeline && rail && progress && checkpoints.length) {
+    const updateProgress = () => {
+      // Fill the rail from its top down to wherever the vertical centre of the
+      // viewport currently sits — so the colour always reaches mid-screen.
+      const rect = rail.getBoundingClientRect();
+      const viewportCenter = window.innerHeight * 0.5;
+      const fill = Math.min(Math.max(viewportCenter - rect.top, 0), rect.height);
+      const percent = rect.height > 0 ? fill / rect.height : 0;
+
+      progress.style.setProperty('--timeline-progress-px', `${fill.toFixed(1)}px`);
+      progress.style.setProperty('--timeline-progress-percent', `${(percent * 100).toFixed(2)}%`);
+      timeline.classList.toggle('has-progress', fill > 4);
+    };
+
+    // This site scrolls inside <body>, so window 'scroll' events don't fire
+    // reliably. A rAF loop (paused when the tab is hidden) always reads the
+    // latest position via getBoundingClientRect.
+    let rafId = 0;
+    const loop = () => { updateProgress(); rafId = requestAnimationFrame(loop); };
+    const start = () => { if (!rafId) rafId = requestAnimationFrame(loop); };
+    const stop = () => { cancelAnimationFrame(rafId); rafId = 0; };
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle('is-armed', entry.isIntersecting);
+        if (entry.isIntersecting) {
+          entry.target.querySelector('.checkpoint-status')?.replaceChildren(document.createTextNode('Checkpoint live'));
+        }
+      });
+    }, {
+      threshold: 0.42,
+      rootMargin: '-12% 0px -18%'
+    });
+
+    checkpoints.forEach((checkpoint) => observer.observe(checkpoint));
+    updateProgress();
+    start();
+  }
+</script>
+
+<style>
+  .achievements-hero {
+    overflow: hidden;
+  }
+
+  .achievement-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    align-items: center;
+    max-width: 58rem;
+  }
+
+  .achievement-stat-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 2.5rem;
+  }
+
+  .achievement-stat {
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    padding: 1rem;
+    background: rgba(12, 3, 2, 0.62);
+    backdrop-filter: blur(14px);
+    clip-path: polygon(0.85rem 0, 100% 0, 100% calc(100% - 0.85rem), calc(100% - 0.85rem) 100%, 0 100%, 0 0.85rem);
+  }
+
+  .achievement-stat span {
+    display: block;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.72);
+  }
+
+  .achievement-stat strong {
+    display: block;
+    margin-top: 0.32rem;
+    font-family: 'Prosto One', sans-serif;
+    font-size: clamp(1.35rem, 3vw, 2.4rem);
+    color: white;
+  }
+
+  .timeline-console {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    clip-path: polygon(1.4rem 0, 100% 0, 100% calc(100% - 1.4rem), calc(100% - 1.4rem) 100%, 0 100%, 0 1.4rem);
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(127, 29, 29, 0.26), transparent 46%),
+      linear-gradient(165deg, rgba(20, 4, 3, 0.82), rgba(5, 1, 1, 0.86));
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .timeline-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-bottom: 1px solid rgba(248, 113, 113, 0.14);
+    padding: 1rem 1.2rem;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(254, 226, 226, 0.84);
+  }
+
+  .timeline-live-dot {
+    width: 0.48rem;
+    height: 0.48rem;
+    border-radius: 999px;
+    background: rgb(248 113 113);
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.5);
+    animation: livePulse 1.8s ease-out infinite;
+  }
+
+  .timeline-stage {
+    position: relative;
+    padding: 2.2rem 1.1rem 2.8rem;
+    --timeline-progress-px: 0px;
+    --timeline-progress-percent: 0%;
+  }
+
+  .timeline-rail {
+    position: absolute;
+    top: 2.8rem;
+    bottom: 3rem;
+    left: 1.75rem;
+    width: 0.52rem;
+    border-radius: 999px;
+    overflow: visible;
+    z-index: 0;
+  }
+
+  .timeline-rail-track,
+  .timeline-rail-progress {
+    position: absolute;
+    border-radius: inherit;
+    left: 50%;
+    top: 0;
+    width: 0.22rem;
+    transform: translateX(-50%);
+  }
+
+  .timeline-rail-track {
+    bottom: 0;
+    background:
+      linear-gradient(180deg, rgba(254, 202, 202, 0.08), rgba(254, 202, 202, 0.18), rgba(254, 202, 202, 0.08)),
+      rgba(255, 255, 255, 0.04);
+    box-shadow: 0 0 0 1px rgba(254, 202, 202, 0.04);
+  }
+
+  .timeline-rail-progress {
+    height: var(--timeline-progress-px, 0px);
+    min-height: 0;
+    background:
+      linear-gradient(180deg, #fff7ed 0%, #fecaca 18%, #fb7185 48%, #ef4444 72%, #fb923c 100%);
+    box-shadow:
+      0 0 12px rgba(254, 202, 202, 0.74),
+      0 0 28px rgba(248, 113, 113, 0.38),
+      0 0 46px rgba(251, 146, 60, 0.12);
+  }
+
+  .timeline-rail-progress::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 999px;
+    transform: translate(-50%, 50%);
+    border: 1px solid rgba(254, 226, 226, 0.74);
+    background:
+      radial-gradient(circle at 50% 45%, #fff7ed 0 24%, #fecaca 26% 42%, rgba(127, 29, 29, 0.98) 45%);
+    box-shadow:
+      0 0 0 0.42rem rgba(248, 113, 113, 0.14),
+      0 0 26px rgba(248, 113, 113, 0.62);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .timeline-stage.has-progress .timeline-rail-progress::after {
+    opacity: 1;
+  }
+
+  .timeline-list {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .timeline-checkpoint {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    opacity: 0.46;
+    transform: translateY(18px) scale(0.98);
+    transition: opacity 420ms ease, transform 420ms ease;
+  }
+
+  .timeline-checkpoint.is-armed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .checkpoint-node {
+    position: relative;
+    z-index: 2;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(254, 202, 202, 0.34);
+    background: rgba(20, 4, 3, 0.95);
+    box-shadow: inset 0 0 0 5px rgba(248, 113, 113, 0.08);
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .checkpoint-node span {
+    position: absolute;
+    inset: 0.42rem;
+    border-radius: inherit;
+    background: rgba(248, 113, 113, 0.45);
+    transition: background 280ms ease, box-shadow 280ms ease;
+  }
+
+  .timeline-checkpoint.is-armed .checkpoint-node span {
+    background: rgb(254 202 202);
+    box-shadow: 0 0 18px rgba(248, 113, 113, 0.9);
+  }
+
+  .checkpoint-card {
+    position: relative;
+    overflow: hidden;
+    grid-column: 2;
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    padding: 0.78rem;
+    clip-path: polygon(1rem 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%, 0 1rem);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 34%),
+      rgba(11, 2, 2, 0.72);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-color 320ms ease, box-shadow 320ms ease;
+  }
+
+  .checkpoint-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 18%, rgba(255, 255, 255, 0.12) 38%, transparent 54%);
+    transform: translateX(-120%);
+    transition: transform 720ms ease;
+    pointer-events: none;
+  }
+
+  .timeline-checkpoint.is-armed .checkpoint-card::after {
+    transform: translateX(120%);
+  }
+
+  .timeline-checkpoint.is-armed .checkpoint-card {
+    border-color: rgba(254, 202, 202, 0.34);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 18px 48px rgba(0, 0, 0, 0.28),
+      0 0 28px rgba(248, 113, 113, 0.1);
+  }
+
+  .checkpoint-media {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 1rem;
+    aspect-ratio: 16 / 8;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.035);
+    clip-path: polygon(0.75rem 0, 100% 0, 100% calc(100% - 0.75rem), calc(100% - 0.75rem) 100%, 0 100%, 0 0.75rem);
+  }
+
+  .checkpoint-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, transparent 46%, rgba(0, 0, 0, 0.6)),
+      radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.18), transparent 28%);
+    pointer-events: none;
+  }
+
+  .checkpoint-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.08) contrast(1.05);
+    transform: scale(1.025);
+    transition: transform 520ms ease, filter 520ms ease;
+  }
+
+  .timeline-checkpoint.is-armed .checkpoint-media img {
+    transform: scale(1);
+    filter: saturate(1.16) contrast(1.08) brightness(1.04);
+  }
+
+  .checkpoint-media figcaption {
+    position: absolute;
+    left: 0.72rem;
+    bottom: 0.62rem;
+    z-index: 1;
+    border: 1px solid rgba(254, 202, 202, 0.24);
+    border-radius: 999px;
+    padding: 0.26rem 0.52rem;
+    color: rgba(254, 226, 226, 0.88);
+    background: rgba(10, 2, 2, 0.48);
+    backdrop-filter: blur(10px);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .checkpoint-card-glow {
+    position: absolute;
+    inset: auto -20% -45% 20%;
+    height: 9rem;
+    border-radius: 999px;
+    background: rgba(248, 113, 113, 0.16);
+    filter: blur(30px);
+    opacity: 0;
+    transition: opacity 360ms ease;
+  }
+
+  .timeline-checkpoint.is-armed .checkpoint-card-glow {
+    opacity: 1;
+  }
+
+  .checkpoint-meta,
+  .checkpoint-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.72);
+    padding-inline: 0.28rem;
+  }
+
+  .checkpoint-body {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    margin: 1rem 0 1.05rem;
+    padding-inline: 0.28rem;
+  }
+
+  .checkpoint-icon {
+    width: 3rem;
+    height: 3rem;
+    display: grid;
+    place-items: center;
+    color: rgb(254 226 226);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    background: linear-gradient(135deg, rgba(127, 29, 29, 0.45), rgba(255, 255, 255, 0.035));
+    clip-path: polygon(0.7rem 0, 100% 0, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0 100%, 0 0.7rem);
+  }
+
+  .achievement-end-quote {
+    margin: 3rem auto 0;
+    max-width: 58rem;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent 34%),
+      rgba(12, 3, 2, 0.68);
+    clip-path: polygon(1.15rem 0, 100% 0, 100% calc(100% - 1.15rem), calc(100% - 1.15rem) 100%, 0 100%, 0 1.15rem);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    text-align: center;
+  }
+
+  .achievement-end-quote p {
+    color: rgb(254 226 226);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: clamp(1.15rem, 3vw, 2.2rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .checkpoint-kicker {
+    margin-bottom: 0.5rem;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.75);
+  }
+
+  .checkpoint-body h2 {
+    color: white;
+    font-family: 'Prosto One', sans-serif;
+    font-size: clamp(1.15rem, 2.6vw, 2rem);
+    line-height: 1.18;
+    margin-bottom: 0.65rem;
+  }
+
+  .checkpoint-body p:last-child {
+    color: rgba(229, 231, 235, 0.82);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .checkpoint-status {
+    color: rgba(255, 255, 255, 0.74);
+  }
+
+  .timeline-checkpoint.is-armed .checkpoint-status {
+    color: rgb(254 226 226);
+  }
+
+  @keyframes livePulse {
+    70% {
+      box-shadow: 0 0 0 10px rgba(248, 113, 113, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(248, 113, 113, 0);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .achievement-stat-strip {
+      max-width: 720px;
+    }
+
+    .timeline-stage {
+      padding: 4rem 2rem 4.5rem;
+    }
+
+    .timeline-rail {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .timeline-list {
+      gap: 0.4rem;
+    }
+
+    .timeline-checkpoint {
+      grid-template-columns: minmax(0, 1fr) 4rem minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+
+    .timeline-checkpoint-left .checkpoint-card {
+      grid-column: 1;
+    }
+
+    .timeline-checkpoint-left .checkpoint-node,
+    .timeline-checkpoint-right .checkpoint-node {
+      grid-column: 2;
+    }
+
+    .timeline-checkpoint-right .checkpoint-card {
+      grid-column: 3;
+    }
+
+    .timeline-checkpoint-right {
+      margin-top: -1.8rem;
+    }
+
+    .timeline-checkpoint-left .checkpoint-card {
+      text-align: right;
+    }
+
+    .timeline-checkpoint-left .checkpoint-body {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .timeline-checkpoint-left .checkpoint-icon {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .timeline-checkpoint-left .checkpoint-body > div:last-child {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-live-dot {
+      animation: none;
+    }
+
+    .timeline-checkpoint,
+    .checkpoint-card::after,
+    .checkpoint-card-glow,
+    .checkpoint-node span,
+    .checkpoint-media img,
+    .checkpoint-card {
+      transition: none;
+    }
+  }
+</style>

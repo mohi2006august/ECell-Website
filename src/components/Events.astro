@@ -1,5 +1,11 @@
 ---
-interface EventItem {
+interface StatItem {
+  icon: string;
+  value: string;
+  label: string;
+}
+
+interface MilestoneItem {
   title: string;
   description: string;
 }
@@ -8,46 +14,162 @@ interface Props {
   eyebrow?: string;
   title?: string;
   description?: string;
-  events?: EventItem[];
+  stats?: StatItem[];
+  milestones?: MilestoneItem[];
 }
 
 const {
   eyebrow = 'Traction',
-  title = 'What we\'ve built and achieved so far.',
-  description = 'From campus sessions to collaborative outcomes, these are the milestones that keep E-Cell moving forward.',
-  events = [
-  {
-    title: 'Events conducted',
-    description: 'Multiple workshops, hackathons, and sessions that brought students together around entrepreneurship.'
-  },
-  {
-    title: 'Participation numbers',
-    description: 'Active involvement from students across domains, teams, and interest groups.'
-  },
-  {
-    title: 'Achievements',
-    description: 'Recognitions, successful projects, and outcomes that reflect the momentum being built.'
-  },
-  {
-    title: 'Impact',
-    description: 'Ideas initiated, skills developed, and collaborations formed across the campus community.'
-  }
-] } = Astro.props as Props;
+  title = 'What we\'ve built so far',
+  description = 'From campus sessions to collaborative outcomes — the milestones keeping E-Cell moving forward.',
+  stats = [
+    { icon: 'solar:lightbulb-minimalistic-linear', value: '40+', label: 'Startup Ideas Incubated' },
+    { icon: 'solar:calendar-linear', value: '18+', label: 'Campus Initiatives' },
+    { icon: 'solar:users-group-rounded-linear', value: '600+', label: 'Student Participants' },
+    { icon: 'solar:cup-star-linear', value: '12+', label: 'Innovation Workshops' },
+  ],
+  milestones = [
+    { title: 'Events conducted', description: 'Workshops, hackathons, and sessions built around entrepreneurship.' },
+    { title: 'Participation', description: 'Active involvement across domains, teams, and interest groups.' },
+    { title: 'Achievements', description: 'Recognitions and successful projects reflecting real momentum.' },
+    { title: 'Impact', description: 'Ideas initiated, skills developed, collaborations formed campus-wide.' },
+  ],
+} = Astro.props as Props;
 ---
 
 <section id="traction" class="container mx-auto px-6 py-16 md:py-24 relative z-10">
-  <div class="max-w-3xl mb-10">
-    <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">{eyebrow}</p>
-    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
-    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
-  </div>
-  <div class="grid gap-4 md:gap-6">
-    {events.map((event) => (
-      <article class="glass rounded-lg p-6">
-        <h3 class="text-xl font-jakarta font-semibold mb-2">{event.title}</h3>
-        <p class="text-gray-300 font-inter leading-relaxed">{event.description}</p>
-      </article>
-    ))}
+  <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
+    <div class="traction-content">
+      <div class="max-w-3xl mb-10">
+        <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+        <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+        <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-8">
+        {stats.map((stat) => (
+          <div class="glass rounded-xl p-4 md:p-5 text-center group hover:border-red-500/30 transition-colors">
+            <div class="mb-2 flex justify-center text-red-400">
+              <iconify-icon icon={stat.icon} width="26" height="26"></iconify-icon>
+            </div>
+            <p class="text-2xl md:text-3xl font-jakarta font-semibold tracking-tight text-white">{stat.value}</p>
+            <p class="text-gray-400 font-inter text-xs md:text-sm font-light mt-1">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="glass traction-milestone-card rounded-2xl border border-red-500/15 p-6 md:p-7 grid gap-7 md:grid-cols-[180px_minmax(0,1fr)] items-center">
+        <div class="flex flex-col items-center gap-4">
+          <div class="radar-stage" aria-hidden="true">
+            <span class="radar-ring" style="inset: 0"></span>
+            <span class="radar-ring" style="inset: 22%"></span>
+            <span class="radar-ring" style="inset: 44%"></span>
+            <span class="radar-axis radar-axis-h"></span>
+            <span class="radar-axis radar-axis-v"></span>
+            <span class="radar-sweep"></span>
+            <span class="radar-blip" style="top: 26%; left: 62%"></span>
+            <span class="radar-blip" style="top: 58%; left: 30%; animation-delay: 0.9s"></span>
+            <span class="radar-blip" style="top: 70%; left: 66%; animation-delay: 1.7s"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+            <p class="font-pixel text-[0.68rem] text-gray-400">Mission Control</p>
+          </div>
+        </div>
+
+        <ol class="relative border-l border-red-500/25 pl-6 space-y-6">
+          {milestones.map((milestone) => (
+            <li class="relative">
+              <span class="absolute -left-[1.85rem] top-1.5 h-2.5 w-2.5 rounded-full border border-red-400/60 bg-red-950"></span>
+              <h3 class="text-base md:text-lg font-jakarta font-semibold text-white">{milestone.title}</h3>
+              <p class="text-gray-400 font-inter text-sm leading-relaxed mt-1">{milestone.description}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <div class="plane-lane" aria-hidden="true">
+      <span class="plane-stop" data-plane-stop></span>
+    </div>
   </div>
   <slot />
 </section>
+
+<style>
+  @media (min-width: 1024px) {
+    .traction-content {
+      max-width: min(100%, 58rem);
+      margin-right: auto;
+    }
+  }
+
+  .radar-stage {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 9999px;
+    overflow: hidden;
+    background: radial-gradient(circle, rgba(127, 29, 29, 0.22), rgba(10, 2, 1, 0.65));
+    border: 1px solid rgba(248, 113, 113, 0.25);
+  }
+
+  .radar-ring {
+    position: absolute;
+    border-radius: 9999px;
+    border: 1px solid rgba(248, 113, 113, 0.18);
+  }
+
+  .radar-axis {
+    position: absolute;
+    background: rgba(248, 113, 113, 0.12);
+  }
+
+  .radar-axis-h {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  .radar-axis-v {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+  }
+
+  .radar-sweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: conic-gradient(from 0deg, rgba(248, 113, 113, 0.4), transparent 70deg, transparent 360deg);
+    animation: radarSweep 4.5s linear infinite;
+  }
+
+  .radar-blip {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: rgb(252 165 165);
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+    animation: radarBlip 4.5s ease-out infinite;
+  }
+
+  @keyframes radarSweep {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes radarBlip {
+    0%, 12% { opacity: 1; }
+    60%, 100% { opacity: 0.15; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .radar-sweep,
+    .radar-blip {
+      animation: none;
+    }
+  }
+</style>

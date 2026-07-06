@@ -4,13 +4,15 @@ export const prerender = false;
 import ConsoleLayout from '../../../../layouts/ConsoleLayout.astro';
 import EventForm from '../../../../components/console/EventForm.astro';
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin.js';
-import { parseEventForm } from '../../../../lib/parseEventForm.js';
+import { eventFormDraft, parseEventForm } from '../../../../lib/parseEventForm.js';
 
 const { id } = Astro.params;
 let errorMessage = '';
+let submittedEvent = null;
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
+  submittedEvent = eventFormDraft(formData);
 
   try {
     const eventData = parseEventForm(formData);
@@ -22,7 +24,7 @@ if (Astro.request.method === 'POST') {
       return Astro.redirect('/console');
     }
   } catch (err) {
-    errorMessage = err instanceof Error ? `Invalid JSON in an advanced field: ${err.message}` : 'Invalid form data.';
+    errorMessage = err instanceof Error ? err.message : 'Invalid form data.';
   }
 }
 
@@ -42,7 +44,7 @@ const { data: event, error: fetchError } = await supabaseAdmin
     <>
       <h1 class="text-2xl font-jakarta font-semibold tracking-tight mb-6">Edit: {event.title}</h1>
       {errorMessage && <p class="text-red-400 font-inter text-sm mb-4">{errorMessage}</p>}
-      <EventForm event={event} action={`/console/events/${id}/edit`} submitLabel="Save Changes" />
+      <EventForm event={submittedEvent ?? event} action={`/console/events/${id}/edit`} submitLabel="Save Changes" />
     </>
   )}
 </ConsoleLayout>

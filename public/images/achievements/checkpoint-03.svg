@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" role="img" aria-label="Demo achievement image">
+  <defs>
+    <radialGradient id="r" cx=".78" cy=".26" r=".78"><stop stop-color="#fed7aa" stop-opacity=".52"/><stop offset=".42" stop-color="#ef4444" stop-opacity=".22"/><stop offset="1" stop-color="#050101"/></radialGradient>
+  </defs>
+  <rect width="900" height="450" fill="#080202"/>
+  <rect width="900" height="450" fill="url(#r)"/>
+  <rect x="86" y="86" width="728" height="226" rx="28" fill="#0b0303" stroke="#fb7185" stroke-opacity=".32"/>
+  <path d="m167 181 58-52M167 181l58 52M735 181l-58-52M735 181l-58 52" fill="none" stroke="#fee2e2" stroke-width="16" stroke-linecap="round"/>
+  <path d="M354 254 465 107" stroke="#fb923c" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="450" cy="201" r="112" fill="none" stroke="#fecaca" stroke-dasharray="12 15" opacity=".44"/>
+  <text x="72" y="390" fill="#fee2e2" font-family="Arial, sans-serif" font-size="38" font-weight="700">BUILD SPRINTS</text>
+</svg>

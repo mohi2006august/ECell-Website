@@ -96,7 +96,7 @@ const badgeClass = isPresident
 
 <article
   class:list={[
-    'team-card-reveal team-card-tilt team-card-shell rounded-lg p-6 h-full flex flex-col transition-all duration-300 relative',
+    'team-card-reveal team-card-tilt team-card-shell p-6 h-full flex flex-col transition-all duration-300 relative',
     accentClass
   ]}
   style={`--card-delay:${Math.max(index, 0) * 85}ms;`}
@@ -165,6 +165,7 @@ const badgeClass = isPresident
     background: linear-gradient(165deg, rgba(30, 6, 4, 0.92), rgba(16, 3, 2, 0.88));
     border: 1px solid rgba(255, 100, 60, 0.2);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    clip-path: polygon(1rem 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%, 0 1rem);
     content-visibility: auto;
     contain-intrinsic-size: 430px;
     contain: layout paint style;
@@ -228,8 +229,8 @@ const badgeClass = isPresident
   .team-accent-ring {
     position: absolute;
     inset: 0;
-    border-radius: inherit;
     border: 1px solid rgba(248, 113, 113, 0.18);
+    clip-path: inherit;
     pointer-events: none;
     transition: border-color 260ms ease, box-shadow 260ms ease;
     animation: auroraEdgeShift 10s ease-in-out infinite;
@@ -282,7 +283,7 @@ const badgeClass = isPresident
   .team-portrait-window {
     position: absolute;
     inset: 7% 10%;
-    border-radius: 1.45rem;
+    clip-path: polygon(0.9rem 0, 100% 0, 100% calc(100% - 0.9rem), calc(100% - 0.9rem) 100%, 0 100%, 0 0.9rem);
     overflow: hidden;
     transform: rotate(-5deg);
     transform-origin: center;
@@ -304,7 +305,6 @@ const badgeClass = isPresident
   }
 
   .team-portrait-loader {
-    border-radius: inherit;
     background:
       linear-gradient(110deg, rgba(255, 255, 255, 0.03) 8%, rgba(255, 255, 255, 0.1) 18%, rgba(255, 255, 255, 0.03) 33%),
       radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.14), rgba(0, 0, 0, 0.08) 68%, rgba(0, 0, 0, 0.18) 100%);
@@ -319,7 +319,6 @@ const badgeClass = isPresident
   }
 
   .team-portrait-window-glow {
-    border-radius: inherit;
     background:
       linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 28%, transparent 72%, rgba(255, 255, 255, 0.08)),
       linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.18));
@@ -334,7 +333,6 @@ const badgeClass = isPresident
     height: 100%;
     object-fit: cover;
     object-position: center 18%;
-    border-radius: inherit;
     transform: none;
     transform-origin: center;
     opacity: 0;
@@ -361,7 +359,7 @@ const badgeClass = isPresident
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    border-radius: 999px;
+    clip-path: polygon(0.45rem 0, 100% 0, 100% calc(100% - 0.45rem), calc(100% - 0.45rem) 100%, 0 100%, 0 0.45rem);
     background: rgb(255 255 255 / 0.02);
     border: 1px solid rgb(255 255 255 / 0.08);
     transition: transform 170ms ease, box-shadow 180ms ease, border-color 170ms ease;

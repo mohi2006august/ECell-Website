@@ -1,0 +1,667 @@
+---
+// Retro CRT-TV that plays the E-Cell reel (YouTube / Cloudinary clips / photos)
+// on a loop. Playlist lives in src/data/footerReel.js. Controls: prev/next
+// channel, mute, volume, and fullscreen (CRT overlays drop away in fullscreen).
+// YouTube uses the IFrame Player API so volume/mute work; video/image are
+// handled natively. Only loads media while on-screen.
+import reel from '../data/footerReel.js';
+const items = (reel || []).filter(Boolean);
+---
+
+<div class="reel" data-reel>
+  <div class="reel-set">
+    <svg class="reel-antenna" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g stroke="#7c828a" stroke-width="4" stroke-linecap="round">
+        <line x1="100" y1="94" x2="44" y2="12" />
+        <line x1="100" y1="94" x2="156" y2="12" />
+      </g>
+      <circle cx="44" cy="12" r="6" fill="#a3a8ae" />
+      <circle cx="156" cy="12" r="6" fill="#a3a8ae" />
+      <ellipse cx="100" cy="93" rx="20" ry="8" fill="#2a1710" />
+    </svg>
+
+    <div class="reel-tv" data-reel-tv>
+      <div class="reel-bezel">
+        <div class="reel-screen" data-reel-screen>
+          <div class="reel-static" aria-hidden="true"></div>
+          <div class="reel-media" data-reel-media></div>
+          <div class="reel-nosignal" data-reel-nosignal hidden>
+            <span class="font-pixel">No Signal</span>
+          </div>
+          <div class="reel-scanlines" aria-hidden="true"></div>
+          <div class="reel-glass" aria-hidden="true"></div>
+          <div class="reel-osd">
+            <span class="reel-live"><span class="reel-live-dot"></span>ON AIR</span>
+            <span class="reel-ch" data-reel-ch>CH 01</span>
+          </div>
+          <p class="reel-caption" data-reel-caption></p>
+        </div>
+      </div>
+
+      <div class="reel-controls">
+        <div class="reel-cluster">
+          <span class="reel-knob" aria-hidden="true"></span>
+          <span class="reel-ctl-label font-pixel">CH</span>
+          <button type="button" class="reel-btn" data-reel-prev title="Previous channel" aria-label="Previous channel">
+            <iconify-icon icon="solar:skip-previous-bold" width="15" height="15"></iconify-icon>
+          </button>
+          <button type="button" class="reel-btn" data-reel-next title="Next channel" aria-label="Next channel">
+            <iconify-icon icon="solar:skip-next-bold" width="15" height="15"></iconify-icon>
+          </button>
+        </div>
+
+        <div class="reel-deckmid" aria-hidden="true">
+          <span class="reel-brand font-pixel">E-Cell TV</span>
+          <span class="reel-speaker"></span>
+          <span class="reel-power"></span>
+        </div>
+
+        <div class="reel-cluster">
+          <button type="button" class="reel-btn" data-reel-mute title="Mute / unmute" aria-label="Mute or unmute">
+            <iconify-icon icon="solar:volume-cross-bold" width="15" height="15" data-reel-mute-icon></iconify-icon>
+          </button>
+          <input type="range" class="reel-vol" data-reel-vol min="0" max="100" value="0" title="Volume" aria-label="Volume" />
+          <button type="button" class="reel-btn" data-reel-fs title="Fullscreen" aria-label="Toggle fullscreen">
+            <iconify-icon icon="solar:full-screen-square-linear" width="15" height="15" data-reel-fs-icon></iconify-icon>
+          </button>
+          <span class="reel-knob" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel-feet" aria-hidden="true"><span></span><span></span></div>
+  </div>
+</div>
+
+<script type="application/json" data-reel-data set:html={JSON.stringify(items)}></script>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-reel]');
+    const dataEl = document.querySelector('[data-reel-data]');
+    if (!root || !dataEl) return;
+
+    let items = [];
+    try { items = JSON.parse(dataEl.textContent || '[]'); } catch { items = []; }
+
+    const tv = root.querySelector('[data-reel-tv]');
+    const screen = root.querySelector('[data-reel-screen]');
+    const media = root.querySelector('[data-reel-media]');
+    const chEl = root.querySelector('[data-reel-ch]');
+    const capEl = root.querySelector('[data-reel-caption]');
+    const noSig = root.querySelector('[data-reel-nosignal]');
+    const prevBtn = root.querySelector('[data-reel-prev]');
+    const nextBtn = root.querySelector('[data-reel-next]');
+    const muteBtn = root.querySelector('[data-reel-mute]');
+    const muteIcon = root.querySelector('[data-reel-mute-icon]');
+    const volInput = root.querySelector('[data-reel-vol]');
+    const fsBtn = root.querySelector('[data-reel-fs]');
+    const fsIcon = root.querySelector('[data-reel-fs-icon]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const ytId = (it) => it.id || (it.url ? (it.url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/) || [])[1] : '');
+
+    // Audio state (shared across channels). Starts muted so autoplay works.
+    let muted = true;
+    let volume = 70;
+    let ytPlayer = null;
+    let ytReady = false;
+
+    // Load the YouTube IFrame API once (only if we have YouTube items).
+    let ytApiLoading = false;
+    const ensureYtApi = (cb) => {
+      if (window.YT && window.YT.Player) { cb(); return; }
+      document.addEventListener('yt-api-ready', cb, { once: true });
+      if (ytApiLoading) return;
+      ytApiLoading = true;
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof prev === 'function') prev();
+        document.dispatchEvent(new Event('yt-api-ready'));
+      };
+      const s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    };
+
+    const applyAudio = () => {
+      if (ytPlayer && ytReady) {
+        try {
+          if (muted) ytPlayer.mute(); else ytPlayer.unMute();
+          ytPlayer.setVolume(volume);
+        } catch {}
+      }
+      const v = media.querySelector('video');
+      if (v) { v.muted = muted; v.volume = volume / 100; }
+      updateAudioUI();
+    };
+
+    const updateAudioUI = () => {
+      if (volInput) volInput.value = String(muted ? 0 : volume);
+      if (muteIcon) muteIcon.setAttribute('icon', muted ? 'solar:volume-cross-bold' : 'solar:volume-loud-bold');
+    };
+
+    const destroyYt = () => {
+      if (ytPlayer) { try { ytPlayer.destroy(); } catch {} }
+      ytPlayer = null;
+      ytReady = false;
+    };
+
+    const buildYt = (id) => {
+      media.innerHTML = '';
+      const holder = document.createElement('div');
+      holder.className = 'reel-yt';
+      media.appendChild(holder);
+      ytPlayer = new window.YT.Player(holder, {
+        videoId: id,
+        playerVars: {
+          autoplay: 1, mute: 1, controls: 0, modestbranding: 1, rel: 0,
+          playsinline: 1, loop: 1, playlist: id, fs: 0, disablekb: 1,
+        },
+        events: {
+          onReady: () => { ytReady = true; applyAudio(); },
+        },
+      });
+    };
+
+    const buildVideo = (it) => {
+      const v = document.createElement('video');
+      v.src = it.src; v.loop = true; v.autoplay = true; v.playsInline = true;
+      v.muted = muted; v.volume = volume / 100;
+      v.setAttribute('playsinline', '');
+      media.appendChild(v);
+      v.play?.().catch(() => {});
+    };
+
+    const buildImage = (it) => {
+      const img = document.createElement('img');
+      img.src = it.src; img.alt = it.caption || ''; img.loading = 'lazy';
+      media.appendChild(img);
+    };
+
+    // Under reduced-motion, prefer stills and don't auto-rotate.
+    let list = reduced ? items.filter((i) => i.type === 'image') : items.slice();
+    if (list.length === 0) list = items.slice(0, 1);
+
+    let idx = 0;
+    let timer = 0;
+    let active = false;
+
+    const render = () => {
+      destroyYt();
+      const it = list[idx];
+      media.innerHTML = '';
+      if (!it) { noSig.hidden = false; }
+      else {
+        noSig.hidden = true;
+        if (it.type === 'youtube') {
+          const id = ytId(it);
+          if (!id) { noSig.hidden = false; }
+          else ensureYtApi(() => { if (list[idx] === it && !ytPlayer) buildYt(id); });
+        } else if (it.type === 'video') buildVideo(it);
+        else buildImage(it);
+      }
+      capEl.textContent = it && it.caption ? it.caption : '';
+      chEl.textContent = 'CH ' + String((idx % Math.max(1, list.length)) + 1).padStart(2, '0');
+      updateAudioUI();
+      screen.classList.remove('is-switching');
+      void screen.offsetWidth;
+      screen.classList.add('is-switching');
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      if (reduced || list.length < 2) return;
+      const it = list[idx];
+      const d = it && it.type === 'image' ? 5200 : 12000;
+      timer = window.setTimeout(() => { go(1); }, d);
+    };
+
+    const go = (dir) => {
+      idx = (idx + dir + list.length) % list.length;
+      render();
+      schedule();
+    };
+
+    const start = () => { if (active) return; active = true; render(); schedule(); };
+    const stop = () => { active = false; window.clearTimeout(timer); destroyYt(); media.innerHTML = ''; };
+
+    // ── Controls ────────────────────────────────────────────────
+    prevBtn?.addEventListener('click', () => go(-1));
+    nextBtn?.addEventListener('click', () => go(1));
+
+    muteBtn?.addEventListener('click', () => {
+      muted = !muted;
+      if (!muted && volume === 0) volume = 70;
+      applyAudio();
+    });
+
+    volInput?.addEventListener('input', () => {
+      const v = Number(volInput.value);
+      volume = v;
+      muted = v === 0;
+      applyAudio();
+    });
+
+    const fsTarget = tv;
+    fsBtn?.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen?.();
+      else fsTarget?.requestFullscreen?.();
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const isFs = document.fullscreenElement === fsTarget;
+      tv?.classList.toggle('is-fullscreen', isFs);
+      if (fsIcon) fsIcon.setAttribute('icon', isFs ? 'solar:quit-full-screen-square-linear' : 'solar:full-screen-square-linear');
+    });
+
+    if (items.length === 0) { noSig.hidden = false; updateAudioUI(); return; }
+
+    updateAudioUI();
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([e]) => { e.isIntersecting ? start() : stop(); }, { threshold: 0.25 });
+      io.observe(root);
+    } else {
+      start();
+    }
+  })();
+</script>
+
+<style>
+  .reel {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .reel-set {
+    position: relative;
+    width: 100%;
+    max-width: 38rem;
+    padding-top: 4.25rem; /* room for the antenna */
+  }
+
+  /* Rabbit-ear antenna poking out behind the cabinet. */
+  .reel-antenna {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 12rem;
+    height: 4.6rem;
+    transform: translateX(-50%);
+    z-index: 0;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
+  }
+
+  /* The moulded plastic cabinet. */
+  .reel-tv {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 1.05rem 1.05rem 0.7rem;
+    border-radius: 1.5rem;
+    background:
+      linear-gradient(158deg, #2a130b, #170805 58%, #0d0503);
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.06),
+      inset 0 -10px 22px rgba(0, 0, 0, 0.55),
+      0 30px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Recessed bezel around the tube. */
+  .reel-bezel {
+    padding: 0.9rem;
+    border-radius: 1.15rem;
+    background: radial-gradient(120% 120% at 50% 0%, #1e0a07, #0a0302);
+    box-shadow:
+      inset 0 0 0 2px rgba(0, 0, 0, 0.65),
+      inset 0 7px 16px rgba(0, 0, 0, 0.7),
+      0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .reel-screen {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 1.15rem;
+    overflow: hidden;
+    background: #060303;
+    box-shadow:
+      inset 0 0 40px rgba(0, 0, 0, 0.95),
+      inset 0 0 0 2px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Little TV feet. */
+  .reel-feet {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 3.5rem;
+    margin-top: -1px;
+  }
+  .reel-feet span {
+    width: 2.6rem;
+    height: 0.75rem;
+    background: linear-gradient(#160705, #090201);
+    border-radius: 0 0 7px 7px;
+    box-shadow: 0 7px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .reel-static,
+  .reel-media,
+  .reel-nosignal,
+  .reel-scanlines,
+  .reel-glass {
+    position: absolute;
+    inset: 0;
+  }
+
+  .reel-media { z-index: 2; }
+  .reel-media :is(iframe, img, video, .reel-yt) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: 0;
+  }
+
+  .reel-static {
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+    opacity: 0.1;
+    mix-blend-mode: screen;
+    animation: reelStatic 0.5s steps(3) infinite;
+  }
+
+  .reel-nosignal {
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    color: rgba(255, 226, 220, 0.8);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size: 150px 150px;
+    animation: reelStatic 0.4s steps(3) infinite;
+  }
+
+  .reel-scanlines {
+    z-index: 4;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.28) 2px 3px);
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+  }
+  .reel-scanlines::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 22%;
+    top: -22%;
+    background: linear-gradient(rgba(255, 255, 255, 0.06), transparent);
+    animation: reelRoll 6.5s linear infinite;
+  }
+
+  .reel-glass {
+    z-index: 4;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(120% 90% at 50% -10%, rgba(255, 255, 255, 0.08), transparent 42%),
+      radial-gradient(140% 120% at 50% 118%, rgba(0, 0, 0, 0.55), transparent 60%);
+    box-shadow: inset 0 0 42px rgba(0, 0, 0, 0.7);
+  }
+
+  .reel-osd {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.55rem;
+    right: 0.55rem;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 232, 224, 0.9);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+  }
+  .reel-live { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .reel-live-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #f87171;
+    box-shadow: 0 0 8px #f87171;
+    animation: reelBlink 1.5s ease-in-out infinite;
+  }
+
+  .reel-caption {
+    position: absolute;
+    left: 0.6rem;
+    right: 0.6rem;
+    bottom: 0.5rem;
+    z-index: 5;
+    margin: 0;
+    font-size: 0.68rem;
+    color: rgb(254 226 226);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+    pointer-events: none;
+  }
+
+  .reel-screen.is-switching .reel-media { animation: reelIn 420ms ease; }
+  .reel-screen.is-switching::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    animation: reelFlash 240ms ease;
+  }
+
+  /* ── Front control panel ───────────────────────────────────── */
+  .reel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    margin-top: 0.7rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 0.85rem;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.12));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  }
+  .reel-cluster { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+  .reel-ctl-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: rgba(252, 165, 165, 0.7);
+  }
+
+  .reel-deckmid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.28rem;
+    min-width: 0;
+  }
+  .reel-brand {
+    font-size: 0.55rem;
+    letter-spacing: 0.16em;
+    color: rgb(252 165 165);
+    text-transform: uppercase;
+  }
+  /* Speaker grille. */
+  .reel-speaker {
+    width: min(9rem, 26vw);
+    height: 0.75rem;
+    border-radius: 3px;
+    background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0 2px, rgba(248, 113, 113, 0.16) 2px 5px);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.85);
+  }
+  .reel-power {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #f87171;
+    box-shadow: 0 0 8px #f87171;
+  }
+
+  /* Decorative knobs/dials. */
+  .reel-knob {
+    position: relative;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #d8dbe0, #565d67 55%, #23272e);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.6);
+  }
+  .reel-knob::after {
+    content: '';
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 2px;
+    height: 34%;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: rgba(20, 20, 20, 0.85);
+  }
+
+  .reel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 0.5rem;
+    color: rgb(254 202 202);
+    border: 1px solid rgba(248, 113, 113, 0.28);
+    background: linear-gradient(160deg, rgba(60, 12, 8, 0.9), rgba(20, 4, 3, 0.9));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: transform 130ms ease, border-color 130ms ease, color 130ms ease;
+  }
+  .reel-btn:hover {
+    transform: translateY(-1px);
+    color: #fff;
+    border-color: rgba(248, 113, 113, 0.6);
+  }
+  .reel-btn:active { transform: translateY(0); }
+
+  .reel-vol {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 4.5rem;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(248, 113, 113, 0.7), rgba(249, 115, 22, 0.7));
+    cursor: pointer;
+  }
+  .reel-vol::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #fee2e2; border: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  .reel-vol::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.4);
+    background: #fee2e2;
+  }
+
+  /* ── Fullscreen: drop the CRT effects, show clean ──────────── */
+  .reel-tv:fullscreen,
+  .reel-tv.is-fullscreen {
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+  }
+  .reel-tv:fullscreen .reel-bezel,
+  .reel-tv.is-fullscreen .reel-bezel {
+    flex: 1;
+    display: flex;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+  }
+  .reel-tv:fullscreen .reel-screen,
+  .reel-tv.is-fullscreen .reel-screen {
+    flex: 1;
+    aspect-ratio: auto;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+  }
+  .reel-tv:fullscreen .reel-deckmid,
+  .reel-tv:fullscreen .reel-knob,
+  .reel-tv:fullscreen .reel-ctl-label,
+  .reel-tv.is-fullscreen .reel-deckmid,
+  .reel-tv.is-fullscreen .reel-knob,
+  .reel-tv.is-fullscreen .reel-ctl-label {
+    display: none;
+  }
+  .reel-tv:fullscreen .reel-scanlines,
+  .reel-tv:fullscreen .reel-glass,
+  .reel-tv:fullscreen .reel-static,
+  .reel-tv.is-fullscreen .reel-scanlines,
+  .reel-tv.is-fullscreen .reel-glass,
+  .reel-tv.is-fullscreen .reel-static {
+    display: none;
+  }
+  .reel-tv:fullscreen .reel-media :is(iframe, img, video, .reel-yt),
+  .reel-tv.is-fullscreen .reel-media :is(iframe, img, video, .reel-yt) {
+    object-fit: contain;
+    background: #000;
+  }
+  .reel-tv:fullscreen .reel-controls,
+  .reel-tv.is-fullscreen .reel-controls {
+    margin: 0;
+    border-radius: 0;
+    padding: 0.7rem 1.2rem;
+    justify-content: center;
+    gap: 1.5rem;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  @keyframes reelStatic {
+    0% { background-position: 0 0; }
+    33% { background-position: -38px 26px; }
+    66% { background-position: 28px -22px; }
+    100% { background-position: 0 0; }
+  }
+  @keyframes reelRoll { to { top: 120%; } }
+  @keyframes reelBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  @keyframes reelIn {
+    0% { opacity: 0; filter: brightness(2.2); }
+    12% { opacity: 0.4; }
+    100% { opacity: 1; filter: none; }
+  }
+  @keyframes reelFlash { 0% { opacity: 0; } 9% { opacity: 0.5; } 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reel-static,
+    .reel-nosignal,
+    .reel-scanlines::after,
+    .reel-live-dot,
+    .reel-screen.is-switching .reel-media,
+    .reel-screen.is-switching::before {
+      animation: none;
+    }
+  }
+</style>

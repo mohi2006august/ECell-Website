@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" role="img" aria-label="Demo achievement image">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#09090b"/><stop offset=".48" stop-color="#3f0906"/><stop offset="1" stop-color="#ef4444"/></linearGradient>
+  </defs>
+  <rect width="900" height="450" fill="url(#bg)"/>
+  <rect x="118" y="70" width="664" height="260" rx="30" fill="#0a0202" opacity=".76" stroke="#fecaca" stroke-opacity=".28"/>
+  <rect x="158" y="112" width="238" height="170" rx="18" fill="#fff" opacity=".08"/>
+  <path d="M448 128h262M448 181h190M448 234h238" stroke="#fee2e2" stroke-width="18" stroke-linecap="round" opacity=".82"/>
+  <path d="M210 159h134M210 204h134M210 249h84" stroke="#fb923c" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="724" cy="98" r="12" fill="#22c55e"/>
+  <text x="72" y="390" fill="#fee2e2" font-family="Arial, sans-serif" font-size="38" font-weight="700">PLATFORM LAUNCH</text>
+</svg>

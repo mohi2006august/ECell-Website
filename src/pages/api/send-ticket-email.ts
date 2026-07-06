@@ -11,21 +11,39 @@ function buildEmailHtml(registration: any) {
   const dateStr = event.date
     ? new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
+  const whatsappLink = event.whatsapp_group_link;
+  const eventMeta = [dateStr, event.time, event.venue].filter(Boolean).join(' - ');
 
   return `
-    <div style="font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
-      <div style="height: 6px; background: linear-gradient(90deg, #b91c1c, #f97316); border-radius: 999px;"></div>
-      <div style="padding: 24px 4px;">
-        <p style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #b91c1c; font-weight: 600;">E-Cell VJIT</p>
-        <h1 style="font-size: 22px; margin: 8px 0 16px;">You're registered, ${registration.name}!</h1>
-        <p style="font-size: 14px; line-height: 1.6; color: #333;">
-          You're confirmed for <strong>${event.title ?? 'the event'}</strong>${dateStr ? ` on ${dateStr}` : ''}${event.venue ? ` at ${event.venue}` : ''}.
-        </p>
-        <p style="font-size: 14px; line-height: 1.6; color: #333;">
-          Your ticket is attached as a PDF — it includes your personal QR code. Bring it (digital or printed) to check in at the venue.
-        </p>
-        ${registration.team_name ? `<p style="font-size: 14px; color: #333;">Team: <strong>${registration.team_name}</strong></p>` : ''}
-        <p style="font-size: 13px; color: #777; margin-top: 24px;">See you there!<br />E-Cell VJIT</p>
+    <div style="margin:0; padding:28px 12px; background:#080101; font-family:Arial, Helvetica, sans-serif; color:#fff;">
+      <div style="max-width:560px; margin:0 auto; border:1px solid rgba(248,113,113,0.28); background:linear-gradient(145deg,#3b0806,#120202 58%,#050101); box-shadow:0 24px 70px rgba(0,0,0,0.35);">
+        <div style="height:5px; background:linear-gradient(90deg,#fecaca,#ef4444,#f97316);"></div>
+        <div style="padding:28px;">
+          <p style="margin:0 0 12px; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#fca5a5; font-weight:700;">E-CELL VJIT PASS</p>
+          <h1 style="margin:0 0 18px; font-size:30px; line-height:1.08; color:#ffffff;">You're registered, ${registration.name}.</h1>
+          <div style="border:1px solid rgba(248,113,113,0.22); background:rgba(0,0,0,0.24); padding:18px; margin:0 0 16px;">
+            <p style="margin:0 0 8px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#fca5a5;">Event</p>
+            <h2 style="margin:0 0 8px; font-size:20px; line-height:1.25; color:#ffffff;">${event.title ?? 'Event'}</h2>
+            <p style="margin:0; font-size:14px; line-height:1.55; color:#fee2e2;">${eventMeta || 'Details will be shared soon.'}</p>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.045); padding:16px; margin:0 0 16px;">
+            <p style="margin:0 0 8px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#fca5a5;">Ticket</p>
+            <p style="margin:0; font-size:14px; line-height:1.65; color:#f3f4f6;">Your ticket PDF is attached and includes your personal QR code. Bring the QR code to check in at the venue.</p>
+          </div>
+          ${registration.team_name ? `
+            <div style="border:1px solid rgba(255,255,255,0.12); background:rgba(0,0,0,0.2); padding:14px; margin:0 0 16px;">
+              <p style="margin:0 0 6px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:#fca5a5;">Team</p>
+              <p style="margin:0; font-size:16px; color:#ffffff; font-weight:700;">${registration.team_name}</p>
+            </div>
+          ` : ''}
+          ${whatsappLink ? `
+            <div style="border:1px solid rgba(34,197,94,0.34); background:rgba(20,83,45,0.22); padding:16px; margin:0 0 18px;">
+              <p style="margin:0 0 10px; font-size:14px; line-height:1.55; color:#dcfce7;">Join the &quot;${event.title ?? 'event'}&quot; WhatsApp group for event updates.</p>
+              <a href="${whatsappLink}" style="display:inline-block; padding:11px 16px; color:#ffffff; background:#15803d; text-decoration:none; font-size:14px; font-weight:700;">Join WhatsApp group</a>
+            </div>
+          ` : ''}
+          <p style="margin:22px 0 0; font-size:13px; line-height:1.6; color:#fecaca;">See you there,<br /><strong>E-Cell VJIT</strong></p>
+        </div>
       </div>
     </div>
   `;
@@ -54,7 +72,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const { data: registrations, error } = await supabaseAdmin
     .from('registrations')
-    .select('id, name, email, phone, ticket_id, team_name, email_sent, events (title, date, time, venue)')
+    .select('id, name, email, phone, ticket_id, team_name, email_sent, events (title, date, time, venue, whatsapp_group_link)')
     .in('ticket_id', ticketIds);
 
   if (error || !registrations) {

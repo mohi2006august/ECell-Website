@@ -7,9 +7,27 @@ interface Props {
 
 const { event = {}, action, submitLabel } = Astro.props as Props;
 
-function jsonField(value: unknown) {
+function textListField(value: unknown) {
   if (!value) return '';
-  return JSON.stringify(value, null, 2);
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object' && 'name' in item) return String(item.name ?? '');
+        return '';
+      })
+      .filter(Boolean)
+      .join('\n');
+  }
+  return '';
+}
+
+function nameField(value: unknown) {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && 'name' in value) return String(value.name ?? '');
+  return '';
 }
 ---
 
@@ -64,6 +82,7 @@ function jsonField(value: unknown) {
       </div>
       <input class="admin-input" type="text" name="requirements" placeholder="Requirements" value={event.requirements ?? ''} />
       <input class="admin-input" type="text" name="prerequisites" placeholder="Prerequisites" value={event.prerequisites ?? ''} />
+      <input class="admin-input sm:col-span-2" type="url" name="whatsapp_group_link" placeholder="WhatsApp group link for registered attendees" value={event.whatsapp_group_link ?? ''} />
     </div>
   </section>
 
@@ -99,31 +118,31 @@ function jsonField(value: unknown) {
       <input class="admin-input" type="text" name="recap_link" placeholder="Recap link (post-event)" value={event.recap_link ?? ''} />
       <input class="admin-input" type="text" name="certificate_template_url" placeholder="Certificate template URL" value={event.certificate_template_url ?? ''} />
       <div>
-        <label class="text-xs text-gray-500">Gallery images (JSON array of URLs)</label>
-        <textarea class="admin-input w-full mt-1" name="gallery_images" rows="3" placeholder='["https://...", "https://..."]'>{jsonField(event.gallery_images)}</textarea>
+        <label class="text-xs text-gray-500">Gallery image URLs</label>
+        <textarea class="admin-input w-full mt-1" name="gallery_images" rows="3" placeholder={'Paste one image URL per line'}>{textListField(event.gallery_images)}</textarea>
       </div>
     </div>
   </section>
 
   <section>
-    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">Advanced (raw JSON)</h2>
-    <p class="text-xs text-gray-500 mb-3">Leave blank if not applicable. Must be valid JSON.</p>
+    <h2 class="text-sm uppercase tracking-[0.2em] text-red-200/80 mb-4">People &amp; Results</h2>
+    <p class="text-xs text-gray-500 mb-3">Use normal text. For multiple entries, put one name per line.</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="text-xs text-gray-500">Speakers</label>
-        <textarea class="admin-input w-full mt-1" name="speakers" rows="4" placeholder='[{"name": "Jane Doe"}]'>{jsonField(event.speakers)}</textarea>
+        <textarea class="admin-input w-full mt-1" name="speakers" rows="4" placeholder={'Jane Doe\nRahul Sharma'}>{textListField(event.speakers)}</textarea>
       </div>
       <div>
         <label class="text-xs text-gray-500">Judges</label>
-        <textarea class="admin-input w-full mt-1" name="judges" rows="4" placeholder='[{"name": "Jane Doe"}]'>{jsonField(event.judges)}</textarea>
+        <textarea class="admin-input w-full mt-1" name="judges" rows="4" placeholder={'Jane Doe\nRahul Sharma'}>{textListField(event.judges)}</textarea>
       </div>
       <div>
         <label class="text-xs text-gray-500">Chief guest</label>
-        <textarea class="admin-input w-full mt-1" name="chief_guest" rows="4" placeholder='{"name": "Jane Doe"}'>{jsonField(event.chief_guest)}</textarea>
+        <input class="admin-input w-full mt-1" type="text" name="chief_guest" placeholder="Jane Doe" value={nameField(event.chief_guest)} />
       </div>
       <div>
         <label class="text-xs text-gray-500">Winners</label>
-        <textarea class="admin-input w-full mt-1" name="winners" rows="4" placeholder='[{"name": "Team X"}]'>{jsonField(event.winners)}</textarea>
+        <textarea class="admin-input w-full mt-1" name="winners" rows="4" placeholder={'Team X\nTeam Y'}>{textListField(event.winners)}</textarea>
       </div>
     </div>
   </section>

@@ -1,0 +1,250 @@
+---
+// Event Wishlist board — students suggest events they want E-Cell to host and
+// upvote others'. Backed by Supabase via /api/event-wishlist. Votes are
+// deduped per-browser with localStorage (best-effort, no login).
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}
+
+const {
+  eyebrow = 'Event wishlist',
+  title = 'What should E-Cell host next?',
+  description = 'Suggest an event you want us to run — a talk, hackathon, workshop, anything. Upvote the ones you love.',
+} = Astro.props as Props;
+---
+
+<section id="wishlist" class="container mx-auto px-6 py-14 md:py-20 relative z-10">
+  <div class="max-w-2xl mb-8">
+    <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+  </div>
+
+  <form class="wl-form glass rounded-2xl p-5 md:p-6 mb-8" data-wl-form novalidate>
+    <div class="grid gap-4 md:grid-cols-[1.4fr_1.6fr_1fr_auto] md:items-end">
+      <label class="block">
+        <span class="wl-label">Event idea</span>
+        <input type="text" maxlength="80" required class="wl-input" data-wl-title placeholder="e.g. AI build weekend" />
+      </label>
+      <label class="block">
+        <span class="wl-label">Why <span class="opacity-60">(optional)</span></span>
+        <input type="text" maxlength="140" class="wl-input" data-wl-reason placeholder="what makes it worth it" />
+      </label>
+      <label class="block">
+        <span class="wl-label">Your name <span class="opacity-60">(optional)</span></span>
+        <input type="text" maxlength="32" class="wl-input" data-wl-name placeholder="anon" />
+      </label>
+      <button type="submit" class="wl-submit" data-wl-submit>
+        <iconify-icon icon="solar:lightbulb-bolt-linear" width="17" height="17"></iconify-icon>
+        Suggest
+      </button>
+    </div>
+    <p class="wl-error font-inter text-sm text-red-300 mt-3" data-wl-error role="status" aria-live="polite"></p>
+    <input type="text" data-wl-hp tabindex="-1" autocomplete="off" aria-hidden="true" class="wl-hp" />
+  </form>
+
+  <div class="wl-grid" data-wl-list>
+    <p class="wl-state font-inter" data-wl-state>Loading ideas…</p>
+  </div>
+</section>
+
+<style is:global>
+  .wl-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.8);
+  }
+  .wl-input {
+    width: 100%;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: rgba(10, 3, 2, 0.55);
+    color: #fff;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  .wl-input::placeholder { color: rgba(209, 213, 219, 0.4); }
+  .wl-input:focus {
+    outline: none;
+    border-color: rgba(248, 113, 113, 0.55);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+  }
+  .wl-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    clip-path: polygon(0.72rem 0, 100% 0, 100% calc(100% - 0.72rem), calc(100% - 0.72rem) 100%, 0 100%, 0 0.72rem);
+    border: 0;
+    padding: 0.65rem 1.2rem;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: rgb(254 226 226);
+    white-space: nowrap;
+    background: rgba(10, 2, 2, 0.24);
+    box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.58);
+    transition: transform 150ms ease, opacity 150ms ease, background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+  .wl-submit:hover { transform: translateY(-1px); color: #fff; background: rgba(127, 29, 29, 0.58); box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.8), 0 0 18px rgba(248, 113, 113, 0.2); }
+  .wl-submit:disabled { opacity: 0.6; cursor: progress; }
+  .wl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+  .wl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1rem;
+  }
+  .wl-state {
+    grid-column: 1 / -1;
+    padding: 2rem 0;
+    text-align: center;
+    color: rgb(156 163 175);
+  }
+
+  .wl-card {
+    display: flex;
+    gap: 0.9rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    background: linear-gradient(150deg, rgba(40, 8, 5, 0.5), rgba(12, 4, 3, 0.6));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+  .wl-vote {
+    flex: none;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    width: 3rem;
+    padding: 0.5rem 0;
+    border-radius: 0.7rem;
+    color: rgb(254 202 202);
+    border: 1px solid rgba(248, 113, 113, 0.28);
+    background: rgba(127, 29, 29, 0.22);
+    transition: transform 140ms ease, border-color 140ms ease, color 140ms ease, background 140ms ease;
+  }
+  .wl-vote:hover { transform: translateY(-2px); color: #fff; border-color: rgba(248, 113, 113, 0.6); }
+  .wl-vote.is-voted {
+    color: #fff;
+    background: rgba(127, 29, 29, 0.58);
+    box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.52);
+    cursor: default;
+  }
+  .wl-count { font-family: 'Prosto One', system-ui, sans-serif; font-size: 0.95rem; line-height: 1; }
+
+  .wl-body { min-width: 0; }
+  .wl-title {
+    margin: 0 0 0.3rem;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 1.05rem;
+    color: #fff;
+    word-break: break-word;
+  }
+  .wl-reason { margin: 0 0 0.4rem; font-size: 0.85rem; line-height: 1.4; color: rgb(209 213 219); word-break: break-word; }
+  .wl-meta { margin: 0; font-family: 'Pixelify Sans', ui-monospace, monospace; font-size: 0.62rem; letter-spacing: 0.06em; color: rgba(252, 165, 165, 0.7); }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById('wishlist');
+    if (!section) return;
+    const list = section.querySelector<HTMLElement>('[data-wl-list]');
+    const stateEl = section.querySelector<HTMLElement>('[data-wl-state]');
+    const form = section.querySelector<HTMLFormElement>('[data-wl-form]');
+    const titleInput = section.querySelector<HTMLInputElement>('[data-wl-title]');
+    const reasonInput = section.querySelector<HTMLInputElement>('[data-wl-reason]');
+    const nameInput = section.querySelector<HTMLInputElement>('[data-wl-name]');
+    const hpInput = section.querySelector<HTMLInputElement>('[data-wl-hp]');
+    const submitBtn = section.querySelector<HTMLButtonElement>('[data-wl-submit]');
+    const errorEl = section.querySelector<HTMLElement>('[data-wl-error]');
+    if (!list || !form || !titleInput || !submitBtn) return;
+
+    interface Item { id: string; title: string; reason: string | null; name: string | null; votes: number; }
+    const VOTE_KEY = 'ecell_event_votes';
+    const votedIds = (): string[] => { try { return JSON.parse(localStorage.getItem(VOTE_KEY) || '[]'); } catch { return []; } };
+    const markVoted = (id: string) => { try { localStorage.setItem(VOTE_KEY, JSON.stringify([...votedIds(), id])); } catch {} };
+
+    const setState = (msg: string | null) => { if (stateEl) { stateEl.textContent = msg ?? ''; stateEl.style.display = msg ? '' : 'none'; } };
+
+    const card = (it: Item): HTMLElement => {
+      const el = document.createElement('article');
+      el.className = 'wl-card';
+      const voted = votedIds().includes(it.id);
+      const vote = document.createElement('button');
+      vote.type = 'button';
+      vote.className = 'wl-vote' + (voted ? ' is-voted' : '');
+      vote.dataset.vote = it.id;
+      if (voted) vote.disabled = true;
+      vote.setAttribute('aria-label', 'Upvote');
+      vote.innerHTML = `<iconify-icon icon="solar:alt-arrow-up-bold" width="16" height="16"></iconify-icon><span class="wl-count">${it.votes || 0}</span>`;
+      const body = document.createElement('div');
+      body.className = 'wl-body';
+      const h = document.createElement('h3'); h.className = 'wl-title'; h.textContent = it.title; body.appendChild(h);
+      if (it.reason) { const p = document.createElement('p'); p.className = 'wl-reason'; p.textContent = it.reason; body.appendChild(p); }
+      if (it.name) { const m = document.createElement('p'); m.className = 'wl-meta'; m.textContent = '— ' + it.name; body.appendChild(m); }
+      el.append(vote, body);
+      return el;
+    };
+
+    list.addEventListener('click', async (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-vote]') as HTMLButtonElement | null;
+      if (!btn || btn.disabled) return;
+      const id = btn.dataset.vote!;
+      if (votedIds().includes(id)) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/event-wishlist', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vote: id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error();
+        const count = btn.querySelector('.wl-count');
+        if (count && typeof data.votes === 'number') count.textContent = String(data.votes);
+        btn.classList.add('is-voted');
+        markVoted(id);
+      } catch { btn.disabled = false; }
+    });
+
+    fetch('/api/event-wishlist')
+      .then(async (r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data: { items?: Item[] }) => {
+        const items = data.items ?? [];
+        if (items.length === 0) { setState('No ideas yet — suggest the first one!'); return; }
+        setState(null);
+        items.forEach((it) => list.appendChild(card(it)));
+      })
+      .catch(() => setState('Could not load the wishlist right now.'));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (errorEl) errorEl.textContent = '';
+      const title = titleInput.value.trim();
+      if (!title) { if (errorEl) errorEl.textContent = 'Name your event idea first.'; return; }
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch('/api/event-wishlist', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, reason: reasonInput?.value ?? '', name: nameInput?.value ?? '', hp: hpInput?.value ?? '' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+        if (data.item) { setState(null); list.prepend(card(data.item as Item)); }
+        titleInput.value = ''; if (reasonInput) reasonInput.value = '';
+      } catch (err) {
+        if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  })();
+</script>

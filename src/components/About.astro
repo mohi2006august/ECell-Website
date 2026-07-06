@@ -5,35 +5,175 @@ interface Props {
   description?: string;
   vision?: string;
   mission?: string;
-  closing?: string;
 }
 
 const {
   eyebrow = 'About E-Cell VJIT',
-  title = 'Building a culture of innovation, leadership, and startup thinking',
-  description = 'The Entrepreneurship Cell (E-Cell) at VJIT is a student-led platform committed to nurturing innovation and entrepreneurial thinking, enabling the transformation of ideas into meaningful, real-world ventures.',
-  vision = 'To cultivate a dynamic culture of innovation and entrepreneurship, empowering students to evolve into visionary leaders and job creators who drive meaningful impact in a sustainable, technology-driven future.',
-  mission = 'To equip students through hands-on hackathons, workshops, and startup programs that bridge the gap between ideas and real-world experience, while fostering a supportive ecosystem of mentorship and industry networking to enable the development, testing, and scaling of innovative ventures.',
-  closing = 'Through workshops, mentorship programs, startup bootcamps, and flagship events like PitchQuest and E-Conclave, we bridge the gap between academic learning and entrepreneurship - empowering students to think boldly, build fearlessly, and lead with impact.',
+  title = 'A launchpad for student founders',
+  description = 'E-Cell VJIT is a student-led platform that turns curiosity into ventures — through hackathons, mentorship, and flagship programs like PitchQuest and E-Conclave.',
+  vision = 'A campus culture where students grow into visionary leaders and job creators driving a sustainable, technology-driven future.',
+  mission = 'Hands-on hackathons, workshops, and startup programs — backed by mentorship and industry networking — that take ideas from concept to scale.',
 } = Astro.props as Props;
+
+const values = ['Innovation', 'Leadership', 'Startup Thinking', 'Community'];
+const flagships = ['PitchQuest', 'E-Conclave', 'Startup Bootcamps', 'Mentorship Programs'];
 ---
 
 <section id="about" class="container mx-auto px-6 py-16 md:py-24 relative z-10">
-  <div class="max-w-5xl">
-    <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">{eyebrow}</p>
-    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
-    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
-    <div class="grid gap-5 md:grid-cols-2 mt-8">
-      <article class="glass rounded-2xl p-6 border border-red-500/15">
-        <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-3">Vision</p>
-        <p class="text-gray-200 font-inter leading-relaxed">{vision}</p>
-      </article>
-      <article class="glass rounded-2xl p-6 border border-red-500/15">
-        <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-3">Mission</p>
-        <p class="text-gray-200 font-inter leading-relaxed">{mission}</p>
-      </article>
+  <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-10">
+    <div class="about-content">
+      <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+      <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+      <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed max-w-3xl">{description}</p>
+
+      <div class="mt-6 flex flex-wrap gap-2">
+        {values.map((value) => (
+          <span class="inline-flex items-center gap-1.5 rounded-full glass px-3.5 py-1.5 text-xs font-inter uppercase tracking-wider text-red-100/90">
+            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+            {value}
+          </span>
+        ))}
+      </div>
+
+      <div class="mt-8 grid gap-5 md:grid-cols-[210px_minmax(0,1fr)]">
+        <div class="orbit-panel glass rounded-2xl border border-red-500/15 p-5 md:p-6 flex flex-col items-center justify-center gap-4">
+          <div class="orbit-stage" aria-hidden="true">
+            <span class="orbit-ring orbit-ring-outer"></span>
+            <span class="orbit-ring orbit-ring-inner"></span>
+            <span class="orbit-core">
+              <iconify-icon icon="solar:bonfire-linear" width="22" height="22"></iconify-icon>
+            </span>
+            <span class="orbit-track">
+              <span class="orbit-node orbit-node-1">
+                <iconify-icon icon="solar:lightbulb-minimalistic-linear" width="14" height="14"></iconify-icon>
+              </span>
+              <span class="orbit-node orbit-node-2">
+                <iconify-icon icon="solar:code-square-linear" width="14" height="14"></iconify-icon>
+              </span>
+              <span class="orbit-node orbit-node-3">
+                <iconify-icon icon="solar:rocket-2-linear" width="14" height="14"></iconify-icon>
+              </span>
+            </span>
+          </div>
+          <p class="font-pixel text-xs text-gray-400 text-center">Idea &middot; Build &middot; Launch</p>
+        </div>
+
+        <div class="grid gap-5">
+          <article class="glass rounded-2xl p-5 md:p-6 border border-red-500/15">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
+                <iconify-icon icon="solar:eye-linear" width="20" height="20"></iconify-icon>
+              </span>
+              <p class="font-pixel text-xs text-red-200/80">Vision</p>
+            </div>
+            <p class="text-gray-200 font-inter text-sm md:text-base leading-relaxed">{vision}</p>
+          </article>
+          <article class="glass rounded-2xl p-5 md:p-6 border border-red-500/15">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
+                <iconify-icon icon="solar:target-linear" width="20" height="20"></iconify-icon>
+              </span>
+              <p class="font-pixel text-xs text-red-200/80">Mission</p>
+            </div>
+            <p class="text-gray-200 font-inter text-sm md:text-base leading-relaxed">{mission}</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="font-pixel text-xs text-gray-500">Flagships</span>
+        {flagships.map((flagship) => (
+          <span class="text-sm font-inter text-gray-300 border-b border-red-500/30 pb-0.5">{flagship}</span>
+        ))}
+      </div>
     </div>
-    <p class="mt-8 text-gray-300 font-inter text-base md:text-lg leading-relaxed">{closing}</p>
-    <slot />
+
+    <div class="plane-lane" aria-hidden="true">
+      <span class="plane-stop" data-plane-stop></span>
+    </div>
   </div>
+  <slot />
 </section>
+
+<style>
+  @media (min-width: 1024px) {
+    .about-content {
+      max-width: min(100%, 58rem);
+      margin-right: auto;
+    }
+  }
+
+  .orbit-stage {
+    position: relative;
+    width: 150px;
+    height: 150px;
+  }
+
+  .orbit-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    border: 1px dashed rgba(248, 113, 113, 0.28);
+  }
+
+  .orbit-ring-inner {
+    inset: 26px;
+    border-color: rgba(248, 113, 113, 0.18);
+  }
+
+  .orbit-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    color: rgb(252 165 165);
+    background: rgba(127, 29, 29, 0.35);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.25);
+  }
+
+  .orbit-track {
+    position: absolute;
+    inset: 0;
+    animation: orbitSpin 18s linear infinite;
+  }
+
+  .orbit-node {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    color: rgb(254 202 202);
+    background: rgba(20, 4, 2, 0.85);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    animation: orbitCounterSpin 18s linear infinite;
+  }
+
+  .orbit-node-1 { top: -14px; left: 50%; margin-left: -14px; }
+  .orbit-node-2 { bottom: 8px; left: 4px; }
+  .orbit-node-3 { bottom: 8px; right: 4px; }
+
+  @keyframes orbitSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes orbitCounterSpin {
+    to { transform: rotate(-360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit-track,
+    .orbit-node {
+      animation: none;
+    }
+  }
+</style>

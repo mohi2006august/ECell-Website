@@ -1,0 +1,287 @@
+---
+// Find a Cofounder board — people post what they're building and the role they
+// need, with an optional way to reach them. Backed by Supabase via
+// /api/cofounder-board.
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+}
+
+const {
+  eyebrow = 'Find a cofounder',
+  title = 'Who are you building with?',
+  description = 'Post what you’re building and the teammate you’re looking for — a cofounder, designer, developer, whoever. Someone might be exactly it.',
+} = Astro.props as Props;
+---
+
+<section id="cofounders" class="container mx-auto px-6 py-14 md:py-20 relative z-10">
+  <div class="max-w-2xl mb-8">
+    <p class="font-pixel text-xs text-red-200/80 mb-4">{eyebrow}</p>
+    <h2 class="text-3xl md:text-5xl font-jakarta font-semibold tracking-tight mb-4">{title}</h2>
+    <p class="text-gray-300 font-inter text-base md:text-lg leading-relaxed">{description}</p>
+  </div>
+
+  <form class="cf-form glass rounded-2xl p-5 md:p-6 mb-8" data-cf-form novalidate>
+    <div class="grid gap-4 md:grid-cols-2">
+      <label class="block md:col-span-2">
+        <span class="cf-label">What you’re building</span>
+        <input type="text" maxlength="140" required class="cf-input" data-cf-project placeholder="e.g. a campus marketplace app" />
+      </label>
+      <label class="block">
+        <span class="cf-label">Role you need</span>
+        <input type="text" maxlength="60" required class="cf-input" data-cf-role placeholder="e.g. UI designer" />
+      </label>
+      <label class="block">
+        <span class="cf-label">Contact <span class="opacity-60">(optional)</span></span>
+        <input type="text" maxlength="80" class="cf-input" data-cf-contact placeholder="email / @insta / link" />
+      </label>
+      <label class="block">
+        <span class="cf-label">Your name <span class="opacity-60">(optional)</span></span>
+        <input type="text" maxlength="32" class="cf-input" data-cf-name placeholder="anon" />
+      </label>
+      <div class="flex items-end">
+        <button type="submit" class="cf-submit" data-cf-submit>
+          <iconify-icon icon="solar:users-group-two-rounded-linear" width="17" height="17"></iconify-icon>
+          Post
+        </button>
+      </div>
+    </div>
+    <p class="cf-error font-inter text-sm text-red-300 mt-3" data-cf-error role="status" aria-live="polite"></p>
+    <input type="text" data-cf-hp tabindex="-1" autocomplete="off" aria-hidden="true" class="cf-hp" />
+  </form>
+
+  <div class="cf-grid" data-cf-list>
+    <p class="cf-state font-inter" data-cf-state>Loading the board…</p>
+  </div>
+</section>
+
+<style is:global>
+  .cf-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(254, 202, 202, 0.8);
+  }
+  .cf-input {
+    width: 100%;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(248, 113, 113, 0.22);
+    background: rgba(10, 3, 2, 0.55);
+    color: #fff;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  .cf-input::placeholder { color: rgba(209, 213, 219, 0.4); }
+  .cf-input:focus {
+    outline: none;
+    border-color: rgba(248, 113, 113, 0.55);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+  }
+  .cf-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    clip-path: polygon(0.72rem 0, 100% 0, 100% calc(100% - 0.72rem), calc(100% - 0.72rem) 100%, 0 100%, 0 0.72rem);
+    border: 0;
+    padding: 0.65rem 1.4rem;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: rgb(254 226 226);
+    white-space: nowrap;
+    background: rgba(10, 2, 2, 0.24);
+    box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.58);
+    transition: transform 150ms ease, opacity 150ms ease, background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+  .cf-submit:hover { transform: translateY(-1px); color: #fff; background: rgba(127, 29, 29, 0.58); box-shadow: inset 0 0 0 1.4px rgba(254, 202, 202, 0.8), 0 0 18px rgba(248, 113, 113, 0.2); }
+  .cf-submit:disabled { opacity: 0.6; cursor: progress; }
+  .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+  .cf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1rem;
+  }
+  .cf-state {
+    grid-column: 1 / -1;
+    padding: 2rem 0;
+    text-align: center;
+    color: rgb(156 163 175);
+  }
+
+  .cf-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.15rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(248, 113, 113, 0.16);
+    background: linear-gradient(150deg, rgba(40, 8, 5, 0.5), rgba(12, 4, 3, 0.6));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+  .cf-chip {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 999px;
+    padding: 0.28rem 0.7rem;
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(254 226 226);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: rgba(127, 29, 29, 0.25);
+  }
+  .cf-project {
+    margin: 0;
+    font-family: 'Prosto One', system-ui, sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    color: #fff;
+    word-break: break-word;
+  }
+  .cf-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 0.4rem;
+  }
+  .cf-name {
+    font-family: 'Pixelify Sans', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: rgba(252, 165, 165, 0.75);
+  }
+  .cf-link, .cf-contact-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: rgb(254 202 202);
+  }
+  .cf-link {
+    border-bottom: 1px solid rgba(248, 113, 113, 0.4);
+    transition: color 150ms ease;
+  }
+  .cf-link:hover { color: #fff; }
+</style>
+
+<script>
+  (() => {
+    const section = document.getElementById('cofounders');
+    if (!section) return;
+    const list = section.querySelector<HTMLElement>('[data-cf-list]');
+    const stateEl = section.querySelector<HTMLElement>('[data-cf-state]');
+    const form = section.querySelector<HTMLFormElement>('[data-cf-form]');
+    const projectInput = section.querySelector<HTMLInputElement>('[data-cf-project]');
+    const roleInput = section.querySelector<HTMLInputElement>('[data-cf-role]');
+    const nameInput = section.querySelector<HTMLInputElement>('[data-cf-name]');
+    const contactInput = section.querySelector<HTMLInputElement>('[data-cf-contact]');
+    const hpInput = section.querySelector<HTMLInputElement>('[data-cf-hp]');
+    const submitBtn = section.querySelector<HTMLButtonElement>('[data-cf-submit]');
+    const errorEl = section.querySelector<HTMLElement>('[data-cf-error]');
+    if (!list || !form || !projectInput || !roleInput || !submitBtn) return;
+
+    interface Item { id: string; project: string; role: string; name: string | null; contact: string | null; }
+
+    const setState = (msg: string | null) => { if (stateEl) { stateEl.textContent = msg ?? ''; stateEl.style.display = msg ? '' : 'none'; } };
+
+    // Turn a contact string into a link when we can recognise it.
+    const contactHref = (v: string): string | null => {
+      const s = v.trim();
+      if (/^https?:\/\//i.test(s)) return s;
+      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s)) return 'mailto:' + s;
+      if (/^@[\w.]+$/.test(s)) return 'https://instagram.com/' + s.slice(1);
+      return null;
+    };
+
+    const card = (it: Item): HTMLElement => {
+      const el = document.createElement('article');
+      el.className = 'cf-card';
+
+      const chip = document.createElement('span');
+      chip.className = 'cf-chip';
+      chip.innerHTML = '<iconify-icon icon="solar:magnifer-linear" width="12" height="12"></iconify-icon>';
+      const roleText = document.createElement('span');
+      roleText.textContent = 'Needs: ' + it.role;
+      chip.appendChild(roleText);
+
+      const project = document.createElement('h3');
+      project.className = 'cf-project';
+      project.textContent = it.project;
+
+      const foot = document.createElement('div');
+      foot.className = 'cf-foot';
+      const nm = document.createElement('span');
+      nm.className = 'cf-name';
+      nm.textContent = it.name ? '— ' + it.name : '— someone';
+      foot.appendChild(nm);
+
+      if (it.contact) {
+        const href = contactHref(it.contact);
+        if (href) {
+          const a = document.createElement('a');
+          a.className = 'cf-link'; a.href = href; a.target = '_blank'; a.rel = 'noopener';
+          a.innerHTML = '<iconify-icon icon="solar:link-linear" width="14" height="14"></iconify-icon>';
+          a.append('Reach out');
+          foot.appendChild(a);
+        } else {
+          const span = document.createElement('span');
+          span.className = 'cf-contact-text';
+          span.textContent = it.contact;
+          foot.appendChild(span);
+        }
+      }
+
+      el.append(chip, project, foot);
+      return el;
+    };
+
+    fetch('/api/cofounder-board')
+      .then(async (r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data: { items?: Item[] }) => {
+        const items = data.items ?? [];
+        if (items.length === 0) { setState('No posts yet — start the board!'); return; }
+        setState(null);
+        items.forEach((it) => list.appendChild(card(it)));
+      })
+      .catch(() => setState('Could not load the board right now.'));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (errorEl) errorEl.textContent = '';
+      const project = projectInput.value.trim();
+      const role = roleInput.value.trim();
+      if (!project || !role) { if (errorEl) errorEl.textContent = 'Add what you’re building and the role you need.'; return; }
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch('/api/cofounder-board', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            project, role,
+            name: nameInput?.value ?? '', contact: contactInput?.value ?? '', hp: hpInput?.value ?? '',
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+        if (data.item) { setState(null); list.prepend(card(data.item as Item)); }
+        projectInput.value = ''; roleInput.value = '';
+        if (contactInput) contactInput.value = '';
+      } catch (err) {
+        if (errorEl) errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  })();
+</script>

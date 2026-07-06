@@ -4,12 +4,14 @@ export const prerender = false;
 import ConsoleLayout from '../../../layouts/ConsoleLayout.astro';
 import EventForm from '../../../components/console/EventForm.astro';
 import { supabaseAdmin } from '../../../lib/supabaseAdmin.js';
-import { parseEventForm } from '../../../lib/parseEventForm.js';
+import { eventFormDraft, parseEventForm } from '../../../lib/parseEventForm.js';
 
 let errorMessage = '';
+let submittedEvent = {};
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
+  submittedEvent = eventFormDraft(formData);
 
   try {
     const eventData = parseEventForm(formData);
@@ -21,7 +23,7 @@ if (Astro.request.method === 'POST') {
       return Astro.redirect('/console');
     }
   } catch (err) {
-    errorMessage = err instanceof Error ? `Invalid JSON in an advanced field: ${err.message}` : 'Invalid form data.';
+    errorMessage = err instanceof Error ? err.message : 'Invalid form data.';
   }
 }
 ---
@@ -32,5 +34,5 @@ if (Astro.request.method === 'POST') {
 
   {errorMessage && <p class="text-red-400 font-inter text-sm mb-4">{errorMessage}</p>}
 
-  <EventForm action="/console/events/new" submitLabel="Create Event" />
+  <EventForm event={submittedEvent} action="/console/events/new" submitLabel="Create Event" />
 </ConsoleLayout>

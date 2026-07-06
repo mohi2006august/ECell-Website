@@ -6,7 +6,7 @@ import { supabase } from '../../lib/supabase.js';
 
 const { data: events, error } = await supabase
   .from('events')
-  .select('id, slug, title, short_description, date, time, venue, mode, poster_url, registration_open, is_featured')
+  .select('id, slug, title, short_description, date, time, venue, mode, poster_url, registration_open, registration_deadline, is_featured')
   .order('date', { ascending: true });
 
 if (error) {
@@ -14,6 +14,17 @@ if (error) {
 }
 
 const hasEvents = Array.isArray(events) && events.length > 0;
+
+const formatEventDate = (date: string) => new Date(date).toLocaleDateString('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric'
+});
+
+const isRegistrationLive = (event: Record<string, any>) => {
+  const deadlinePassed = event.registration_deadline && new Date(event.registration_deadline) < new Date();
+  return Boolean(event.registration_open && !deadlinePassed);
+};
 ---
 
 <BaseLayout title="E-Cell VJIT | Events">
@@ -34,24 +45,39 @@ const hasEvents = Array.isArray(events) && events.length > 0;
     {hasEvents && (
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-7 mb-12 md:mb-16">
         {events.map((event) => (
-          <a href={`/events/${event.slug}`} class="glass noise-overlay rounded-2xl p-6 md:p-7 flex flex-col gap-3 hover:bg-white/5 transition-colors">
-            <span class="events-ghost-label w-fit">{event.mode}</span>
-            <h3 class="text-xl font-jakarta font-semibold tracking-tight text-white">{event.title}</h3>
-            <p class="text-gray-300 font-inter text-sm leading-relaxed">{event.short_description}</p>
-            <div class="mt-auto pt-3 flex items-center justify-between text-xs text-gray-400 font-inter">
-              <span>{new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-              <span>{event.venue}</span>
+          <a href={`/events/${event.slug}`} class="event-card-cut noise-overlay">
+            <figure class="event-poster-preview">
+              {event.poster_url ? (
+                <img src={event.poster_url} alt={`${event.title} poster`} loading="lazy" decoding="async" />
+              ) : (
+                <div class="event-poster-fallback">
+                  <span>Poster</span>
+                  <strong>{event.title}</strong>
+                </div>
+              )}
+            </figure>
+            <div class="event-card-copy">
+              <span class="events-ghost-label w-fit">{event.mode}</span>
+              <h3>{event.title}</h3>
+              <p>{event.short_description}</p>
+              <div class="event-card-meta">
+                <span>{formatEventDate(event.date)}</span>
+                <span>{event.venue}</span>
+              </div>
+              {isRegistrationLive(event) && (
+                <span class="event-card-status">Registration open</span>
+              )}
+              {!isRegistrationLive(event) && (
+                <span class="event-card-status event-card-status-muted">Registration closed</span>
+              )}
             </div>
-            {event.registration_open && (
-              <span class="text-xs uppercase tracking-[0.2em] text-red-200/80">Registration open</span>
-            )}
           </a>
         ))}
       </div>
     )}
 
-    <div class="glass noise-overlay events-stage rounded-3xl p-6 md:p-8 lg:p-10 mb-8 md:mb-10" style={hasEvents ? 'display:none' : undefined}>
-      <div class="events-stage-inner rounded-2xl p-6 md:p-8 lg:p-10">
+    <div class="glass noise-overlay events-stage p-6 md:p-8 lg:p-10 mb-8 md:mb-10" style={hasEvents ? 'display:none' : undefined}>
+      <div class="events-stage-inner p-6 md:p-8 lg:p-10">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
           <div class="max-w-2xl">
             <span class="events-pill inline-flex items-center gap-2 mb-5">
@@ -94,26 +120,6 @@ const hasEvents = Array.isArray(events) && events.length > 0;
       </div>
     </div>
 
-    <div class="fire-line-divider" aria-hidden="true"></div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-7">
-      <div class="glass noise-overlay rounded-2xl p-6 md:p-8">
-        <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">Future Rhythm</p>
-        <h2 class="text-2xl md:text-4xl font-jakarta font-semibold tracking-tight mb-4">When events arrive, this section becomes the timeline</h2>
-        <p class="text-gray-300 font-inter leading-relaxed">
-          For now, it stays as a polished shell with subtle cues, so the page feels complete without pretending there is live content yet.
-        </p>
-      </div>
-
-      <div class="glass noise-overlay rounded-2xl p-6 md:p-8">
-        <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4">Event Flow</p>
-        <div class="space-y-4">
-          <div class="events-flow-item"><span>01</span><p>Announcement</p></div>
-          <div class="events-flow-item"><span>02</span><p>Registration</p></div>
-          <div class="events-flow-item"><span>03</span><p>Execution</p></div>
-        </div>
-      </div>
-    </div>
   </section>
 </BaseLayout>
 
@@ -121,11 +127,132 @@ const hasEvents = Array.isArray(events) && events.length > 0;
   .events-stage {
     border: 1px solid rgba(248, 113, 113, 0.18);
     background: linear-gradient(165deg, rgba(24, 5, 4, 0.92), rgba(10, 2, 2, 0.92));
+    clip-path: polygon(1.35rem 0, 100% 0, 100% calc(100% - 1.35rem), calc(100% - 1.35rem) 100%, 0 100%, 0 1.35rem);
   }
 
   .events-stage-inner {
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: radial-gradient(120% 120% at 50% 0%, rgba(185, 28, 28, 0.2) 0%, rgba(9, 9, 11, 0.25) 45%, rgba(6, 2, 2, 0.52) 100%);
+    clip-path: polygon(1rem 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%, 0 1rem);
+  }
+
+  .event-card-cut {
+    display: grid;
+    min-height: 100%;
+    color: inherit;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent 34%),
+      linear-gradient(165deg, rgba(28, 5, 3, 0.92), rgba(9, 2, 2, 0.88));
+    clip-path: polygon(1.15rem 0, 100% 0, 100% calc(100% - 1.15rem), calc(100% - 1.15rem) 100%, 0 100%, 0 1.15rem);
+    overflow: hidden;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .event-card-cut:hover {
+    transform: translateY(-4px);
+    border-color: rgba(254, 202, 202, 0.38);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34), 0 0 24px rgba(248, 113, 113, 0.12);
+  }
+
+  .event-poster-preview {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(248, 113, 113, 0.14);
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .event-poster-preview::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.62));
+    pointer-events: none;
+  }
+
+  .event-poster-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.08) contrast(1.05);
+    transition: transform 260ms ease, filter 260ms ease;
+  }
+
+  .event-card-cut:hover .event-poster-preview img {
+    transform: scale(1.045);
+    filter: saturate(1.16) contrast(1.08) brightness(1.04);
+  }
+
+  .event-poster-fallback {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.65rem;
+    padding: 1.25rem;
+    text-align: center;
+    background:
+      radial-gradient(circle at 50% 36%, rgba(248, 113, 113, 0.22), transparent 34%),
+      linear-gradient(135deg, rgba(127, 29, 29, 0.48), rgba(7, 2, 2, 0.92));
+  }
+
+  .event-poster-fallback span {
+    color: rgba(254, 202, 202, 0.75);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .event-poster-fallback strong {
+    color: white;
+    font-size: 1.25rem;
+    line-height: 1.18;
+  }
+
+  .event-card-copy {
+    display: flex;
+    min-height: 15rem;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1.25rem;
+  }
+
+  .event-card-copy h3 {
+    color: white;
+    font-family: 'Prosto One', sans-serif;
+    font-size: 1.35rem;
+    line-height: 1.15;
+  }
+
+  .event-card-copy p {
+    color: rgba(209, 213, 219, 0.86);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .event-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    color: rgba(209, 213, 219, 0.74);
+    font-size: 0.78rem;
+  }
+
+  .event-card-status {
+    color: rgba(254, 202, 202, 0.86);
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .event-card-status-muted {
+    color: rgba(209, 213, 219, 0.62);
   }
 
   .events-pill {
@@ -184,10 +311,10 @@ const hasEvents = Array.isArray(events) && events.length > 0;
 
   .events-ghost-card {
     min-height: 180px;
-    border-radius: 1rem;
     border: 1px dashed rgba(248, 113, 113, 0.18);
     background: linear-gradient(165deg, rgba(127, 29, 29, 0.16), rgba(6, 2, 2, 0.36));
     padding: 1.15rem;
+    clip-path: polygon(0.85rem 0, 100% 0, 100% calc(100% - 0.85rem), calc(100% - 0.85rem) 100%, 0 100%, 0 0.85rem);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -224,9 +351,9 @@ const hasEvents = Array.isArray(events) && events.length > 0;
     align-items: center;
     gap: 1rem;
     padding: 0.9rem 1rem;
-    border-radius: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.02);
+    clip-path: polygon(0.7rem 0, 100% 0, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0 100%, 0 0.7rem);
   }
 
   .events-flow-item span {
@@ -246,6 +373,11 @@ const hasEvents = Array.isArray(events) && events.length > 0;
     color: rgb(244 244 245);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 500;
+  }
+
+  .events-info-panel {
+    border: 1px solid rgba(248, 113, 113, 0.18);
+    clip-path: polygon(1rem 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%, 0 1rem);
   }
 
   @keyframes orbitPulse {
