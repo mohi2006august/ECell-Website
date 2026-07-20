@@ -1,8 +1,58 @@
 {
+  "society": [
+    {
+      "id": "society-1",
+      "name": "Dr. P. Rajeshwar Reddy",
+      "role": "Secretary and Correspondent",
+      "team": "society",
+      "branch": "",
+      "year": "",
+      "roll_number": "",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784523917/palla_rajeshwar_reddy_al3a0m.jpg",
+      "socials": {
+        "github": "",
+        "linkedin": "",
+        "instagram": ""
+      },
+      "tagline": "Guiding the institution's vision for innovation and excellence."
+    },
+    {
+      "id": "society-2",
+      "name": "S. Neelima",
+      "role": "Joint Secretary",
+      "team": "society",
+      "branch": "",
+      "year": "",
+      "roll_number": "",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784523917/neelima_fb3ygz.jpg",
+      "socials": {
+        "github": "",
+        "linkedin": "",
+        "instagram": ""
+      },
+      "tagline": "Championing institutional growth and student success."
+    },
+    {
+      "id": "society-3",
+      "name": "Prof. M. Govind Ram Reddy",
+      "role": "Member",
+      "team": "society",
+      "branch": "",
+      "year": "",
+      "roll_number": "",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784523917/govind_ram_leacmp.jpg",
+      "socials": {
+        "github": "",
+        "linkedin": "",
+        "instagram": ""
+      },
+      "tagline": "Supporting the institution's academic and entrepreneurial mission."
+    }
+  ],
   "administration": [
     {
       "id": "admin-1",
-      "name": "A. Srujana",
+      "name": "Dr. A. Srujana",
       "role": "Principal",
       "team": "administration",
       "branch": "",
@@ -15,11 +65,27 @@
         "instagram": ""
       },
       "tagline": "Enabling innovation and entrepreneurship culture across campus."
-    },    
+    },
     {
       "id": "admin-2",
-      "name": "Mr. R. VenkataChalam",
-      "role": "Sr. Administrative Officer",
+      "name": "Dr. A. Padmaja",
+      "role": "Dean - Accreditation & Rankings",
+      "team": "administration",
+      "branch": "",
+      "year": "",
+      "roll_number": "",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784523916/padmaja_mzzzs0.jpg",
+      "socials": {
+        "github": "",
+        "linkedin": "",
+        "instagram": ""
+      },
+      "tagline": "Driving academic quality and institutional recognition."
+    },
+    {
+      "id": "admin-3",
+      "name": "Mr. R. Venkatachalam",
+      "role": "Director (Training & Placement Cell)",
       "team": "administration",
       "branch": "",
       "year": "",
@@ -33,10 +99,28 @@
       "tagline": "Supporting seamless execution of events and institutional initiatives."
     },
     {
-      "id": "admin-3",
-      "name": "Syed Nazeer Ahmed",
-      "role": "Faculty Coordinator",
+      "id": "admin-4",
+      "name": "Mrs. G. Srilatha",
+      "role": "Director - Academics",
       "team": "administration",
+      "branch": "",
+      "year": "",
+      "roll_number": "",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784523917/srilatha_i0ztpj.jpg",
+      "socials": {
+        "github": "",
+        "linkedin": "",
+        "instagram": ""
+      },
+      "tagline": "Shaping academic direction and student development."
+    }
+  ],
+  "faculty_coordinator": [
+    {
+      "id": "faculty-1",
+      "name": "Madhuri Paul",
+      "role": "Faculty Coordinator",
+      "team": "faculty_coordinator",
       "branch": "",
       "year": "",
       "roll_number": "",
@@ -58,7 +142,7 @@
       "branch": "",
       "year": "",
       "roll_number": "",
-      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777634025/tania_president_abya2u.jpg",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524157/tania_ihr0m4.jpg",
       "socials": {
         "github": "",
         "linkedin": "",
@@ -74,7 +158,7 @@
       "branch": "",
       "year": "",
       "roll_number": "",
-      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777636294/kashyap_bqvhk5.jpg",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524158/kashyap_pxhmcg.jpg",
       "socials": {
         "github": "",
         "linkedin": "",
@@ -154,7 +238,7 @@
       "branch": "",
       "year": "",
       "roll_number": "",
-      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777634031/sameera_marketing_f2esuj.jpg",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524158/sameera_xpvmxf.jpg",
       "socials": {
         "github": "",
         "linkedin": "",
@@ -170,7 +254,7 @@
       "branch": "",
       "year": "",
       "roll_number": "",
-      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777636419/aldrin_th2j2s.jpg",
+      "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524157/aldrin_v4orhx.jpg",
       "socials": {
         "github": "",
         "linkedin": "",

@@ -5,7 +5,9 @@ import Navbar from '../../components/Navbar.astro';
 import TeamCard from '../../components/TeamCard.astro';
 import teamData from '../../../team.json';
 
+const society = teamData.society ?? [];
 const administration = teamData.administration ?? [];
+const facultyCoordinators = teamData.faculty_coordinator ?? [];
 const core = teamData.core;
 const president = core.find((member) => member.role.toLowerCase() === 'president');
 const vicePresident = core.find((member) => {
@@ -45,9 +47,53 @@ const teamLinks = [
     </div>
 
     <div class="team-section-shell glass noise-overlay p-6 md:p-8 mb-8 md:mb-10">
-      <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4 text-center">Institutional Leadership</p>
+      <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4 text-center">Society</p>
       <div class="team-grid-optimized mx-auto grid max-w-7xl grid-cols-1 md:grid-cols-3 gap-6 md:gap-7 justify-items-center">
+        {society.map((member, index) => (
+          <div class="w-full max-w-sm">
+            <TeamCard
+              name={member.name}
+              role={member.role}
+              image={member.image}
+              branch={member.branch}
+              year={member.year}
+              tagline={member.tagline}
+              socials={member.socials}
+              index={index}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="fire-line-divider" aria-hidden="true"></div>
+
+    <div class="team-section-shell glass noise-overlay p-6 md:p-8 mb-8 md:mb-10">
+      <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4 text-center">Administration</p>
+      <div class="team-grid-optimized mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-7 justify-items-center">
         {administration.map((member, index) => (
+          <div class="w-full max-w-sm">
+            <TeamCard
+              name={member.name}
+              role={member.role}
+              image={member.image}
+              branch={member.branch}
+              year={member.year}
+              tagline={member.tagline}
+              socials={member.socials}
+              index={index}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="fire-line-divider" aria-hidden="true"></div>
+
+    <div class="team-section-shell glass noise-overlay p-6 md:p-8 mb-8 md:mb-10">
+      <p class="text-xs uppercase tracking-[0.3em] text-red-200/80 mb-4 text-center">Faculty Coordinator</p>
+      <div class="team-grid-optimized mx-auto grid max-w-md grid-cols-1 gap-6 md:gap-7 justify-items-center">
+        {facultyCoordinators.map((member, index) => (
           <div class="w-full max-w-sm">
             <TeamCard
               name={member.name}
