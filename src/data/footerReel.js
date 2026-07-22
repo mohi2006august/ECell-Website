@@ -21,14 +21,9 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 export const footerReel = [
-  // ▼▼ Seed placeholders — replace these with your real links ▼▼
-  { type: 'image', src: '/images/ecell-logo.png', caption: 'E-Cell VJIT' },
-  { type: 'image', src: '/images/team-placeholder.svg', caption: 'Our Community' },
-
-  // ▼▼ Examples (uncomment and edit) ▼▼
-  // { type: 'youtube', url: 'https://youtu.be/XXXXXXXXXXX', caption: 'E-Summit Aftermovie' },
-  // { type: 'video', src: 'https://res.cloudinary.com/<cloud>/video/upload/highlight.mp4', caption: 'Hackathon 2025' },
-  // { type: 'image', src: 'https://res.cloudinary.com/<cloud>/image/upload/pitchquest.jpg', caption: 'PitchQuest' },
+  { type: 'youtube', url: 'https://youtu.be/zl5XZY8cYkI?si=VqgA85l2MQggsSw4', caption: 'Video 1' },
+  { type: 'youtube', url: 'https://youtu.be/BKO6vmbzzkM?si=2Wjz4s6biCeFEQ2n', caption: 'Video 2' },
+  { type: 'youtube', url: 'https://youtu.be/_8kagr5no4s?si=ScObXQiC-aU_7YiI', caption: 'Video 3' },
 ];
 
 export default footerReel;

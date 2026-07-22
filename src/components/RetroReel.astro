@@ -154,6 +154,8 @@ const items = (reel || []).filter(Boolean);
       media.appendChild(holder);
       ytPlayer = new window.YT.Player(holder, {
         videoId: id,
+        width: '100%',
+        height: '100%',
         playerVars: {
           autoplay: 1, mute: 1, controls: 0, modestbranding: 1, rel: 0,
           playsinline: 1, loop: 1, playlist: id, fs: 0, disablekb: 1,
@@ -357,7 +359,7 @@ const items = (reel || []).filter(Boolean);
   }
 
   .reel-media { z-index: 2; }
-  .reel-media :is(iframe, img, video, .reel-yt) {
+  .reel-media > :global(*) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -384,6 +386,9 @@ const items = (reel || []).filter(Boolean);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
     background-size: 150px 150px;
     animation: reelStatic 0.4s steps(3) infinite;
+  }
+  .reel-nosignal[hidden] {
+    display: none !important;
   }
 
   .reel-scanlines {
@@ -624,8 +629,8 @@ const items = (reel || []).filter(Boolean);
   .reel-tv.is-fullscreen .reel-static {
     display: none;
   }
-  .reel-tv:fullscreen .reel-media :is(iframe, img, video, .reel-yt),
-  .reel-tv.is-fullscreen .reel-media :is(iframe, img, video, .reel-yt) {
+  .reel-tv:fullscreen .reel-media > :global(*),
+  .reel-tv.is-fullscreen .reel-media > :global(*) {
     object-fit: contain;
     background: #000;
   }
