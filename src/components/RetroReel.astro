@@ -215,7 +215,7 @@ const items = (reel || []).filter(Boolean);
       window.clearTimeout(timer);
       if (reduced || list.length < 2) return;
       const it = list[idx];
-      const d = it && it.type === 'image' ? 5200 : 12000;
+      const d = it && it.type === 'image' ? 5200 : 30000;
       timer = window.setTimeout(() => { go(1); }, d);
     };
 
