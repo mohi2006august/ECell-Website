@@ -3,22 +3,26 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import BackgroundShader from '../../../components/BackgroundShader.astro';
 import Navbar from '../../../components/Navbar.astro';
 import { supabase } from '../../../lib/supabase.js';
+import { getRegistrationStatus, getRegistrationStatusLabel } from '../../../lib/eventStatus.js';
 
-export async function getStaticPaths() {
-  const { data: events, error } = await supabase.from('events').select('*');
+export const prerender = false;
 
-  if (error) {
-    console.error('Failed to load events for static paths:', error.message);
-    return [];
-  }
+const { slug } = Astro.params;
+const { data: event, error } = await supabase.from('events').select('*').eq('slug', slug).single();
 
-  return (events ?? []).map((event) => ({
-    params: { slug: event.slug },
-    props: { event },
-  }));
+if (error || !event) {
+  console.error('Failed to load event:', error?.message ?? `No event found for slug ${slug}`);
+  return Astro.redirect('/events');
 }
 
-const { event } = Astro.props;
+const { count: registrationCount, error: countError } = await supabase
+  .from('registrations')
+  .select('id', { count: 'exact', head: true })
+  .eq('event_id', event.id);
+
+if (countError) {
+  console.error('Failed to load registration count:', countError.message);
+}
 
 const formattedDate = new Date(event.date).toLocaleDateString('en-IN', {
   day: 'numeric',
@@ -26,9 +30,9 @@ const formattedDate = new Date(event.date).toLocaleDateString('en-IN', {
   year: 'numeric',
 });
 
-const deadlinePassed =
-  event.registration_deadline && new Date(event.registration_deadline) < new Date();
-const canRegister = event.registration_open && !deadlinePassed;
+const registrationStatus = getRegistrationStatus(event, registrationCount ?? 0);
+const deadlinePassed = registrationStatus.deadlinePassed;
+const canRegister = registrationStatus.canRegister;
 
 const isTeamEvent = Boolean(event.is_team_event);
 const minTeamSize: number | null = event.min_team_size ?? null;
@@ -87,7 +91,7 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     <div class="registration-shell noise-overlay p-5 md:p-8">
       {!canRegister && (
         <p class="registration-closed-copy">
-          {deadlinePassed ? 'Registration has closed for this event.' : "Registration isn't open yet."}
+          {getRegistrationStatusLabel(registrationStatus)}
         </p>
       )}
 
@@ -862,8 +866,6 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
 </style>
 
 <script>
-  import { supabase } from '../../../lib/supabase.js';
-
   const form = document.getElementById('registration-form');
   const status = document.getElementById('registration-status');
   const teamMembersList = document.getElementById('team-members-list');
@@ -1189,6 +1191,7 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
     if (minTeamSize && totalMembers < minTeamSize) {
       if (status) {
         status.textContent = `This event needs at least ${minTeamSize} members per team (including you) — you currently have ${totalMembers}.`;
+        if (error.error) status.textContent = error.error;
         status.classList.add('text-red-300');
       }
       return;
@@ -1232,7 +1235,14 @@ const registrationSteps = isTeamEvent ? ['Details', 'Team', 'Confirm'] : ['Detai
       })),
     ];
 
-    const { data: inserted, error } = await supabase.from('registrations').insert(rows).select('ticket_id');
+    const response = await fetch('/api/register-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventId, rows }),
+    });
+    const result = await response.json().catch(() => ({}));
+    const inserted = result.registrations;
+    const error = response.ok ? null : result;
 
     if (error) {
       if (status) {

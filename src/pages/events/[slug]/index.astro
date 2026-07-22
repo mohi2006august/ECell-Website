@@ -3,22 +3,26 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import BackgroundShader from '../../../components/BackgroundShader.astro';
 import Navbar from '../../../components/Navbar.astro';
 import { supabase } from '../../../lib/supabase.js';
+import { getRegistrationStatus, getRegistrationStatusLabel } from '../../../lib/eventStatus.js';
 
-export async function getStaticPaths() {
-  const { data: events, error } = await supabase.from('events').select('*');
+export const prerender = false;
 
-  if (error) {
-    console.error('Failed to load events for static paths:', error.message);
-    return [];
-  }
+const { slug } = Astro.params;
+const { data: event, error } = await supabase.from('events').select('*').eq('slug', slug).single();
 
-  return (events ?? []).map((event) => ({
-    params: { slug: event.slug },
-    props: { event },
-  }));
+if (error || !event) {
+  console.error('Failed to load event:', error?.message ?? `No event found for slug ${slug}`);
+  return Astro.redirect('/events');
 }
 
-const { event } = Astro.props;
+const { count: registrationCount, error: countError } = await supabase
+  .from('registrations')
+  .select('id', { count: 'exact', head: true })
+  .eq('event_id', event.id);
+
+if (countError) {
+  console.error('Failed to load registration count:', countError.message);
+}
 
 const formattedDate = new Date(event.date).toLocaleDateString('en-IN', {
   day: 'numeric',
@@ -26,9 +30,9 @@ const formattedDate = new Date(event.date).toLocaleDateString('en-IN', {
   year: 'numeric',
 });
 
-const deadlinePassed =
-  event.registration_deadline && new Date(event.registration_deadline) < new Date();
-const canRegister = Boolean(event.registration_open && !deadlinePassed);
+const registrationStatus = getRegistrationStatus(event, registrationCount ?? 0);
+const deadlinePassed = registrationStatus.deadlinePassed;
+const canRegister = registrationStatus.canRegister;
 
 let countdownTarget: string | null = null;
 let countdownLabel = '';
@@ -123,7 +127,7 @@ const chiefGuest =
             </a>
           ) : (
             <span class="event-closed-pill">
-              {deadlinePassed ? 'Registration closed' : "Registration isn't open yet"}
+              {getRegistrationStatusLabel(registrationStatus)}
             </span>
           )}
           <a href="#details" id="know-more-link" class="hero-action stroke-button stroke-button-muted">

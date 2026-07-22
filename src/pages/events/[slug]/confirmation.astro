@@ -4,21 +4,16 @@ import BackgroundShader from '../../../components/BackgroundShader.astro';
 import Navbar from '../../../components/Navbar.astro';
 import { supabase } from '../../../lib/supabase.js';
 
-export async function getStaticPaths() {
-  const { data: events, error } = await supabase.from('events').select('slug, title');
+export const prerender = false;
 
-  if (error) {
-    console.error('Failed to load events for static paths:', error.message);
-    return [];
-  }
+const { slug } = Astro.params;
+const { data: event, error } = await supabase.from('events').select('title').eq('slug', slug).single();
 
-  return (events ?? []).map((event) => ({
-    params: { slug: event.slug },
-    props: { eventTitle: event.title },
-  }));
+if (error) {
+  console.error('Failed to load confirmation event title:', error.message);
 }
 
-const { eventTitle } = Astro.props;
+const eventTitle = event?.title ?? 'Event';
 ---
 
 <BaseLayout title={`E-Cell VJIT | Registered for ${eventTitle}`}>

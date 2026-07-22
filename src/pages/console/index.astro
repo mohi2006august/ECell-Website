@@ -3,10 +3,11 @@ export const prerender = false;
 
 import ConsoleLayout from '../../layouts/ConsoleLayout.astro';
 import { supabaseAdmin } from '../../lib/supabaseAdmin.js';
+import { getRegistrationStatus } from '../../lib/eventStatus.js';
 
 const { data: events, error } = await supabaseAdmin
   .from('events')
-  .select('id, title, slug, date, status, registration_open, is_team_event')
+  .select('id, title, slug, date, status, registration_open, registration_deadline, max_participants, is_team_event')
   .order('date', { ascending: false });
 
 const { data: registrationRows } = await supabaseAdmin.from('registrations').select('event_id');
@@ -64,9 +65,18 @@ for (const row of registrationRows ?? []) {
                   {event.registration_open ? 'Open' : 'Closed'}
                 </button>
               </form>
+              <p class="text-xs text-gray-500 mt-1">
+                Public: {getRegistrationStatus(event, countsByEvent.get(event.id) ?? 0).canRegister
+                  ? 'Open'
+                  : getRegistrationStatus(event, countsByEvent.get(event.id) ?? 0).reason === 'full'
+                    ? 'Full'
+                    : 'Closed'}
+              </p>
             </td>
             <td class="px-4 py-3 text-gray-300">{event.is_team_event ? 'Yes' : 'No'}</td>
-            <td class="px-4 py-3 text-gray-300">{countsByEvent.get(event.id) ?? 0}</td>
+            <td class="px-4 py-3 text-gray-300">
+              {countsByEvent.get(event.id) ?? 0}{event.max_participants ? ` / ${event.max_participants}` : ''}
+            </td>
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
                 <a href={`/console/events/${event.id}/edit`} class="text-red-300 hover:text-red-200">Edit</a>

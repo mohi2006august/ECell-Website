@@ -3,17 +3,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import BackgroundShader from '../../components/BackgroundShader.astro';
 import Navbar from '../../components/Navbar.astro';
 import { supabase } from '../../lib/supabase.js';
+import { getRegistrationStatus } from '../../lib/eventStatus.js';
+
+export const prerender = false;
 
 const { data: events, error } = await supabase
   .from('events')
-  .select('id, slug, title, short_description, date, time, venue, mode, poster_url, registration_open, registration_deadline, is_featured')
+  .select('id, slug, title, short_description, date, time, venue, mode, poster_url, registration_open, registration_deadline, max_participants, is_featured')
   .order('date', { ascending: true });
+
+const { data: registrationRows, error: registrationsError } = await supabase
+  .from('registrations')
+  .select('event_id');
 
 if (error) {
   console.error('Failed to load events:', error.message);
 }
 
+if (registrationsError) {
+  console.error('Failed to load registration counts:', registrationsError.message);
+}
+
 const hasEvents = Array.isArray(events) && events.length > 0;
+const countsByEvent = new Map();
+for (const row of registrationRows ?? []) {
+  countsByEvent.set(row.event_id, (countsByEvent.get(row.event_id) ?? 0) + 1);
+}
 
 const formatEventDate = (date: string) => new Date(date).toLocaleDateString('en-IN', {
   day: 'numeric',
@@ -21,10 +36,8 @@ const formatEventDate = (date: string) => new Date(date).toLocaleDateString('en-
   year: 'numeric'
 });
 
-const isRegistrationLive = (event: Record<string, any>) => {
-  const deadlinePassed = event.registration_deadline && new Date(event.registration_deadline) < new Date();
-  return Boolean(event.registration_open && !deadlinePassed);
-};
+const registrationStatusFor = (event: Record<string, any>) =>
+  getRegistrationStatus(event, countsByEvent.get(event.id) ?? 0);
 ---
 
 <BaseLayout title="E-Cell VJIT | Events">
@@ -64,11 +77,13 @@ const isRegistrationLive = (event: Record<string, any>) => {
                 <span>{formatEventDate(event.date)}</span>
                 <span>{event.venue}</span>
               </div>
-              {isRegistrationLive(event) && (
+              {registrationStatusFor(event).canRegister && (
                 <span class="event-card-status">Registration open</span>
               )}
-              {!isRegistrationLive(event) && (
-                <span class="event-card-status event-card-status-muted">Registration closed</span>
+              {!registrationStatusFor(event).canRegister && (
+                <span class="event-card-status event-card-status-muted">
+                  {registrationStatusFor(event).reason === 'full' ? 'Registration full' : 'Registration closed'}
+                </span>
               )}
             </div>
           </a>
