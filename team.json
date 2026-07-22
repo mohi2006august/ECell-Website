@@ -145,8 +145,8 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524157/tania_ihr0m4.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
-        "instagram": ""
+        "linkedin": "https://www.linkedin.com/in/tania-viquar-1473z/",
+        "instagram": "https://www.instagram.com/tania_viquar/?utm_source=ig_web_button_share_sheet"
       },
       "tagline": ""
     },
@@ -161,7 +161,7 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524158/kashyap_pxhmcg.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
+        "linkedin": "https://www.linkedin.com/in/kashyap-devulapalli-b23755344/",
         "instagram": ""
       },
       "tagline": ""
@@ -177,8 +177,8 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777634083/saiusesgithub_o7yuxu.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
-        "instagram": ""
+        "linkedin": "https://www.linkedin.com/in/saisrujanpunati/",
+        "instagram": "https://www.instagram.com/__saisrujan__?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
       },
       "tagline": ""
     },
@@ -193,8 +193,8 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777636827/illyaz_mrs6xz.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
-        "instagram": ""
+        "linkedin": "https://www.linkedin.com/in/syediliyaz18/",
+        "instagram": "https://www.instagram.com/its___iliyaz/"
       },
       "tagline": ""
     },
@@ -210,7 +210,7 @@
       "socials": {
         "github": "",
         "linkedin": "",
-        "instagram": ""
+        "instagram": "https://www.instagram.com/sha.shxk/"
       },
       "tagline": ""
     },
@@ -225,8 +225,8 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777634609/tanvi_documentation_hsxhvl.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
-        "instagram": ""
+        "linkedin": "https://www.linkedin.com/in/tanvi-gorge-4024672a2?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
+        "instagram": "https://www.instagram.com/tanvi.gorge/?utm_source=ig_web_button_share_sheet"
       },
       "tagline": ""
     },
@@ -241,8 +241,8 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524158/sameera_xpvmxf.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
-        "instagram": ""
+        "linkedin": "https://www.linkedin.com/in/sameera-shaik-189baa355/",
+        "instagram": "https://www.instagram.com/samiiifr/"
       },
       "tagline": ""
     },
@@ -257,8 +257,8 @@
       "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784524157/aldrin_v4orhx.jpg",
       "socials": {
         "github": "",
-        "linkedin": "",
-        "instagram": ""
+        "linkedin": "https://www.linkedin.com/in/aldrin-paul-ba7baa351/",
+        "instagram": "https://www.instagram.com/aldrin_paul_25/"
       },
       "tagline": ""
     }
@@ -271,7 +271,7 @@
         "role": "Tech Team Member",
         "team": "tech",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A05A9",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478003/Jaswanth_Reddy_ybsqu0.jpg",
         "socials": {
@@ -287,7 +287,7 @@
         "role": "Tech Team Member",
         "team": "tech",
         "branch": "AIML",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A66G7 ",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478027/MOHAMMED_MOHIUDDIN_lsyzgu.jpg",
         "socials": {
@@ -303,12 +303,44 @@
         "role": "Tech Team Member",
         "team": "tech",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A05E0",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478009/Chandrakiran_Budige_mfhjrc.jpg",
         "socials": {
           "github": "https://github.com/chandu0302",
           "linkedin": "https://www.linkedin.com/in/chandrakiran-budige-377ab9313/https://www.linkedin.com/in/chandrakiran-budige-377ab9313/",
+          "instagram": ""
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
+      },
+      {
+        "id": "pavan-karthikeya",
+        "name": "Pavan Karthikeya",
+        "role": "Tech Team Member",
+        "team": "tech",
+        "branch": "IT",
+        "year": "3rd Year",
+        "roll_number": "",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784733653/pavanakarthikeya_ulta4d.jpg",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "instagram": ""
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
+      },
+      {
+        "id": "abdullah-aarif-sheikh",
+        "name": "Abdullah Aarif Sheikh",
+        "role": "Tech Team Member",
+        "team": "tech",
+        "branch": "AI",
+        "year": "4th Year",
+        "roll_number": "",
+        "image": "",
+        "socials": {
+          "github": "",
+          "linkedin": "",
           "instagram": ""
         },
         "tagline": "Part of E-Cell VJIT 🚀"
@@ -321,7 +353,7 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05B7",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478023/Saad_Saleem_mbhfzu.jpg",
         "socials": {
@@ -337,7 +369,7 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "AIML",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A66G6",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478023/Hema_sathvika_Nadapana_mmyj7z.jpg",
         "socials": {
@@ -353,7 +385,7 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "AIML",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A66A3",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478007/Shiraz_y8qkkq.jpg",
         "socials": {
@@ -369,7 +401,7 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "Mechanical ",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A0330 ",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478007/V.A_Lakshmi_Narasimha_cybt0j.jpg",
         "socials": {
@@ -385,7 +417,7 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A05A6",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478016/ruthika_pulugu_syqbr9.jpg",
         "socials": {
@@ -401,7 +433,7 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A0509",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478023/Bora_Brijesh_b93fz0.jpg",
         "socials": {
@@ -417,13 +449,45 @@
         "role": "Digital Team Member",
         "team": "digital",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05N6",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478023/Manasvi_Neerudi_tndpxr.jpg",
         "socials": {
           "github": "",
           "linkedin": "https://www.linkedin.com/in/manasvi-n-651479387?utm_source=share_via&utm_content=profile&utm_medium=member_android",
           "instagram": "https://www.instagram.com/_manasvi_.13?igsh=MWI2cmwxaDJrczlsYw=="
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
+      },
+      {
+        "id": "p-rishi",
+        "name": "P Rishi",
+        "role": "Digital Team Member",
+        "team": "digital",
+        "branch": "EEE",
+        "year": "2nd Year",
+        "roll_number": "",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478021/Rishi_Pilla_wzzjyn.jpg",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "instagram": ""
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
+      },
+      {
+        "id": "sayeed-naveed-ahmed",
+        "name": "Sayeed naveed Ahmed",
+        "role": "Digital Team Member",
+        "team": "digital",
+        "branch": "CSE",
+        "year": "3rd Year",
+        "roll_number": "",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777477998/Syed_Naveed_Ahmed_kq9tk1.jpg",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "instagram": ""
         },
         "tagline": "Part of E-Cell VJIT 🚀"
       }
@@ -435,7 +499,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A0588",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478006/Himani_Patel_uhghxi.jpg",
         "socials": {
@@ -451,7 +515,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05D3",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478013/Ananya_L_es8o37.jpg",
         "socials": {
@@ -467,7 +531,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A0565",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478022/Divya_Swara_e6ktjt.jpg",
         "socials": {
@@ -483,7 +547,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "IT",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A12D1",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478006/Akshitha_lhumci.jpg",
         "socials": {
@@ -499,7 +563,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "AIML",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A66D3",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478012/Sathvika_Aitha_pc6uiu.jpg",
         "socials": {
@@ -515,7 +579,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "AIML",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A66H8",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478007/Humayrah_Nuzhat_afdbq4.jpg",
         "socials": {
@@ -531,7 +595,7 @@
         "role": "Creative Team Member",
         "team": "creative",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05H3",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478000/Manogna_nvdtxm.jpg",
         "socials": {
@@ -549,7 +613,7 @@
         "role": "HR & Documentation Team Member",
         "team": "documentation",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A0590",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777477866/K._T_Akshitha_v8f5yg.jpg",
         "socials": {
@@ -565,7 +629,7 @@
         "role": "HR & Documentation Team Member",
         "team": "documentation",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05K9",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478005/Ashle_Seby_ixbxuu.jpg",
         "socials": {
@@ -581,7 +645,7 @@
         "role": "HR & Documentation Team Member",
         "team": "documentation",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A0573",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777477999/siri_beesu_mi3nk8.jpg",
         "socials": {
@@ -597,7 +661,7 @@
         "role": "HR & Documentation Team Member",
         "team": "documentation",
         "branch": "IT",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A1235 ",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478004/MANNEM_YASHASVI_fhdbvb.jpg",
         "socials": {
@@ -613,13 +677,29 @@
         "role": "HR & Documentation Team Member",
         "team": "documentation",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05R6",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478004/SHREYAS_TADISINA_kedhme.jpg",
         "socials": {
           "github": "",
           "linkedin": "https://www.linkedin.com/in/shreyas-tadisina?utm_source=share_via&utm_content=profile&utm_medium=member_android",
           "instagram": "https://www.instagram.com/shreyas__200829?igsh=MW54ZjZ3ZW93em9lNA=="
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
+      },
+      {
+        "id": "raja-sushanth",
+        "name": "Raja Sushanth",
+        "role": "HR & Documentation Team Member",
+        "team": "documentation",
+        "branch": "AIML",
+        "year": "2nd Year",
+        "roll_number": "",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784733157/RajaSushanth_wjw1x3.jpg",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "instagram": ""
         },
         "tagline": "Part of E-Cell VJIT 🚀"
       }
@@ -631,7 +711,7 @@
         "role": "Marketing Team Member",
         "team": "marketing",
         "branch": "DS",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A67A5",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478012/Grace_Nanne_gjleph.jpg",
         "socials": {
@@ -647,7 +727,7 @@
         "role": "Marketing Team Member",
         "team": "marketing",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A05P9 ",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777477944/nishtha_gaur_iet81z.jpg",
         "socials": {
@@ -663,7 +743,7 @@
         "role": "Marketing Team Member",
         "team": "marketing",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A0511",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777477852/ch_varshith_edxfrt.jpg",
         "socials": {
@@ -672,6 +752,38 @@
           "instagram": "https://www.instagram.com/varshith_chiluveri?igsh=OGhmcHJ0dzhvdjdv"
         },
         "tagline": "Trust the process"
+      },
+      {
+        "id": "riya-jha",
+        "name": "Riya Jha",
+        "role": "Marketing Team Member",
+        "team": "marketing",
+        "branch": "IT",
+        "year": "2nd Year",
+        "roll_number": "",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784733163/RiyaJha_cipdgz.png",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "instagram": ""
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
+      },
+      {
+        "id": "saif",
+        "name": "Saif",
+        "role": "Marketing Team Member",
+        "team": "marketing",
+        "branch": "CSE",
+        "year": "2nd Year",
+        "roll_number": "",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1784733158/Saif_hgnd7j.jpg",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "instagram": ""
+        },
+        "tagline": "Part of E-Cell VJIT 🚀"
       }
     ],
     "event_management": [
@@ -681,7 +793,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "IT",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A1205",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478022/Arolla_Harika_sgh8ow.jpg",
         "socials": {
@@ -697,7 +809,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911a0578",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478024/Plintoff_ecell_uhy5ei.jpg",
         "socials": {
@@ -713,7 +825,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05C0",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478013/Sangam_Singh_knzr1k.jpg",
         "socials": {
@@ -729,7 +841,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "ECE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A04B7",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478025/Sameeksha_Thakur_fsy2oa.jpg",
         "socials": {
@@ -745,7 +857,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A0587",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478001/Sai_Pranathi_ba77fr.jpg",
         "socials": {
@@ -761,9 +873,9 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "ECE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A04A9",
-        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478021/Rishi_Pilla_wzzjyn.jpg",
+        "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478001/Rushitha_ac2npw.jpg",
         "socials": {
           "github": "",
           "linkedin": "https://www.linkedin.com/in/rushitha-pasam-55074b319/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3Bdk5HAIXtSo2xrcLW7HP5IA%3D%3D",
@@ -777,7 +889,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "ECE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A0452",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478017/Yashwanth_Rasala_zsfqlq.jpg",
         "socials": {
@@ -793,7 +905,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "DS",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A67A7",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478003/Zirice_Nothing_tvejux.jpg",
         "socials": {
@@ -809,7 +921,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "CSE",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A05H5",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478001/Pulla_Kruthi_znpzts.jpg",
         "socials": {
@@ -825,7 +937,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "AIML",
-        "year": "1 Year Year",
+        "year": "2nd Year",
         "roll_number": "25911A66G6 ",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478005/Abdul_Muqtadir_opgbja.jpg",
         "socials": {
@@ -841,7 +953,7 @@
         "role": "Event Management Team Member",
         "team": "event_management",
         "branch": "CSE",
-        "year": "2 Year Year",
+        "year": "3rd Year",
         "roll_number": "24911A05R6",
         "image": "https://res.cloudinary.com/dy8vyfooj/image/upload/v1777478017/Bhavya_koduri_bd2gkq.jpg",
         "socials": {
